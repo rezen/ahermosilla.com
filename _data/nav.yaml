@@ -1,0 +1,11 @@
+- title: /root
+  url: /
+
+- title: /about
+  url: /about/
+
+- title: /categories
+  url: /categories/
+
+- title: /tags
+  url: /tags/

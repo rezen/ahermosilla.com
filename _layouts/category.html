@@ -1,0 +1,19 @@
+---
+layout: default
+---
+<h1>{{ page.title }}</h1>
+
+{% unless page.content == '' %}
+  <p>{{ page.content }}</p>
+{% endunless %}
+
+<ul>
+{% for category in site[page.archive] %}
+  <li id="{{ page.archive }}-{{ category | first | remove:' ' }}">
+    <span class="category-count">{{ category | last | size }}</span>
+    <a href="/{{ page.archive }}/{{ category | first | downcase }}/">
+      {{ category | first }}
+    </a>
+  </li>
+{% endfor %}
+</ul>

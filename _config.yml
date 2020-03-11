@@ -1,0 +1,45 @@
+title: Andres Hermosilla | brain --archive
+email: andres@ahermosilla.com
+description: > 
+  Hi there, this is where I archive some of my brain records
+  on development and design topics I've been working through.
+  Some of these thoughts are raw as I'm evolving and others 
+  are refined from years of experience.
+baseurl: ""
+url: "http://ahermosilla.com"
+twitter_username: dandr3ss
+github_username:  rezen
+markdown: kramdown
+env: production
+google_analytics: UA-33398574-1
+
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter_opts:
+    disable: false
+
+gems:
+  - jekyll-feed
+  - jekyll-gist
+  - jekyll-twitter-plugin
+  - jekyll-archives
+  - jekyll-toc
+
+exclude:
+  - deploy.sh
+  - Gemfile
+  - Gemfile.lock
+  - .git
+
+gist:
+  noscript: false
+
+jekyll-archives:
+  enabled:
+    - categories
+    - tags
+  layout: 'archive'
+  permalinks:
+    tag: '/tags/:name/'
+    category: '/categories/:name/'

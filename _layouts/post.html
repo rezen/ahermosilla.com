@@ -1,0 +1,39 @@
+---
+layout: default
+---
+<article id="post-{{ page.slug }}" class="post post-single {{ page.post_class }}" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">{{ page.title | escape }}</h1>
+    <section class="post-meta">
+      {% if page.author %}
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <span itemprop="name">{{ page.author }}</span>
+        </span>
+      {% endif %}
+      <time class="post-date" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+        {{ page.date | date: "%B %d, %Y" }}
+      </time>
+
+
+
+      {% if page.tags %}
+        {% include tags.html %}
+      {% endif %}
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    {% if page.modified_at %}
+    <div class="post-notice">
+      Updated 
+      <time class="post-date-updated" datetime="{{ page.modified_at| date_to_xmlschema }}" itemprop="dateUpdated">
+        {{ page.modified_at | date: "%B %d, %Y" }}
+      </time>
+    </div>
+    {% endif %}
+    {{ content }}
+  </section>
+
+  {% if site.disqus.shortname %}
+    {% include disqus_comments.html %}
+  {% endif %}
+</article>

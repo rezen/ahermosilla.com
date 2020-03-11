@@ -1,0 +1,68 @@
+==================================================================
+https://keybase.io/rezen
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://ahermosilla.com
+  * I am rezen (https://keybase.io/rezen) on keybase.
+  * I have a public key with fingerprint C4C1 2B93 6D91 CD53 5DEB  D31B C2E6 DEA0 5DA0 698A
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "01013b3275bc33bde7d7b1d9294372903d491a77100b4f52f83679a187623d3f4af90a",
+            "fingerprint": "c4c12b936d91cd535debd31bc2e6dea05da0698a",
+            "host": "keybase.io",
+            "key_id": "c2e6dea05da0698a",
+            "kid": "01013b3275bc33bde7d7b1d9294372903d491a77100b4f52f83679a187623d3f4af90a",
+            "uid": "e6d63e00fcf0001134a04123df0c0a19",
+            "username": "rezen"
+        },
+        "service": {
+            "hostname": "ahermosilla.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1466019337,
+    "expire_in": 157680000,
+    "prev": "ac97bf1344c6a7c2b35a240617a37028adf833b9c2a482cc15d53452cc5fb3de",
+    "seqno": 5,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.53
+Comment: https://keybase.io/crypto
+
+yMInAnicrVJbSFRBGN5N7bIaCGU36MI8CZnMnDnX7YaG0MUoMDQw2ubMzNk9uZ6z
+nd01dbGH6OZDRaUV1lMlUUIRQVFGWdmDmSFCRNrFIIpS2h6i6AI1R+qtx55m5v+/
+7/u//5+/d3pOIBTcelQPdb0bqQv23z2eDtSQS9MywHRZEwhnQB2fOHic8WQqUmcz
+EAYQQYRNLGmKSTE2GdeYZiJmSIaMNcmAmMkGIpqGIDRlS5EsHauaQZCuqRJm2JKJ
+ZUACSoBlO1HuJTzbSQlZKlMkmQZWmYEoU7DCuMkwMqnEVcYJVBiBqqH7xJib9BnC
+nEmSvNR2RUw8IhP2/oH/z77TE3Kiioo5hBa1IIQIYZlAGQmkBSkkyPCBSe45pJ4L
+tMebuQNaSoAINdiU+1P12/iTJjHu1btJOx4npdStF9yE56Zc6sZFMpZKJcI+N9WU
+8ME7uRn5IxMxbYeJMQpCA/eStuuAMBJImrJ9XSSrKkQGxloJ4I0J2+MR20comqoL
+09Avwxv8+tTQTEv0IFOVaFQysUIkGapII1iDkk6YmAY2DSoRWZcoRYr4IVkRN8Uy
+MePAb2yH44KwImySqJBM2lGHpNIeBy33erbkBoKhwOS8Sf56BULTCv8u3fPtUwMP
+x96Xg5yfm0YeBdtjtXndw2vG2EAbf3eknHScz1s3eWBoTnhG+NP5vgMFo5sqgtMr
+lSUnv1ecPva2LXq5cF/BlOqfKy59MJ4+aer8NXquZ3jbg7I7nc+OHFqwoe31Y69z
+PBTLb1lacAbcChUr2cX9fbPPGBWzLrRfO1t15UXV5kY10z+U/y3bOlL6eqe78Ctw
+Nlzdnzu4qya0Yrxev9h17Mv9z7uHaWM6v3ug7HbHzPGbmdbBs/uyyrcXo5MKY2+q
+vySjRUMb+1pfXYWv9nQt+NF7eFHROf3T8myll197PTRWvnde8cv1kVXLam7M3723
+6trHr81zwZITaz/nrpZyVh5MG6d+A0I4P3M=
+=lSWF
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/rezen
+
+==================================================================
