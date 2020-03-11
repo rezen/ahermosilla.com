@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Inspecting Windows with cli!</title>
+  <meta name="description" content="WMI Powershell Hardware Network Processes I’m pretty green when it comes to knowledge of windows commands &amp;amp; cli tools. From the security perspective, a l...">
+  <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://ahermosilla.com/tools/2017/01/21/windows-commands.html">
+  <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33398574-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+    <header class="site-header" role="banner">
+  <div class="wrapper">
+    <span class="post-path">
+      <a href="/">2017-01-21-windows-commands.md</a>
+    </span>
+    <nav class="site-nav">
+      <a class="menu-trigger">Menu</a>
+      <div class="menu-items">
+        
+          <a class="page-link" href="/">/root</a>
+        
+          <a class="page-link" href="/about/">/about</a>
+        
+          <a class="page-link" href="/categories/">/categories</a>
+        
+          <a class="page-link" href="/tags/">/tags</a>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main class="page-content">
+      <div class="wrapper" aria-label="Content">
+        <article id="post-windows-commands" class="post post-single category-toolstag-windows" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Inspecting Windows with cli!</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2017-01-21T00:00:00-08:00" itemprop="datePublished">
+        January 21, 2017
+      </time>
+
+
+
+      
+        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/windows/">windows</a></li>
+    
+</ul>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <div class="post-notice">
+      Updated 
+      <time class="post-date-updated" datetime="2017-02-10T16:02:54-08:00" itemprop="dateUpdated">
+        February 10, 2017
+      </time>
+    </div>
+    
+    <ul id="markdown-toc">
+  <li><a href="#wmi" id="markdown-toc-wmi">WMI</a>    <ul>
+      <li><a href="#powershell" id="markdown-toc-powershell">Powershell</a></li>
+    </ul>
+  </li>
+  <li><a href="#hardware" id="markdown-toc-hardware">Hardware</a></li>
+  <li><a href="#network" id="markdown-toc-network">Network</a></li>
+  <li><a href="#processes" id="markdown-toc-processes">Processes</a></li>
+</ul>
+
+<p>I’m pretty green when it comes to knowledge of windows commands &amp; cli tools.
+From the security perspective, a large percent of businesses/corporations run 
+windows on their platform, so some basic tools to introduce ideas is helpful!</p>
+
+<h3 id="wmi">WMI</h3>
+<p>With the command line you can use <code class="highlighter-rouge">wmic</code> or <code class="highlighter-rouge">powershell</code> to utilize WMI (Windows Management Instrumentation) which can give you insight into all sorts of things about your system!</p>
+
+<ul>
+  <li><a rel="external" href="https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/">https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/</a></li>
+  <li><a rel="external" href="http://www.dedoimedo.com/computers/windows-wmic.html">http://www.dedoimedo.com/computers/windows-wmic.html</a></li>
+  <li><a rel="external" href="http://people.virginia.edu/~rtg2t/winadmin/wmic.html">http://people.virginia.edu/~rtg2t/winadmin/wmic.html</a></li>
+</ul>
+
+<p><strong>Get Windows Version</strong></p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>wmic os get Name,Version,BuildNumber,OSArchitecture,InstallDate
+BuildNumber  InstallDate                Name                             OSArchitecture  Version
+14393        20161028165102.000000-420  Microsoft Windows 10 Enterprise  64-bit          10.0.14393
+</code></pre>
+</div>
+
+<h4 id="powershell">Powershell</h4>
+<p>@todo Fill this out more!</p>
+
+<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>:: List available objects
+<span class="nb">Get-WmiObject</span> -List
+
+:: Logged on users
+<span class="nb">Get-WmiObject </span>Win32_LoggedOnUser
+
+:: Users ...
+<span class="nb">Get-WmiObject </span>Win32_SystemUsers
+
+:: Get processes
+<span class="nb">Get-WmiObject </span>Win32_Process | <span class="nb">Format-Table</span> -Wrap -Property Name,Path,ExecutablePath,ProcessId,CreationDate
+
+:: What is running <span class="k">in </span>startup?
+<span class="nb">Get-WmiObject </span>Win32_StartupCommand
+</code></pre>
+</div>
+
+<h3 id="hardware">Hardware</h3>
+<p>I used to always use cpu-z to id the hardware, but there are plenty of other tools to
+figure out hardware is on the system you’re using.</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>systeminfo
+
+Host Name:                 REZEN
+OS Name:                   Microsoft Windows 7 Professional
+OS Version:                6.1.7601 Service Pack 1 Build 7601
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Workstation
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Andres
+Registered Organization:
+Product ID:                00371-153-6150126-85809
+Original Install Date:     2/18/2013, 10:21:17 PM
+System Boot Time:          1/31/2017, 9:22:30 PM
+System Manufacturer:       To Be Filled By O.E.M.
+System Model:              To Be Filled By O.E.M.
+System Type:               x64-based PC
+Processor<span class="o">(</span>s<span class="o">)</span>:              1 Processor<span class="o">(</span>s<span class="o">)</span> Installed.
+                           <span class="o">[</span>01]: AMD64 Family 16 Model 4 Stepping 2 AuthenticAMD ~3000 Mhz
+BIOS Version:              American Megatrends Inc. P1.90, 5/24/2010
+Windows Directory:         C:<span class="se">\W</span>indows
+System Directory:          C:<span class="se">\W</span>indows<span class="se">\s</span>ystem32
+Boot Device:               <span class="se">\D</span>evice<span class="se">\H</span>arddiskVolume3
+System Locale:             en-us;English <span class="o">(</span>United States<span class="o">)</span>
+Input Locale:              en-us;English <span class="o">(</span>United States<span class="o">)</span>
+Time Zone:                 <span class="o">(</span>UTC-08:00<span class="o">)</span> Pacific Time <span class="o">(</span>US &amp; Canada<span class="o">)</span>
+.....
+</code></pre>
+</div>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>wmic memphysical get MaxCapacity
+MaxCapacity
+16777216
+</code></pre>
+</div>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>wmic baseboard list /format:LIST
+
+
+<span class="nv">ConfigOptions</span><span class="o">=</span>
+<span class="nv">Depth</span><span class="o">=</span>
+<span class="nv">Description</span><span class="o">=</span>Base Board
+<span class="nv">Height</span><span class="o">=</span>
+<span class="nv">HostingBoard</span><span class="o">=</span>TRUE
+<span class="nv">HotSwappable</span><span class="o">=</span>FALSE
+<span class="nv">InstallDate</span><span class="o">=</span>
+<span class="nv">Manufacturer</span><span class="o">=</span>ASRock
+<span class="nv">Model</span><span class="o">=</span>
+<span class="nv">Name</span><span class="o">=</span>Base Board
+<span class="nv">OtherIdentifyingInfo</span><span class="o">=</span>
+<span class="nv">PartNumber</span><span class="o">=</span>
+<span class="nv">PoweredOn</span><span class="o">=</span>TRUE
+<span class="nv">Product</span><span class="o">=</span>A780FullDisplayPort
+<span class="nv">Removable</span><span class="o">=</span>FALSE
+<span class="nv">Replaceable</span><span class="o">=</span>TRUE
+<span class="nv">RequiresDaughterBoard</span><span class="o">=</span>FALSE
+<span class="nv">SpecialRequirements</span><span class="o">=</span>
+<span class="nv">Status</span><span class="o">=</span>OK
+<span class="nv">Tag</span><span class="o">=</span>Base Board
+</code></pre>
+</div>
+
+<h3 id="network">Network</h3>
+<p>On linux <code class="highlighter-rouge">tcpdump</code> and <code class="highlighter-rouge">netstat</code> are gold but on Windows the you have different tools. Well, there is netstat, but it’s different.</p>
+
+<ul>
+  <li><a rel="external" href="https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/">https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/</a></li>
+</ul>
+
+<p>Instead of <code class="highlighter-rouge">tcpdump</code> you can use <code class="highlighter-rouge">netsh</code> to capture traffic</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>netsh trace start capture=yes
+netsh trace stop
+</code></pre>
+</div>
+
+<div class="language-powershell highlighter-rouge"><pre class="highlight"><code><span class="nb">Get-WmiObject </span>Win32_IP4RouteTable | <span class="nb">Format-Table</span> -Wrap -Property Age,Caption,Mask,Destination,Name
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt; netsh int show int
+
+Admin State    State          Type             Interface Name
+-------------------------------------------------------------------------
+Enabled        Connected      Dedicated        VirtualBox Host-Only Network
+Enabled        Connected      Dedicated        Npcap Loopback Adapter
+Enabled        Connected      Dedicated        VirtualBox Host-Only Network #2
+Enabled        Connected      Dedicated        VirtualBox Host-Only Network #3
+Enabled        Connected      Dedicated        Ethernet 2
+Enabled        Connected      Dedicated        vEthernet (DockerNAT)
+</code></pre>
+</div>
+
+<p>Quickly find gateway address</p>
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netsh interface ip show config | findstr <span class="s2">"Default"</span>
+    Default Gateway:                      10.15.128.1
+</code></pre>
+</div>
+
+<p>Let’s find DNS!</p>
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netsh interface ip show config | findstr <span class="s2">"DNS"</span>
+    DNS servers configured through DHCP:  10.8.1.90
+    Statically Configured DNS Servers:    192.168.1.104
+    Statically Configured DNS Servers:    None
+    Statically Configured DNS Servers:    None
+    Statically Configured DNS Servers:    None
+    Statically Configured DNS Servers:    None
+</code></pre>
+</div>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netsh interface ipv4 show tcpconnections
+
+MIB-II TCP Connection Entry
+Local Address   Local Port      Remote Address  Remote Port     State
+-----------------------------------------------------------------------------
+        0.0.0.0       22               0.0.0.0          0       Listen
+        0.0.0.0      135               0.0.0.0          0       Listen
+      10.0.75.1      139               0.0.0.0          0       Listen
+  10.15.130.204      139               0.0.0.0          0       Listen
+ 169.254.54.117      139               0.0.0.0          0       Listen
+      127.0.0.1     2201               0.0.0.0          0       Listen
+      127.0.0.1     2202             127.0.0.1      10240  Established
+      127.0.0.1     2202             127.0.0.1      13370  Established
+      127.0.0.1     2202               0.0.0.0          0       Listen
+      127.0.0.1     2222             127.0.0.1      14513  Established
+      127.0.0.1     2222               0.0.0.0          0       Listen
+  10.15.130.204     3144         65.52.108.195        443  Established
+</code></pre>
+</div>
+
+<p><strong>netstat</strong> which is familiar is on Windows!</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netstat -ab
+
+Active Connections
+
+  Proto  Local Address          Foreign Address        State
+  TCP    0.0.0.0:22             console-10:0           LISTENING
+  SshProxy
+ <span class="o">[</span>svchost.exe]
+  TCP    0.0.0.0:135            console-10:0           LISTENING
+  RpcSs
+ <span class="o">[</span>svchost.exe]
+  TCP    0.0.0.0:445            console-10:0           LISTENING
+ Can not obtain ownership information
+  TCP    0.0.0.0:1536           console-10:0           LISTENING
+ Can not obtain ownership information
+  TCP    0.0.0.0:1537           console-10:0           LISTENING
+  EventLog
+ <span class="o">[</span>svchost.exe]
+</code></pre>
+</div>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netstat -ao
+
+Active Connections
+
+  Proto  Local Address          Foreign Address        State           PID
+  TCP    0.0.0.0:22             console-10:0           LISTENING       2720
+  TCP    0.0.0.0:135            console-10:0           LISTENING       892
+  TCP    0.0.0.0:445            console-10:0           LISTENING       4
+  TCP    0.0.0.0:1536           console-10:0           LISTENING       592
+  TCP    0.0.0.0:1537           console-10:0           LISTENING       372
+  TCP    0.0.0.0:1538           console-10:0           LISTENING       1332
+  TCP    0.0.0.0:1539           console-10:0           LISTENING       2024
+  TCP    0.0.0.0:1541           console-10:0           LISTENING       732
+  TCP    0.0.0.0:1550           console-10:0           LISTENING       748
+  TCP    0.0.0.0:2179           console-10:0           LISTENING       2680
+  TCP    0.0.0.0:3389           console-10:0           LISTENING       292
+</code></pre>
+</div>
+
+<h3 id="processes">Processes</h3>
+<p>You need to be able to quickly check processes for anything phishy!</p>
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>schtasks
+
+Folder: <span class="se">\</span>
+TaskName                                 Next Run Time          Status
+<span class="o">========================================</span> <span class="o">======================</span> <span class="o">===============</span>
+G2MUpdateTask-S-1-5-21-3622734366-314535 2/10/2017 4:07:00 PM   Ready
+G2MUploadTask-S-1-5-21-3622734366-314535 2/10/2017 4:31:00 PM   Ready
+GoogleUpdateTaskMachineCore              2/11/2017 1:58:09 PM   Ready
+GoogleUpdateTaskMachineUA                2/10/2017 3:58:09 PM   Ready
+klcp_update                              2/25/2017 7:10:00 PM   Ready
+OneDrive Standalone Update Task v2       2/11/2017 4:41:36 PM   Ready
+RtHDVBg_LENOVO_MICPKEY                   N/A                    Running
+RTKCPL                                   N/A                    Running
+
+Folder: <span class="se">\M</span>icrosoft
+TaskName                                 Next Run Time          Status
+<span class="o">========================================</span> <span class="o">======================</span> <span class="o">===============</span>
+INFO: There are no scheduled tasks presently available at your access level.
+
+Folder: <span class="se">\M</span>icrosoft<span class="se">\O</span>ffice
+TaskName                                 Next Run Time          Status
+<span class="o">========================================</span> <span class="o">======================</span> <span class="o">===============</span>
+Office Automatic Updates                 2/12/2017 4:01:03 AM   Ready
+Office ClickToRun Service Monitor        2/11/2017 8:58:46 AM   Ready
+Office Subscription Maintenance          2/11/2017 8:25:18 AM   Ready
+OfficeTelemetryAgentFallBack2016         N/A                    Ready
+OfficeTelemetryAgentLogOn2016            N/A                    Ready
+
+Folder: <span class="se">\M</span>icrosoft<span class="se">\W</span>indows
+TaskName                                 Next Run Time          Status
+<span class="o">========================================</span> <span class="o">======================</span> <span class="o">===============</span>
+INFO: There are no scheduled tasks presently available at your access level.
+
+.....
+</code></pre>
+</div>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>tasklist                                                                        
+                                                                                  
+Image Name                     PID Session Name        Session#    Mem Usage      
+<span class="o">=========================</span> <span class="o">========</span> <span class="o">================</span> <span class="o">===========</span> <span class="o">============</span>      
+System Idle Process              0 Services                   0          4 K      
+System                           4 Services                   0         32 K      
+smss.exe                       324 Services                   0        336 K      
+csrss.exe                      500 Services                   0      1,592 K      
+wininit.exe                    592 Services                   0        836 K      
+csrss.exe                      600 Console                    1      3,972 K      
+winlogon.exe                   680 Console                    1      3,116 K      
+services.exe                   732 Services                   0      4,660 K      
+lsass.exe                      748 Services                   0     10,104 K      
+svchost.exe                    840 Services                   0     10,992 K      
+svchost.exe                    892 Services                   0      8,520 K      
+svchost.exe                    292 Services                   0     19,944 K      
+svchost.exe                    372 Services                   0     17,176 K      
+svchost.exe                    384 Services                   0     15,152 K      
+svchost.exe                   1104 Services                   0     15,980 K      
+nvvsvc.exe                    1140 Services                   0      3,424 K      
+nvSCPAPISvr.exe               1148 Services                   0      2,136 K      
+svchost.exe                   1180 Services                   0     18,308 K      
+svchost.exe                   1332 Services                   0     64,384 K      
+nvxdsync.exe                  1380 Console                    1     13,292 K      
+nvvsvc.exe                    1452 Console                    1      7,852 K      
+svchost.exe                   1960 Services                   0      7,104 K      
+svchost.exe                   2004 Services                   0      1,960 K      
+spoolsv.exe                   2024 Services                   0      8,512 K      
+svchost.exe                   2236 Services                   0     23,336 K      
+com.docker.service            2252 Services                   0      2,552 K      
+dirmngr.exe                   2280 Services                   0      1,568 K      
+IpOverUsbSvc.exe              2296 Services                   0      2,576 K      
+.....
+</code></pre>
+</div>
+
+
+  </section>
+
+  
+</article>
+      </div>
+    </main>
+    <footer id="site-footer">
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1"></div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/rezen"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">rezen</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/dandr3ss"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">dandr3ss</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m evolving and others  are refined from years of experience.
+</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+jQuery(function ($) {
+  // Add anchors to headings that have ids
+  // https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263
+  $('h2,h3,h4,h5,h6').filter('[id]').each(function () {
+    $(this).html('<a href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+  });
+
+  $('.menu-trigger').on('click', function () {
+    $(this).next().toggleClass('expanded');
+  });
+});
+</script>
+  </body>
+</html>

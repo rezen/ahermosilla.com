@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Getting going with Jekyll</title>
+  <meta name="description" content="Requirements Installing jekyll SSL Errors Editing Customizing &amp;amp; Plugins No auto-urlize? Pinning Posts Post CSS Classes Heading Anchors Archives Image Cla...">
+  <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://ahermosilla.com/tools/2016/11/02/starting-jekyll.html">
+  <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33398574-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+    <header class="site-header" role="banner">
+  <div class="wrapper">
+    <span class="post-path">
+      <a href="/">2016-11-02-starting-jekyll.md</a>
+    </span>
+    <nav class="site-nav">
+      <a class="menu-trigger">Menu</a>
+      <div class="menu-items">
+        
+          <a class="page-link" href="/">/root</a>
+        
+          <a class="page-link" href="/about/">/about</a>
+        
+          <a class="page-link" href="/categories/">/categories</a>
+        
+          <a class="page-link" href="/tags/">/tags</a>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main class="page-content">
+      <div class="wrapper" aria-label="Content">
+        <article id="post-starting-jekyll" class="post post-single category-toolstag-tools tag-jekyll" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Getting going with Jekyll</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2016-11-02T00:00:00-07:00" itemprop="datePublished">
+        November 02, 2016
+      </time>
+
+
+
+      
+        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/tools/">tools</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/jekyll/">jekyll</a></li>
+    
+</ul>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <div class="post-notice">
+      Updated 
+      <time class="post-date-updated" datetime="2017-02-10T15:43:10-08:00" itemprop="dateUpdated">
+        February 10, 2017
+      </time>
+    </div>
+    
+    <ul id="markdown-toc">
+  <li><a href="#requirements" id="markdown-toc-requirements">Requirements</a></li>
+  <li><a href="#installing-jekyll" id="markdown-toc-installing-jekyll">Installing jekyll</a>    <ul>
+      <li><a href="#ssl-errors" id="markdown-toc-ssl-errors">SSL Errors</a></li>
+    </ul>
+  </li>
+  <li><a href="#editing" id="markdown-toc-editing">Editing</a></li>
+  <li><a href="#customizing--plugins" id="markdown-toc-customizing--plugins">Customizing &amp; Plugins</a>    <ul>
+      <li><a href="#no-auto-urlize" id="markdown-toc-no-auto-urlize">No auto-urlize?</a></li>
+      <li><a href="#pinning-posts" id="markdown-toc-pinning-posts">Pinning Posts</a></li>
+      <li><a href="#post-css-classes" id="markdown-toc-post-css-classes">Post CSS Classes</a></li>
+      <li><a href="#heading-anchors" id="markdown-toc-heading-anchors">Heading Anchors</a></li>
+      <li><a href="#archives" id="markdown-toc-archives">Archives</a></li>
+      <li><a href="#image-classes" id="markdown-toc-image-classes">Image Classes</a></li>
+      <li><a href="#more" id="markdown-toc-more">More</a></li>
+    </ul>
+  </li>
+  <li><a href="#next-steps" id="markdown-toc-next-steps">Next Steps</a></li>
+</ul>
+
+<p>I’ve been wanting to start blogging for quite some time and decided to finally make the jump.
+I’ve created countless WordPress sites for clients but wanted to go a different route for my own 
+blog. I wanted to use a system that was simple and light and something I didn’t need a db for.
+I wanted something that would let me write markdown files and generate the site from there.
+Nowadays there are so many <a href="https://www.staticgen.com/">static site generators</a> to choose from 
+it is easy to find something that fits your needs. I personally decided to use Jekyll, since it 
+is ubiquitous and has a robust ecosystem. Another nice thing about  Jekyll is you can host your blog on 
+<a href="https://help.github.com/articles/about-github-pages-and-jekyll/">github</a> and it just works<em>*! *(provided you don’t use plugins)</em></p>
+
+<p><strong>An aside, there is an interesting alternative to Jekyll in the nodejs world - Metalsmith</strong>.
+Metalsmith let’s you essentially mix your own functionality with plugins to morph into a
+generator you are used to. Below is an example how to use Metalsmith with a Jekyll structure 
+if you are more inclined to use nodejs tools.</p>
+
+<p><a rel="external" href="https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll">https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll</a></p>
+
+<h2 id="requirements">Requirements</h2>
+<p><em>An aside, there are plenty of guides to tools on Mac, I want to make sure windows users get some love!</em></p>
+
+<p>Jekyll is powered by ruby which you can install on windows/mac/*nix. For windows you can download a Windows 
+specific <a href="http://rubyinstaller.org/">ruby installer</a>  which is an executable to set ruby up. Personally I’m a big 
+fan of <a href="https://chocolatey.org/">chocolatey</a>,  which is a package mananger for windows! (A post on my windows setup coming soon!)</p>
+
+<p>To first install chocolately, run <code class="highlighter-rouge">cmd.exe</code> as an Administrator and run the following command</p>
+
+<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>@powershell -NoProfile -ExecutionPolicy Bypass -Command <span class="s2">"iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"</span> <span class="o">&amp;&amp;</span> <span class="nb">SET</span> <span class="s2">"PATH=%PATH%;%ALLUSERSPROFILE%</span><span class="se">\c</span><span class="s2">hocolatey</span><span class="se">\b</span><span class="s2">in"</span>
+</code></pre>
+</div>
+<p><a rel="external" href="https://chocolatey.org/install">https://chocolatey.org/install</a></p>
+
+<p>Once that is complete you can use chocolatey to install ruby!</p>
+
+<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>choco install -y ruby
+</code></pre>
+</div>
+
+<p>Alternatively if you are a running <code class="highlighter-rouge">bash</code> on Windows 10 via the <code class="highlighter-rouge">Windows Subsystems for Linux</code> you can 
+quickly setup ruby! (You can find installation guide for setting up <a href="https://msdn.microsoft.com/en-us/commandline/wsl/install_guide">bash on Windows here</a>.)</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="c"># Debian setup instructions!</span>
+<span class="c"># https://www.brightbox.com/blog/2016/01/06/ruby-2-3-ubuntu-packages/</span>
+sudo apt-add-repository ppa:brightbox/ruby-ng
+sudo apt-get update
+sudo apt-get install ruby2.3 ruby2.3-dev
+gem install jekyll bundler
+</code></pre>
+</div>
+
+<h2 id="installing-jekyll">Installing jekyll</h2>
+<p>Once ruby is installed, getting jekyll installed is pretty straight forward!</p>
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>gem install jekyll bundler
+jekyll new awesome-blog
+<span class="nb">cd </span>awesome-blog
+gem install
+bundle <span class="nb">exec </span>jekyll serve
+</code></pre>
+</div>
+
+<h3 id="ssl-errors">SSL Errors</h3>
+<p>If you are running windows you may run into a certificate error …</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+</code></pre>
+</div>
+<p>… luckily there is a guide for that! You can create a <code class="highlighter-rouge">batch</code> script <code class="highlighter-rouge">ruby_gem_fix.bat</code> width the snippet below are run that!
+I used the <a href="http://guides.rubygems.org/ssl-certificate-update/">guide on rubygems.org</a> to 
+help me figure out how to fix the issue.</p>
+
+<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>:: http://stackoverflow.com/questions/636381/what-is-the-best-way-to-do-a-substring-in-a-batch-file
+:: http://stackoverflow.com/questions/6359820/how-to-set-commands-output-as-a-variable-in-a-batch-file
+<span class="k">FOR</span> /F <span class="s2">"tokens=* USEBACKQ"</span> %%F <span class="k">IN</span> <span class="o">(</span><span class="sb">`</span>gem which rubygems<span class="sb">`</span><span class="o">)</span> <span class="k">DO</span> <span class="o">(</span>
+<span class="nb">SET </span><span class="nv">GEM_BIN</span><span class="o">=</span>%%F
+<span class="o">)</span>
+<span class="nb">PUSHD</span> <span class="s2">"%GEM_BIN:~0,-3%/ssl_certs"</span>
+powershell -Command <span class="s2">"(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem', 'GlobalSignRootCA.pem')"</span>
+<span class="nb">POPD</span>
+</code></pre>
+</div>
+
+<p>If you are still having certificate errors, I found this answer on <a href="http://stackoverflow.com/questions/5720484/how-to-solve-certificate-verify-failed-on-windows#answer-16134586">Stackoverflow helpful</a>.</p>
+
+<p>You can also check out this thorough guide for windows install I found after wrestling through SSL troubles.
+<a rel="external" href="http://yizeng.me/2013/05/10/setup-jekyll-on-windows/">http://yizeng.me/2013/05/10/setup-jekyll-on-windows/</a></p>
+
+<h2 id="editing">Editing</h2>
+<p>Once you are all setup you’ll see the contents of the blog similar to structure below.
+If you aren’t tweaking the theme, the <code class="highlighter-rouge">_posts</code> directory is where you can write and 
+edit posts. The name of the each file contains the date the post will be published as well as
+the url/slug of the post.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>|-- _posts
+|   |-- 2016-11-09-post.md
+|   |-- 2016-11-10-best-cats.md
+|   `-- 2020-11-11-gifs-on-fire.md
+|-- _site
+|-- _config.yml
+|-- about.md
+|-- Gemfile
+|-- Gemfile.lock
+`-- index.md
+</code></pre>
+</div>
+
+<p>The content of a post looks like this!</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>---
+layout: post
+title:  "Getting going with Jekyll"
+subtitle: "Jumping into THE static site generator"
+categories: tools
+tags: [ tools, windows ]
+---
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut id eleifend augue. 
+Ut varius sit amet ipsum eu maximus. Praesent odio mauris, pellentesque in porttitor 
+vitae, dictum nec magna. Aenean elementum sem non facilisis malesuada. Suspendisse a
+
+## Blarg
+laoreet dui, vitae fermentum odio. Fusce dictum, magna sed congue pellentesque, velit 
+velit facilisis dolor, quis commodo dolor purus dignissim eros. Cras in magna gravida, 
+viverra enim non, rhoncus mauris. Phasellus vel turpis tincidunt, tristique mi vel ....
+
+- Fusce dictum
+- Phasellus vel 
+- Aenean elementum
+
+</code></pre>
+</div>
+
+<p><strong>Note</strong> One thing nice I discovered by accident is you can future 
+date a post and it won’t render/display until that date!</p>
+
+<h2 id="customizing--plugins">Customizing &amp; Plugins</h2>
+<p>Jekyll has a healthy ecosystem which of course includes plugins &amp; themes. One feature I 
+wanted to add that I found a plugin for was embedding twitter posts.
+Adding the new plugin was pretty straightforward! I edited the <code class="highlighter-rouge">Gemfile</code> in the project
+root and under the <code class="highlighter-rouge">:jekyll_plugins</code> group added the name of the plugins I wanted
+installed.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">source</span> <span class="s2">"https://rubygems.org"</span>
+<span class="n">ruby</span> <span class="no">RUBY_VERSION</span>
+
+<span class="n">gem</span> <span class="s2">"jekyll"</span><span class="p">,</span> <span class="s2">"3.3.0"</span>
+
+<span class="n">group</span> <span class="ss">:jekyll_plugins</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s2">"jekyll-feed"</span><span class="p">,</span> <span class="s2">"~&gt; 0.6"</span>
+  <span class="c1"># Added a new plugin</span>
+  <span class="n">gem</span> <span class="s2">"jekyll-twitter-plugin"</span> 
+<span class="k">end</span>
+</code></pre>
+</div>
+<p>After I updated the <code class="highlighter-rouge">Gemfile</code>  I ran <code class="highlighter-rouge">bundler install</code> and the additional dependancies were added!</p>
+
+<h3 id="no-auto-urlize">No auto-urlize?</h3>
+<p>One thing that I’ve grown accustom to with markdown on github, was automatic url to link conversion.
+I’m not sure if I used another markdown renderer if it would be different, but the default renderer,
+<code class="highlighter-rouge">kramdown</code> didn’t handle that automagically. Luckily it is 
+really easy to create a plugin! I didn’t feel like investing the time to create an 
+auto urlizer at this point so I made a liquid filter and dropped it into the project -
+ <code class="highlighter-rouge">_plugins/urlize-filter.rb</code>! to use it it’s as simple as</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="err">'http://jekyllrb.com/docs/home'</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">urlize</span><span class="w"> </span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Jekyll</span>
+  <span class="k">module</span> <span class="nn">UrlizeFilter</span>
+    <span class="k">def</span> <span class="nf">urlize</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+      <span class="s2">"&lt;a rel=</span><span class="se">\"</span><span class="s2">external</span><span class="se">\"</span><span class="s2"> href=</span><span class="se">\"</span><span class="si">#{</span><span class="n">input</span><span class="si">}</span><span class="se">\"</span><span class="s2">&gt;</span><span class="si">#{</span><span class="n">input</span><span class="si">}</span><span class="s2">&lt;/a&gt;"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">Liquid</span><span class="o">::</span><span class="no">Template</span><span class="p">.</span><span class="nf">register_filter</span><span class="p">(</span><span class="no">Jekyll</span><span class="o">::</span><span class="no">UrlizeFilter</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="pinning-posts">Pinning Posts</h3>
+<p>In WordPress you can tag posts as “sticky”, essentially pinning them as more important.
+I did some quick searching around and found a solution to add a <code class="highlighter-rouge">pinned</code> attribute
+and drop in a new plugin!</p>
+
+<p><a rel="external" href="https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4">https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4</a></p>
+<div class="highlighter-rouge"><pre class="highlight"><code>---
+layout: post
+title:  "Getting going with Jekyll (on Windows!)"
+categories: tools
+tags: [ tools, windows ]
+pinned: true
+---
+</code></pre>
+</div>
+
+<p>I dropped a new ruby file into the <code class="highlighter-rouge">_plugins</code> directory following the 
+pattern found <a href="https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4">on this this</a></p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">Jekyll</span><span class="o">::</span><span class="no">Hooks</span><span class="p">.</span><span class="nf">register</span> <span class="ss">:site</span><span class="p">,</span> <span class="ss">:pre_render</span> <span class="k">do</span> <span class="o">|</span><span class="n">site</span><span class="p">,</span> <span class="n">payload</span><span class="o">|</span>
+  <span class="c1"># Sort pinned posts up!</span>
+  <span class="c1"># https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4</span>
+  <span class="n">payload</span><span class="p">[</span><span class="s1">'site'</span><span class="p">][</span><span class="s1">'posts'</span><span class="p">].</span><span class="nf">sort_by!</span><span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="p">[</span><span class="nb">p</span><span class="p">.</span><span class="nf">data</span><span class="p">[</span><span class="s1">'pinned'</span><span class="p">]</span> <span class="p">?</span> <span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nb">p</span><span class="p">.</span><span class="nf">date</span><span class="p">]}.</span><span class="nf">reverse!</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+<p>Now pinned posts percolate to the top! Once I unpin the post it will be sorted normally.</p>
+
+<h3 id="post-css-classes">Post CSS Classes</h3>
+<p>In WordPress there is a handy dandy function <code class="highlighter-rouge">post_class();</code> that give a CSS 
+class with names derived from the post attributes, including post type, category,
+tags etc. I wanted to implement a post_class attribute on posts/pages that I could
+use in the templates.</p>
+
+<p>In templates I wanted to be able to reference the attribute like this!</p>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"{{ post.post_class }}"</span><span class="nt">&gt;</span>
+  <span class="c">&lt;!-- ... --&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+</div>
+<p>… which would render this!</p>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"category-tools tag-tools tag-windows is-pinned"</span><span class="nt">&gt;</span>
+  <span class="c">&lt;!-- ... --&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+</div>
+
+<p>… so I went ahead and dropped in another plugin which I quickly wrote!</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">Jekyll</span><span class="o">::</span><span class="no">Hooks</span><span class="p">.</span><span class="nf">register</span> <span class="ss">:site</span><span class="p">,</span> <span class="ss">:pre_render</span> <span class="k">do</span> <span class="o">|</span><span class="n">site</span><span class="p">,</span> <span class="n">payload</span><span class="o">|</span>
+  <span class="c1"># Add an attribute, post_class, for use in templates</span>
+  <span class="n">payload</span><span class="p">[</span><span class="s1">'site'</span><span class="p">][</span><span class="s1">'posts'</span><span class="p">].</span><span class="nf">map!</span><span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="nb">p</span><span class="p">.</span><span class="nf">data</span><span class="p">[</span><span class="s1">'categories'</span><span class="p">].</span><span class="nf">map</span><span class="p">{</span><span class="o">|</span><span class="n">c</span><span class="o">|</span><span class="s2">"category-</span><span class="si">#{</span><span class="n">c</span><span class="p">.</span><span class="nf">downcase</span><span class="si">}</span><span class="s2">"</span><span class="p">}.</span><span class="nf">join</span><span class="p">(</span><span class="s2">" "</span><span class="p">),</span>
+      <span class="nb">p</span><span class="p">.</span><span class="nf">data</span><span class="p">[</span><span class="s1">'tags'</span><span class="p">].</span><span class="nf">map</span><span class="p">{</span><span class="o">|</span><span class="n">t</span><span class="o">|</span><span class="s2">"tag-</span><span class="si">#{</span><span class="n">t</span><span class="p">.</span><span class="nf">downcase</span><span class="si">}</span><span class="s2">"</span><span class="p">}.</span><span class="nf">join</span><span class="p">(</span><span class="s2">" "</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">p</span><span class="p">.</span><span class="nf">data</span><span class="p">[</span><span class="s1">'pinned'</span><span class="p">]</span>
+      <span class="n">classes</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="s2">"is-pinned"</span><span class="p">)</span>
+    <span class="k">end</span>
+
+    <span class="nb">p</span><span class="p">.</span><span class="nf">data</span><span class="p">[</span><span class="s1">'post_class'</span><span class="p">]</span> <span class="o">=</span> <span class="n">classes</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="s2">" "</span><span class="p">)</span>
+    <span class="nb">p</span>
+  <span class="p">}</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+<p>The nice thing about having category and tag classes is I can customize the style of the page
+depending on the tag!</p>
+
+<h3 id="heading-anchors">Heading Anchors</h3>
+<p>One thing handy-dandy github does is id &amp; link headers. Jekyll automatically adds
+ids to headers but not links. The quickest way to remedy this missing feature is 
+to use JavaScript to add a link!</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span>
+<span class="nx">jQuery</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Add anchors to headings that have ids</span>
+  <span class="c1">// https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263</span>
+  <span class="nx">$</span><span class="p">(</span><span class="s1">'h2,h3,h4,h5,h6'</span><span class="p">).</span><span class="nx">filter</span><span class="p">(</span><span class="s1">'[id]'</span><span class="p">).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="s1">'&lt;a href="#'</span><span class="o">+</span><span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span><span class="o">+</span><span class="s1">'"&gt;'</span> <span class="o">+</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">text</span><span class="p">()</span> <span class="o">+</span> <span class="s1">'&lt;/a&gt;'</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<h3 id="archives">Archives</h3>
+<p>In WordPress I am used to have an archives page for categories, tags etc.
+One thing that appeared to be missing by default from Jekyll is the notion of a category archives.
+I assume this could be easily remedied by a plugin and found <code class="highlighter-rouge">jekyll-archives</code>!</p>
+
+<p>Here are some more links on archives you can check out, maybe there is another solution you like better!</p>
+
+<ul>
+  <li><a rel="external" href="https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/">https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/</a></li>
+  <li><a rel="external" href="https://blog.webjeda.com/jekyll-categories/">https://blog.webjeda.com/jekyll-categories/</a></li>
+  <li><a rel="external" href="https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/">https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/</a></li>
+  <li><a rel="external" href="http://reyhan.org/2013/03/jekyll-archive-without-plugins.html">http://reyhan.org/2013/03/jekyll-archive-without-plugins.html</a></li>
+</ul>
+
+<h3 id="image-classes">Image Classes</h3>
+<p>I wanted to add a custom class to an image but didn’t think markdown supported the
+notion of arbitrary attributes on elements. Apparently the <code class="highlighter-rouge">kramdown</code> markdown render
+supports <strong>“extended”</strong> features including extra attributes. I found the 
+<a href="https://thornelabs.net/2014/11/30/centering-images-with-jekyll-and-markdown.html">link here</a>
+that explains the details, but below is how you do it in the markdown.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="c">&lt;!--
+This markdown ....
+
+![Andres](https://s.gravatar.com/avatar/md5yo?s=100){:class="biopic gravatar"}
+
+... turns into
+--&gt;</span>
+<span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"https://s.gravatar.com/avatar/md5yo?s=100"</span> <span class="na">alt=</span><span class="s">"Andres"</span> <span class="na">class=</span><span class="s">"biopic gravatar"</span> <span class="nt">/&gt;</span>
+</code></pre>
+</div>
+
+<h3 id="more">More</h3>
+<p>I covered some quick “plugins” to get you introduced, but make sure check out the resources below!</p>
+
+<ul>
+  <li><a rel="external" href="https://jekyllrb.com/docs/plugins/">https://jekyllrb.com/docs/plugins/</a></li>
+  <li><a rel="external" href="http://www.jekyll-plugins.com/">http://www.jekyll-plugins.com/</a></li>
+  <li><a rel="external" href="https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/">https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/</a></li>
+  <li><a rel="external" href="https://divshot.com/blog/web-development/advanced-jekyll-features/">https://divshot.com/blog/web-development/advanced-jekyll-features/</a></li>
+  <li><a rel="external" href="http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/">http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/</a></li>
+  <li><a rel="external" href="http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/">http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/</a></li>
+  <li><a rel="external" href="https://github.com/planetjekyll/awesome-jekyll-plugins">https://github.com/planetjekyll/awesome-jekyll-plugins</a></li>
+  <li><a rel="external" href="http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/">http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/</a></li>
+</ul>
+
+<h2 id="next-steps">Next Steps</h2>
+<p>Once you are all setup and installed you can jump into creating content
+or customizing your <a href="http://jekyllthemes.org/">theme</a>! There is
+so much you can do to customize your blog! As I continue hacking on this site
+I will share more</p>
+
+<ul>
+  <li><a href="https://gist.github.com/smutnyleszek/9803727">Cheatsheet!</a></li>
+  <li><a href="http://shopify.github.io/liquid/">Liquid templating</a></li>
+  <li><a rel="external" href="http://jekyllrb.com/docs/home">http://jekyllrb.com/docs/home</a></li>
+  <li><a rel="external" href="https://github.com/planetjekyll/awesome-jekyll">https://github.com/planetjekyll/awesome-jekyll</a></li>
+  <li><a rel="external" href="https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content">https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content</a></li>
+  <li><a rel="external" href="https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts">https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts</a></li>
+  <li><a rel="external" href="http://jekyll-windows.juthilo.com/">http://jekyll-windows.juthilo.com/</a></li>
+  <li><a rel="external" href="https://divshot.com/blog/web-development/advanced-jekyll-features/">https://divshot.com/blog/web-development/advanced-jekyll-features/</a></li>
+  <li><a rel="external" href="http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/">http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/</a></li>
+  <li><a rel="external" href="http://svmiller.com/blog/2015/08/create-your-website-in-jekyll">http://svmiller.com/blog/2015/08/create-your-website-in-jekyll</a></li>
+  <li><a rel="external" href="http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html">http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html</a></li>
+</ul>
+
+<p>Check out the <a href="http://jekyllrb.com/docs/home">Jekyll docs</a></p>
+
+
+  </section>
+
+  
+</article>
+      </div>
+    </main>
+    <footer id="site-footer">
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1"></div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/rezen"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">rezen</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/dandr3ss"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">dandr3ss</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m evolving and others  are refined from years of experience.
+</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+jQuery(function ($) {
+  // Add anchors to headings that have ids
+  // https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263
+  $('h2,h3,h4,h5,h6').filter('[id]').each(function () {
+    $(this).html('<a href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+  });
+
+  $('.menu-trigger').on('click', function () {
+    $(this).next().toggleClass('expanded');
+  });
+});
+</script>
+  </body>
+</html>
