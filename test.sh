@@ -16,3 +16,4 @@ git stash pop
 git add .
 git commit -m "Updating build branch"
 git push -f origin master
+git checkout develop
