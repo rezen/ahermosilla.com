@@ -15,5 +15,9 @@ git checkout master
 git stash pop
 git add .
 git commit -m "Updating build branch"
+<<<<<<< Updated upstream
 git push -f origin master
 git checkout develop
+=======
+git push -f origin master
+>>>>>>> Stashed changes
