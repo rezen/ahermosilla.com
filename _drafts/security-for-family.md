@@ -1,0 +1,40 @@
+- Internet
+  - Don't rent a router, buy one
+    - Save money in 6 months
+  - Be careful in free/public/open wifi
+    - Don't bank
+    - Don't login to anything
+    - If you have to, use a VPN
+      - https://nordvpn.com
+      - https://www.pcmag.com/roundup/296955/the-best-vpn-services
+  - Browser
+    - Chrome is a bit faster but FireFox will protect your privacy
+    - https://addons.mozilla.org/en-US/firefox/addon/https-everywhere/
+    - https://addons.mozilla.org/en-US/firefox/addon/honey/
+    - https://www.eff.org/privacybadger
+  - Use MFA
+    - LastPass
+  - Use password manager/long passwords
+  - SSL
+    - Don't login to a site without ssl
+    - Don't ignore SSL errors
+  - Ad blocking
+    - https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/
+  - Safer browsing for kids (porn blocking)
+    - https://cleanbrowsing.org/pricing
+    - https://familytime.io/get-started.html
+
+- Backups
+  - Make sure they are automated & you get alerts if they fail
+  - Programs
+    - FBackup
+    - iDrive
+    - Dropbox
+  - Types
+    - Email
+    - Files
+
+- Ignore popups that say you have a virus
+
+- VPN   
+  - When you are on a network you don't trust, traffic goes through it
