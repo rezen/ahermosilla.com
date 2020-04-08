@@ -19,11 +19,6 @@ jobs:
         bundler install
         bundler exec jekyll build
     
-    - uses: actions/upload-artifact@v1
-      with:
-        name: www
-        path: _site
-    
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
