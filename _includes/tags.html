@@ -1,0 +1,13 @@
+{% if post.tags  %}
+	{% assign tags=post.tags %}
+{% endif %}
+
+{% if page.tags  %}
+	{% assign tags=page.tags %}
+{% endif %}
+<ul class="tag-links topic-links">
+	{% for tag in tags %}
+	{% assign tag_url = "/tags/" | append: tag | append: '/' %}
+    <li class="tag-link-item"><a href="{{ tag_url  | relative_url }}">{{ tag }}</a></li>
+    {% endfor %}
+</ul>

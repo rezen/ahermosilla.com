@@ -1,0 +1,13 @@
+---
+layout: default
+---
+<div class="home">
+  <h1>{{ page.title }}</h1>
+  <ul class="post-list">
+    {% for post in page.posts %}
+      <li>
+        {% include post-preview.html %}
+      </li>
+    {% endfor %}
+  </ul>
+</div>

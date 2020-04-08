@@ -1,0 +1,28 @@
+<article id="post-{{ post.slug }}" class="post post-preview {{ post.post_class }}">
+	<header class="post-header">
+	    <h3 class="post-title" itemprop="name headline">
+	    	<a href="{{ post.url | relative_url }}">
+		    	{{ post.title | escape }}
+		    	<span class="post-subtitle">
+		    		{{ post.subtitle }}
+		    	</span>
+	    	</a>
+	    </h3>
+  	</header>
+  	<p class="post-excerpt">{{ post.auto_excerpt | markdownify }}</p>
+  	<p style="display:none" class="post-excerpt">{{ post.content | strip_html | truncatewords:75}}</p>
+
+  	 <section class="post-meta">
+	       <time datetime="{{ post.date | date_to_xmlschema }}" itemprop="datePublished">
+        		{{ post.date | date: "%B %d, %Y" }}
+      		</time>
+	      {% if post.author %}
+	         • <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+	        <span itemprop="name">{{ post.author }}</span></span>
+	      {% endif %}
+	      
+	      {% if post.tags %}
+	        {% include tags.html %}
+	      {% endif %}
+	    </section>
+</article>

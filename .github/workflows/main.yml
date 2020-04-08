@@ -1,0 +1,32 @@
+name: Update Website
+
+on:
+  push:
+    branches:
+    - develop
+
+jobs:
+  update-website:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.6
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build Website Content
+      run: |
+        bundler install
+        bundler exec jekyll build
+    
+    - uses: actions/upload-artifact@v1
+      with:
+        name: www
+        path: _site
+    
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./_site
+        publish_branch: master
