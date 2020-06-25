@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Getting sneaky with DNS for SSRF</title>
+  <meta name="description" content="Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting s...">
+  <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://ahermosilla.com/security/2020/06/04/sneaky-dns-ssrf.html">
+  <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33398574-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+    <header class="site-header" role="banner">
+  <div class="wrapper">
+    <span class="post-path">
+      <a href="/">2020-06-04-sneaky-dns-ssrf.md</a>
+    </span>
+    <nav class="site-nav">
+      <a class="menu-trigger">Menu</a>
+      <div class="menu-items">
+        
+          <a class="page-link" href="/">/root</a>
+        
+          <a class="page-link" href="/about/">/about</a>
+        
+          <a class="page-link" href="/categories/">/categories</a>
+        
+          <a class="page-link" href="/tags/">/tags</a>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main class="page-content">
+      <div class="wrapper" aria-label="Content">
+        <article id="post-sneaky-dns-ssrf" class="post post-single category-securitytag-ssrf tag-dns" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Getting sneaky with DNS for SSRF</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2020-06-04T00:00:00+00:00" itemprop="datePublished">
+        June 04, 2020
+      </time>
+
+
+
+      
+        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/ssrf/">ssrf</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/dns/">dns</a></li>
+    
+</ul>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <div class="post-notice">
+      Updated 
+      <time class="post-date-updated" datetime="2020-06-25T04:50:21+00:00" itemprop="dateUpdated">
+        June 25, 2020
+      </time>
+    </div>
+    
+    <p>Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with <a href="https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF</a> attacks you can have a DNS record point to <code class="highlighter-rouge">127.0.0.1</code>. When a record pointing to <code class="highlighter-rouge">127.0.0.1</code> is resolved, your application will end up making requests <code class="highlighter-rouge">127.0.0.1</code>. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain <code class="highlighter-rouge">volks-seat.de</code> pointing <code class="highlighter-rouge">127.0.0.1</code>. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.</p>
+
+<h3 id="check-record">Check Record</h3>
+<p>You can check DNS record for a domain you suspect is pointing to <code class="highlighter-rouge">127.0.0.1</code>. Using dig check the <code class="highlighter-rouge">ANSWER</code> section for where the domain points. I confirmed <code class="highlighter-rouge">volks-seat.de</code> did in fact point to <code class="highlighter-rouge">127.0.0.1</code></p>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>dig volks-seat.de | grep -A2 <span class="s1">';; ANSWER'</span>
+<span class="c"># ;; ANSWER SECTION:</span>
+<span class="c"># volks-seat.de.          71858   IN      A       127.0.0.1</span>
+</code></pre>
+</div>
+
+<h3 id="quick-test">Quick Test</h3>
+<p>Okay, so DNS resolves the domain to <code class="highlighter-rouge">127.0.0.1</code>, how do applications actually respond to this? As a basic test, I started a webserver on my machine to simple list the contents of a directory.</p>
+
+<ul>
+  <li>Start up a webserver in a directory
+    <ul>
+      <li><code class="highlighter-rouge">pwd &amp;&amp; echo ruh_roh_raggy &gt; zzzzz_flag.txt</code></li>
+      <li><code class="highlighter-rouge">python -m SimpleHTTPServer 8000</code></li>
+    </ul>
+  </li>
+  <li>Fetch the page and see if anything looks familiar
+    <ul>
+      <li><code class="highlighter-rouge">curl http://volks-seat.de:8000</code>
+        <ul>
+          <li>You’ll see towards the end of the output <code class="highlighter-rouge">zzzzz_flag.txt</code></li>
+        </ul>
+      </li>
+      <li><code class="highlighter-rouge">curl -vs http://volks-seat.de:8000 2&gt;&amp;1 | grep Connected</code>
+        <ul>
+          <li>When showing verbose output you’ll see curl connecting to <code class="highlighter-rouge">127.0.0.1</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="example-app">Example App</h3>
+<p>So how does this come into play with SSRF in your app? An application may have a whitelist/blacklist of valid hosts to perform certain actions against. Let’s imagine you had an app that simply checked if a site was up or not. We want to prevent users from trying to access private assets so we create a basic blacklist of hosts that we won’t want to be reached. Let’s take a look at this basic example below that captures the concept.</p>
+
+<div class="language-php highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nv">$ignore_hosts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'127.0.0.1'</span><span class="p">,</span> <span class="s1">'localhost'</span><span class="p">,</span> <span class="s1">'169.254.169.254'</span><span class="p">,</span> 
+    <span class="s1">'0.0.0.0'</span><span class="p">,</span> <span class="s1">'192.168.0.1'</span><span class="p">,</span> <span class="s1">'10.0.0.1'</span><span class="p">,</span> <span class="s1">'172.16.0.1'</span><span class="p">,</span> 
+<span class="p">];</span>
+<span class="nv">$url_alive</span>    <span class="o">=</span> <span class="s2">"http://volks-seat.de:3000"</span><span class="p">;</span>
+<span class="nv">$parsed_url</span>   <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nv">$url_alive</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parsed_url</span><span class="p">[</span><span class="s1">'host'</span><span class="p">]))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">json_encode</span><span class="p">([</span><span class="s1">'error'</span> <span class="o">=&gt;</span> <span class="s1">'Invalid host'</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$parsed_url</span><span class="p">[</span><span class="s1">'host'</span><span class="p">],</span> <span class="nv">$ignore_hosts</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">json_encode</span><span class="p">([</span><span class="s1">'error'</span> <span class="o">=&gt;</span> <span class="s1">'Invalid host'</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="c1">// We should also check protocol ... 
+// ... but you get the idea
+</span><span class="nv">$response</span>    <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$url_alive</span><span class="p">);</span>
+<span class="nv">$status_code</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="nv">$http_response_header</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">??</span> <span class="s2">"HTTP/1.1 0 x"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">??</span> <span class="s2">""</span><span class="p">;</span>
+
+<span class="k">return</span> <span class="nb">json_encode</span><span class="p">([</span>
+    <span class="s1">'success'</span>     <span class="o">=&gt;</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="s1">'status_code'</span> <span class="o">=&gt;</span> <span class="nv">$status_code</span><span class="p">,</span>
+    <span class="s1">'body'</span>        <span class="o">=&gt;</span> <span class="nv">$response</span><span class="p">,</span>
+<span class="p">]);</span>
+</code></pre>
+</div>
+
+<p>We can see the hostname is checked from the parse uri, but that is not enough to protect yourself. The example above is problematic because once the “bad” DNS record is resolved, the ip the hostname resolves to ends up being <code class="highlighter-rouge">127.0.0.1</code>. An attacker can “recon” our internal server adding tests for every port (0-65535) with the same domain to see what else can be found. If, for example, you had Elasticsearch running without authentication, an attacker could add the url <code class="highlighter-rouge">http://volks-seat.de:9200/_stats/indexing,store</code> and access content you wouldn’t want them to.</p>
+
+<p>To actually make sure everything is sane, the application needs to resolve the host and make sure the host is not a host we want to ignore</p>
+
+<div class="language-php highlighter-rouge"><pre class="highlight"><code>// Resolve the ip and make sure that is not in the blacklist
+// Naive, may not be performant
+$ip = gethostbyname($parsed_url['host']); 
+
+if (in_array($parsed_url['host'], $ignore_hosts) || in_array($ip, $ignore_hosts)) {
+    return json_encode(['error' =&gt; 'Invalid host']);
+}
+</code></pre>
+</div>
+
+<h3 id="finding-records">Finding Records</h3>
+<p>You can take a look at some dns records pointing to <code class="highlighter-rouge">127.0.0.1</code> using Rapid7’s public dataset
+https://blog.rapid7.com/2018/10/16/how-to-conduct-dns-reconnaissance-for-02-using-rapid7-open-data-and-aws/</p>
+
+<div class="language-sql highlighter-rouge"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">rapid7_fdns_any</span> 
+<span class="k">where</span> <span class="n">value</span> <span class="k">like</span> <span class="s1">'127.0.0.1'</span>
+<span class="k">order</span> <span class="k">by</span> <span class="n">date</span> <span class="k">desc</span>
+</code></pre>
+</div>
+
+<h3 id="links">Links</h3>
+<ul>
+  <li>https://owasp.org/www-community/attacks/Server_Side_Request_Forgery</li>
+  <li>https://blog.appsecco.com/an-ssrf-privileged-aws-keys-and-the-capital-one-breach-4c3c2cded3af</li>
+  <li>https://www.hackerone.com/blog-How-To-Server-Side-Request-Forgery-SSRF</li>
+  <li>https://portswigger.net/web-security/ssrf</li>
+</ul>
+
+<h3 id="dns-rebinding">DNS Rebinding</h3>
+<p><strong>Related</strong></p>
+
+<p>An app many check the DNS record for a domain to ensure the domain does not point to private instances. With DNS rebinding attacks, you have a short TTL for a record which changes between a public ip &amp; a private ip. Your application may see that a domain resolves to a public ip and then continues on to the request, but if you don’t explicitly use the ip that was resolved earlier, the library/module making requests may make another DNS query which resolves to a private ip since the original DNS request.</p>
+
+<h4 id="links-1">Links</h4>
+<ul>
+  <li>https://medium.com/@brannondorsey/attacking-private-networks-from-the-internet-with-dns-rebinding-ea7098a2d325</li>
+  <li>https://danielmiessler.com/blog/dns-rebinding-explained/</li>
+  <li>https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2018/august/singularity-of-origin-a-dns-rebinding-attack-framework/</li>
+  <li>https://github.com/nccgroup/singularity</li>
+  <li>https://github.com/taviso/rbndr</li>
+  <li>https://research.nccgroup.com/2020/03/30/impact-of-dns-over-https-doh-on-dns-rebinding-attacks/</li>
+</ul>
+
+  </section>
+
+  
+</article>
+      </div>
+    </main>
+    <footer id="site-footer">
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1"></div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/rezen"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">rezen</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/dandr3ss"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">dandr3ss</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m evolving and others  are refined from years of experience.
+</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+jQuery(function ($) {
+  // Add anchors to headings that have ids
+  // https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263
+  $('h2,h3,h4,h5,h6').filter('[id]').each(function () {
+    $(this).html('<a href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+  });
+
+  $('.menu-trigger').on('click', function () {
+    $(this).next().toggleClass('expanded');
+  });
+});
+</script>
+  </body>
+</html>

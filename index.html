@@ -60,6 +60,46 @@
   <ul class="post-list">
     
       <li>
+       <article id="post-sneaky-dns-ssrf" class="post post-preview category-securitytag-ssrf tag-dns">
+	<header class="post-header">
+	    <h3 class="post-title" itemprop="name headline">
+	    	<a href="/security/2020/06/04/sneaky-dns-ssrf.html">
+		    	Getting sneaky with DNS for SSRF
+		    	<span class="post-subtitle">
+		    		Understanding how fundamental technologies work goes a long way ...
+		    	</span>
+	    	</a>
+	    </h3>
+  	</header>
+  	<p class="post-excerpt"><p>Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with SSRF attacks you can have a DNS record point to <code class="highlighter-rouge">127.0.0.1</code>. When a record pointing to <code class="highlighter-rouge">127.0.0.1</code> is resolved, your application will end up making requests <code class="highlighter-rouge">127.0.0.1</code>. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain <code class="highlighter-rouge">volks-seat.de</code> pointing <code class="highlighter-rouge">127.0.0.1</code>. It never occurred to …</p>
+</p>
+  	<p style="display:none" class="post-excerpt">Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with SSRF attacks you can have a DNS record point to 127.0.0.1. When a record pointing to 127.0.0.1 is resolved, your application will end up making requests 127.0.0.1. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain volks-seat.de pointing 127.0.0.1. It never occurred...</p>
+
+  	 <section class="post-meta">
+	       <time datetime="2020-06-04T00:00:00+00:00" itemprop="datePublished">
+        		June 04, 2020
+      		</time>
+	      
+	      
+	      
+	        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/ssrf/">ssrf</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/dns/">dns</a></li>
+    
+</ul>
+	      
+	    </section>
+</article>
+      </li>
+    
+      <li>
        <article id="post-design-for-devs" class="post post-preview category-craftmanshiptag-design tag-raw">
 	<header class="post-header">
 	    <h3 class="post-title" itemprop="name headline">

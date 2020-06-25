@@ -5,12 +5,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>tags</title>
+  <title>dns</title>
   <meta name="description" content="Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m ...">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
 
   <link rel="stylesheet" href="/assets/main.css">
-  <link rel="canonical" href="http://ahermosilla.com/tags/">
+  <link rel="canonical" href="http://ahermosilla.com/tags/dns/">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
   
@@ -33,7 +33,7 @@
     <header class="site-header" role="banner">
   <div class="wrapper">
     <span class="post-path">
-      <a href="/">tags/index.md</a>
+      <a href="/">tags/dns/index.html</a>
     </span>
     <nav class="site-nav">
       <a class="menu-trigger">Menu</a>
@@ -54,69 +54,52 @@
 
     <main class="page-content">
       <div class="wrapper" aria-label="Content">
-        <h1>tags</h1>
+        <div class="home">
+  <h1>dns</h1>
+  <ul class="post-list">
+    
+      <li>
+        <article id="post-sneaky-dns-ssrf" class="post post-preview category-securitytag-ssrf tag-dns">
+	<header class="post-header">
+	    <h3 class="post-title" itemprop="name headline">
+	    	<a href="/security/2020/06/04/sneaky-dns-ssrf.html">
+		    	Getting sneaky with DNS for SSRF
+		    	<span class="post-subtitle">
+		    		Understanding how fundamental technologies work goes a long way ...
+		    	</span>
+	    	</a>
+	    </h3>
+  	</header>
+  	<p class="post-excerpt"><p>Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with SSRF attacks you can have a DNS record point to <code class="highlighter-rouge">127.0.0.1</code>. When a record pointing to <code class="highlighter-rouge">127.0.0.1</code> is resolved, your application will end up making requests <code class="highlighter-rouge">127.0.0.1</code>. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain <code class="highlighter-rouge">volks-seat.de</code> pointing <code class="highlighter-rouge">127.0.0.1</code>. It never occurred to …</p>
+</p>
+  	<p style="display:none" class="post-excerpt">Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with SSRF attacks you can have a DNS record point to 127.0.0.1. When a record pointing to 127.0.0.1 is resolved, your application will end up making requests 127.0.0.1. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain volks-seat.de pointing 127.0.0.1. It never occurred...</p>
+
+  	 <section class="post-meta">
+	       <time datetime="2020-06-04T00:00:00+00:00" itemprop="datePublished">
+        		June 04, 2020
+      		</time>
+	      
+	      
+	      
+	        
 
 
-
-<ul>
-
-  <li id="tags-tools">
-    <span class="category-count">1</span>
-    <a href="/tags/tools/">
-      tools
-    </a>
-  </li>
-
-  <li id="tags-jekyll">
-    <span class="category-count">1</span>
-    <a href="/tags/jekyll/">
-      jekyll
-    </a>
-  </li>
-
-  <li id="tags-windows">
-    <span class="category-count">1</span>
-    <a href="/tags/windows/">
-      windows
-    </a>
-  </li>
-
-  <li id="tags-ideas">
-    <span class="category-count">2</span>
-    <a href="/tags/ideas/">
-      ideas
-    </a>
-  </li>
-
-  <li id="tags-raw">
-    <span class="category-count">3</span>
-    <a href="/tags/raw/">
-      raw
-    </a>
-  </li>
-
-  <li id="tags-design">
-    <span class="category-count">1</span>
-    <a href="/tags/design/">
-      design
-    </a>
-  </li>
-
-  <li id="tags-ssrf">
-    <span class="category-count">1</span>
-    <a href="/tags/ssrf/">
-      ssrf
-    </a>
-  </li>
-
-  <li id="tags-dns">
-    <span class="category-count">1</span>
-    <a href="/tags/dns/">
-      dns
-    </a>
-  </li>
-
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/ssrf/">ssrf</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/dns/">dns</a></li>
+    
 </ul>
+	      
+	    </section>
+</article>
+      </li>
+    
+  </ul>
+</div>
       </div>
     </main>
     <footer id="site-footer">

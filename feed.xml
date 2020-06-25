@@ -1,5 +1,120 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.0">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2020-04-08T23:17:42+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
-</subtitle><entry><title type="html">Thinking about computer science?</title><link href="http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci.html" rel="alternate" type="text/html" title="Thinking about computer science?" /><published>2017-07-29T00:00:00+00:00</published><updated>2017-07-29T00:00:00+00:00</updated><id>http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci</id><content type="html" xml:base="http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci.html">&lt;p&gt;My initial career plans were to get degree in Mechanical Engineering. Plans didn’t go as planned, and I wasn’t quite 
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.0">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2020-06-25T04:51:18+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
+</subtitle><entry><title type="html">Getting sneaky with DNS for SSRF</title><link href="http://ahermosilla.com/security/2020/06/04/sneaky-dns-ssrf.html" rel="alternate" type="text/html" title="Getting sneaky with DNS for SSRF" /><published>2020-06-04T00:00:00+00:00</published><updated>2020-06-04T00:00:00+00:00</updated><id>http://ahermosilla.com/security/2020/06/04/sneaky-dns-ssrf</id><content type="html" xml:base="http://ahermosilla.com/security/2020/06/04/sneaky-dns-ssrf.html">&lt;p&gt;Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with &lt;a href=&quot;https://owasp.org/www-community/attacks/Server_Side_Request_Forgery&quot;&gt;SSRF&lt;/a&gt; attacks you can have a DNS record point to &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;. When a record pointing to &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt; is resolved, your application will end up making requests &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;. For experimentation, I used one of Rapid7’s free datasets, &amp;amp; found the domain &lt;code class=&quot;highlighter-rouge&quot;&gt;volks-seat.de&lt;/code&gt; pointing &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.&lt;/p&gt;
+
+&lt;h3 id=&quot;check-record&quot;&gt;Check Record&lt;/h3&gt;
+&lt;p&gt;You can check DNS record for a domain you suspect is pointing to &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;. Using dig check the &lt;code class=&quot;highlighter-rouge&quot;&gt;ANSWER&lt;/code&gt; section for where the domain points. I confirmed &lt;code class=&quot;highlighter-rouge&quot;&gt;volks-seat.de&lt;/code&gt; did in fact point to &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;dig volks-seat.de | grep -A2 &lt;span class=&quot;s1&quot;&gt;';; ANSWER'&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# ;; ANSWER SECTION:&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# volks-seat.de.          71858   IN      A       127.0.0.1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;quick-test&quot;&gt;Quick Test&lt;/h3&gt;
+&lt;p&gt;Okay, so DNS resolves the domain to &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;, how do applications actually respond to this? As a basic test, I started a webserver on my machine to simple list the contents of a directory.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Start up a webserver in a directory
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;pwd &amp;amp;&amp;amp; echo ruh_roh_raggy &amp;gt; zzzzz_flag.txt&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;python -m SimpleHTTPServer 8000&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Fetch the page and see if anything looks familiar
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;curl http://volks-seat.de:8000&lt;/code&gt;
+        &lt;ul&gt;
+          &lt;li&gt;You’ll see towards the end of the output &lt;code class=&quot;highlighter-rouge&quot;&gt;zzzzz_flag.txt&lt;/code&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;curl -vs http://volks-seat.de:8000 2&amp;gt;&amp;amp;1 | grep Connected&lt;/code&gt;
+        &lt;ul&gt;
+          &lt;li&gt;When showing verbose output you’ll see curl connecting to &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;example-app&quot;&gt;Example App&lt;/h3&gt;
+&lt;p&gt;So how does this come into play with SSRF in your app? An application may have a whitelist/blacklist of valid hosts to perform certain actions against. Let’s imagine you had an app that simply checked if a site was up or not. We want to prevent users from trying to access private assets so we create a basic blacklist of hosts that we won’t want to be reached. Let’s take a look at this basic example below that captures the concept.&lt;/p&gt;
+
+&lt;div class=&quot;language-php highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+
+&lt;span class=&quot;nv&quot;&gt;$ignore_hosts&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;s1&quot;&gt;'127.0.0.1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'localhost'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'169.254.169.254'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s1&quot;&gt;'0.0.0.0'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'192.168.0.1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'10.0.0.1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'172.16.0.1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$url_alive&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;http://volks-seat.de:3000&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$parsed_url&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;parse_url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$url_alive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;empty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$parsed_url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'host'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;json_encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'error'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Invalid host'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;in_array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$parsed_url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'host'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$ignore_hosts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;json_encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'error'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Invalid host'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// We should also check protocol ... 
+// ... but you get the idea
+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$response&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;file_get_contents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$url_alive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$status_code&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;explode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$http_response_header&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;??&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;HTTP/1.1 0 x&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;??&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;json_encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;
+    &lt;span class=&quot;s1&quot;&gt;'success'&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s1&quot;&gt;'status_code'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$status_code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s1&quot;&gt;'body'&lt;/span&gt;        &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can see the hostname is checked from the parse uri, but that is not enough to protect yourself. The example above is problematic because once the “bad” DNS record is resolved, the ip the hostname resolves to ends up being &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt;. An attacker can “recon” our internal server adding tests for every port (0-65535) with the same domain to see what else can be found. If, for example, you had Elasticsearch running without authentication, an attacker could add the url &lt;code class=&quot;highlighter-rouge&quot;&gt;http://volks-seat.de:9200/_stats/indexing,store&lt;/code&gt; and access content you wouldn’t want them to.&lt;/p&gt;
+
+&lt;p&gt;To actually make sure everything is sane, the application needs to resolve the host and make sure the host is not a host we want to ignore&lt;/p&gt;
+
+&lt;div class=&quot;language-php highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// Resolve the ip and make sure that is not in the blacklist
+// Naive, may not be performant
+$ip = gethostbyname($parsed_url['host']); 
+
+if (in_array($parsed_url['host'], $ignore_hosts) || in_array($ip, $ignore_hosts)) {
+    return json_encode(['error' =&amp;gt; 'Invalid host']);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;finding-records&quot;&gt;Finding Records&lt;/h3&gt;
+&lt;p&gt;You can take a look at some dns records pointing to &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1&lt;/code&gt; using Rapid7’s public dataset
+https://blog.rapid7.com/2018/10/16/how-to-conduct-dns-reconnaissance-for-02-using-rapid7-open-data-and-aws/&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rapid7_fdns_any&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;where&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;like&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'127.0.0.1'&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;order&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;date&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;desc&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;links&quot;&gt;Links&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;https://owasp.org/www-community/attacks/Server_Side_Request_Forgery&lt;/li&gt;
+  &lt;li&gt;https://blog.appsecco.com/an-ssrf-privileged-aws-keys-and-the-capital-one-breach-4c3c2cded3af&lt;/li&gt;
+  &lt;li&gt;https://www.hackerone.com/blog-How-To-Server-Side-Request-Forgery-SSRF&lt;/li&gt;
+  &lt;li&gt;https://portswigger.net/web-security/ssrf&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;dns-rebinding&quot;&gt;DNS Rebinding&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Related&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;An app many check the DNS record for a domain to ensure the domain does not point to private instances. With DNS rebinding attacks, you have a short TTL for a record which changes between a public ip &amp;amp; a private ip. Your application may see that a domain resolves to a public ip and then continues on to the request, but if you don’t explicitly use the ip that was resolved earlier, the library/module making requests may make another DNS query which resolves to a private ip since the original DNS request.&lt;/p&gt;
+
+&lt;h4 id=&quot;links-1&quot;&gt;Links&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;https://medium.com/@brannondorsey/attacking-private-networks-from-the-internet-with-dns-rebinding-ea7098a2d325&lt;/li&gt;
+  &lt;li&gt;https://danielmiessler.com/blog/dns-rebinding-explained/&lt;/li&gt;
+  &lt;li&gt;https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2018/august/singularity-of-origin-a-dns-rebinding-attack-framework/&lt;/li&gt;
+  &lt;li&gt;https://github.com/nccgroup/singularity&lt;/li&gt;
+  &lt;li&gt;https://github.com/taviso/rbndr&lt;/li&gt;
+  &lt;li&gt;https://research.nccgroup.com/2020/03/30/impact-of-dns-over-https-doh-on-dns-rebinding-attacks/&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="ssrf" /><category term="dns" /><summary type="html">Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with SSRF attacks you can have a DNS record point to 127.0.0.1. When a record pointing to 127.0.0.1 is resolved, your application will end up making requests 127.0.0.1. For experimentation, I used one of Rapid7’s free datasets, &amp;amp; found the domain volks-seat.de pointing 127.0.0.1. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.</summary></entry><entry><title type="html">Thinking about computer science?</title><link href="http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci.html" rel="alternate" type="text/html" title="Thinking about computer science?" /><published>2017-07-29T00:00:00+00:00</published><updated>2017-07-29T00:00:00+00:00</updated><id>http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci</id><content type="html" xml:base="http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci.html">&lt;p&gt;My initial career plans were to get degree in Mechanical Engineering. Plans didn’t go as planned, and I wasn’t quite 
 mature enough to handle the level of rigor immediately outside of high school. My plans evolved into an art direction, 
 since I always enjoyed art &amp;amp; I decided to ignore the $$$ (or there lack of) problem with art careers. From art, I realized 
 I needed to make some money so I honed in on Graphic Design, which actually described my art process anyways. I went to 
