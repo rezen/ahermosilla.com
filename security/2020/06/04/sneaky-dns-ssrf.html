@@ -83,13 +83,6 @@
   </header>
   <section class="post-content" itemprop="articleBody">
     
-    <div class="post-notice">
-      Updated 
-      <time class="post-date-updated" datetime="2020-06-25T04:50:21+00:00" itemprop="dateUpdated">
-        June 25, 2020
-      </time>
-    </div>
-    
     <p>Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with <a href="https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF</a> attacks you can have a DNS record point to <code class="highlighter-rouge">127.0.0.1</code>. When a record pointing to <code class="highlighter-rouge">127.0.0.1</code> is resolved, your application will end up making requests <code class="highlighter-rouge">127.0.0.1</code>. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain <code class="highlighter-rouge">volks-seat.de</code> pointing <code class="highlighter-rouge">127.0.0.1</code>. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.</p>
 
 <h3 id="check-record">Check Record</h3>
