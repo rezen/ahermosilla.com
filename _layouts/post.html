@@ -22,11 +22,11 @@ layout: default
     </section>
   </header>
   <section class="post-content" itemprop="articleBody">
-    {% if page.modified_at %}
+    {% if page.updated_at   %}
     <div class="post-notice">
       Updated 
-      <time class="post-date-updated" datetime="{{ page.modified_at| date_to_xmlschema }}" itemprop="dateUpdated">
-        {{ page.modified_at | date: "%B %d, %Y" }}
+      <time class="post-date-updated" datetime="{{ page.updated_at| date_to_xmlschema }}" itemprop="dateUpdated">
+        {{ page.updated_at | date: "%B %d, %Y" }}
       </time>
     </div>
     {% endif %}
