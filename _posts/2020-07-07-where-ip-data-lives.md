@@ -6,30 +6,29 @@ categories: tools
 tags: [ ip ]
 ---
 
-I've wondered for quite some time, how do sites like ipinfo.io get their data? Secondly, the question I had was "Could I gather/build out the data used by these sorts of services?". Off the bat, looking at the data, I made the assumption that the ownership data is stored publicly or "premiumly" that I could access, but where? So I did some digging around and below is some the datasets I discovered.
+I've wondered for quite some time, how do sites like <https://ipinfo.io> get their data? Secondly, the question I had was "Could I gather/build out the data used by these sorts of services?". Off the bat, looking at the data, I made the assumption that the ownership data is stored publicly or "premiumly" that I could access, but where? So I did some digging around and below is some the datasets I discovered.
 
 ## IANA
-ICANN runs IANA which allocates IP addresses globally. The IANA allocates blocks of IPs to RIRs (Regional Internet Registry) which manage the blocks allocated to them. You can view the list of ranges and how they are allocated here https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml. It seems they allocate  `/8` ranges, which you can also see here https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks
+ICANN runs IANA which allocates IP addresses globally. The IANA allocates blocks of IPs to RIRs (Regional Internet Registry) which manage the blocks allocated to them. You can view the list of ranges and how they are allocated here <https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml>. It seems they allocate  `/8` ranges, which you can also see here <https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks>
 
 ## RIR
-The RIR is a regional registry (RIPE, APNIC, ARIN, LACNIC, NRO, AFRINIC) and you can see the map here https://en.wikipedia.org/wiki/Regional_Internet_registry#/media/File:Regional_Internet_Registries_world_map.svg. Each RIR will further allocate addresses to a LIR.
+The RIR is a regional registry (RIPE, APNIC, ARIN, LACNIC, NRO, AFRINIC) and you can see the [map here](https://en.wikipedia.org/wiki/Regional_Internet_registry#/media/File:Regional_Internet_Registries_world_map.svg). Each RIR will further allocate addresses to a LIR.
 
 ## ASN
-So with that knowledge, I dug down into each RIR to see where I could possibly mine the allocated addresses. I found there were dumps of data which took me some time to look through to find what datasets would be helpful. In the process of looking at ARIN datasets I ran across the term ASN 
-https://en.wikipedia.org/wiki/Autonomous_system_(Internet). ASNs are assigned by the IANA to each RIR which assign those the ASNs to a block.
-You can see all the assigments here https://www.iana.org/assignments/as-numbers/as-numbers.xhtml
+So with that knowledge, I dug down into each RIR to see where I could possibly mine the allocated addresses. I found there were dumps of data which took me some time to look through to find what datasets would be helpful. In the process of looking at ARIN datasets I ran across the term [ASN](https://en.wikipedia.org/wiki/Autonomous_system_(Internet)). ASNs are assigned by the IANA to each RIR which assign those the ASNs to a block.
+You can see all the assigments here <https://www.iana.org/assignments/as-numbers/as-numbers.xhtml>
 
-So you can get the list of ASN details from each RIR. It did notice RIPE had the details for every RIR (https://ftp.ripe.net/pub/stats/
+So you can get the list of ASN details from each RIR. It did notice RIPE had the details for every RIR (<https://ftp.ripe.net/pub/stats/>
 ) so you don't necessarily have to go to every RIR to get that data. Using the data I could figure out what ranges and ASNs belonged together.
 
 - Get all ASNs
-  - https://ftp.ripe.net/ripe/asnames/asn.txt
+  - <https://ftp.ripe.net/ripe/asnames/asn.txt>
 - Get a list of ASNs for ARIN
-  - ftp://ftp.arin.net/info/asn.txt
+  - <ftp://ftp.arin.net/info/asn.txt>
 - Get ASNs & ranges for ARIN
-  - http://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest 
+  - <http://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest>
 - Get a specific ASN
-  - https://rdap.arin.net/registry/autnum/15169
+  - <https://rdap.arin.net/registry/autnum/15169>
 - Use whois to get ranges for an ASN
   - `whois -h whois.radb.net -- '-i origin AS714' | grep -Eo "([0-9.]+){4}/[0-9]+" | head`
 
@@ -62,7 +61,7 @@ registry|country|type|value|?|?|status|association
 
 
 ## BGP
-During my research process, verifying information about ranges and ownership I ran into https://bgp.he.net/AS3356. BGP (which I won't dig into because I haven't take the time yet to understand) is a protcol for exchanging routing information. I found you can download dumps of the exchanges and parse through them. Inside those dumps (http://archive.routeviews.org/bgpdata/
+During my research process, verifying information about ranges and ownership I ran into <https://bgp.he.net/AS3356>. BGP (which I won't dig into because I haven't take the time yet to understand) is a protcol for exchanging routing information. I found you can download dumps of the exchanges and parse through them. Inside those dumps (<http://archive.routeviews.org/bgpdata/>
 ), you can find ASNs and ranges - aha! this is where I can sort out if a range is inactive or not!
 
 The data roughly looks like this when you dump it out with `bgpdump`
@@ -92,15 +91,15 @@ So I'm still not concluded ... but you can start to see how the pieces are comin
 ## Links
 During my process of searching for data I always find useful looks that directly contributed to my discoveries or are related.
 
-- https://host.io/
-- https://blogofsomeguy.com/a/2017-07-26/fastmetrics-p4-mapping-ip-to-asn.html
-- https://github.com/t2mune/mrtparse/blob/master/examples/summary.py
-- https://ftp.ripe.net/ripe/ipmap/
-- https://asn.cymru.com/
-- https://www.iana.org/whois?q=67.187.185.36
-- https://search.arin.net/rdap/?query=67.187.185.36&searchFilter=ipaddr
-- https://team-cymru.com/community-services/ip-asn-mapping/
-- http://rest.db.ripe.net/search?query-string=8.8.8.8&type-filter=inetnum
-- https://hackertarget.com/as-ip-lookup/
-- https://rdap.arin.net/registry/ip/8.8.8.8
-- https://www.arin.net/resources/registry/whois/rdap/#rdap-urls
+- <https://host.io/>
+- <https://blogofsomeguy.com/a/2017-07-26/fastmetrics-p4-mapping-ip-to-asn.html>
+- <https://github.com/t2mune/mrtparse/blob/master/examples/summary.py>
+- <https://ftp.ripe.net/ripe/ipmap/>
+- <https://asn.cymru.com/>
+- <https://www.iana.org/whois?q=67.187.185.36>
+- <https://search.arin.net/rdap/?query=67.187.185.36&searchFilter=ipaddr>
+- <https://team-cymru.com/community-services/ip-asn-mapping/>
+- <http://rest.db.ripe.net/search?query-string=8.8.8.8&type-filter=inetnum>
+- <https://hackertarget.com/as-ip-lookup/>
+- <https://rdap.arin.net/registry/ip/8.8.8.8>
+- <https://www.arin.net/resources/registry/whois/rdap/#rdap-urls>
