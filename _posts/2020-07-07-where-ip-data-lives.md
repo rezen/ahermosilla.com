@@ -1,11 +1,12 @@
 ---
 layout: post
 title:  "Where does IP data come from?"
+subtitle: "Find the sources of IP data sets"
 categories: tools
 tags: [ ip ]
 ---
 
-I've wondered for quite some time, how do sites like ipinfo.io get their data? Secondly, the question I had was "Could I gather/build out the data used by these sorts of services?". Off the bat, looking at the data, I make the assumption that the ownership data is stored publicly or "premiumly" that I could access, but where? So I did some digging around and below is some the datasets I discovered.
+I've wondered for quite some time, how do sites like ipinfo.io get their data? Secondly, the question I had was "Could I gather/build out the data used by these sorts of services?". Off the bat, looking at the data, I made the assumption that the ownership data is stored publicly or "premiumly" that I could access, but where? So I did some digging around and below is some the datasets I discovered.
 
 ## IANA
 ICANN runs IANA which allocates IP addresses globally. The IANA allocates blocks of IPs to RIRs (Regional Internet Registry) which manage the blocks allocated to them. You can view the list of ranges and how they are allocated here https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml. It seems they allocate  `/8` ranges, which you can also see here https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks
