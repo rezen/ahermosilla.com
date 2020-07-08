@@ -128,6 +128,8 @@ You can see all the assigments here <a href="https://www.iana.org/assignments/as
 <h3 id="stats-delegated-format">Stats delegated format</h3>
 <p>Looking at the delegated extended datasets, they look like this.</p>
 
+<p><a href="https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf">https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf</a></p>
+
 <pre><code class="language-2.3|arin|1594044013396|154725|19700101|20200706|-0400">arin|*|asn|*|28470|summary
 arin|*|ipv4|*|66069|summary
 arin|*|ipv6|*|60186|summary
@@ -145,7 +147,7 @@ arin|US|asn|11|1|19840704|assigned|88e9e1a9f78221c5b97e72d580642205
 
 <p>It look me awhile to decipher the format, especially the last column, but this is the gist of it. The last column essentially is a key to help you associate rows with a given org.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>registry|country|type|value|?|?|status|association
+<div class="highlighter-rouge"><pre class="highlight"><code>registry|country_code|type|start|value|date|status|reg-­‐id[|extensions...]
 </code></pre>
 </div>
 
