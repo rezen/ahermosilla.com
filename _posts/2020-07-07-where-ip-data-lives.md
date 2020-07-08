@@ -37,6 +37,8 @@ For verification that the data was good, I looked up some addresses at IP info t
 ### Stats delegated format 
 Looking at the delegated extended datasets, they look like this.
 
+<https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf>
+
 ```2.3|arin|1594044013396|154725|19700101|20200706|-0400
 arin|*|asn|*|28470|summary
 arin|*|ipv4|*|66069|summary
@@ -56,7 +58,7 @@ arin|US|asn|11|1|19840704|assigned|88e9e1a9f78221c5b97e72d580642205
 It look me awhile to decipher the format, especially the last column, but this is the gist of it. The last column essentially is a key to help you associate rows with a given org.
 
 ```
-registry|country|type|value|?|?|status|association
+registry|country_code|type|start|value|date|status|reg-­‐id[|extensions...]
 ```
 
 
