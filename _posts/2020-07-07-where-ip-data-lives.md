@@ -34,10 +34,10 @@ So you can get the list of ASN details from each RIR. It did notice RIPE had the
 
 For verification that the data was good, I looked up some addresses at IP info to see if things checked out, and everything looked good, but there was some caveats. I looked up some of the ranges and they were noted as inactive. How did I know a given range was "inactive", there were not clear indicators in the ARIN datasets?
 
+Another challenge was associating ranges to a specific ASN. You can use the `reg-id` column to tie ASNs and IPs under the same org, but it isn't clear how to tie an ASN to a specific IP allocation.
+
 ### Stats delegated format 
 Looking at the delegated extended datasets, they look like this.
-
-<https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf>
 
 ```2.3|arin|1594044013396|154725|19700101|20200706|-0400
 arin|*|asn|*|28470|summary
@@ -55,7 +55,7 @@ arin|US|asn|10|1|00000000|assigned|3fa2e5aa48f205a7696ea6fbcd437cff
 arin|US|asn|11|1|19840704|assigned|88e9e1a9f78221c5b97e72d580642205
 ````
 
-It look me awhile to decipher the format, especially the last column, but this is the gist of it. The last column essentially is a key to help you associate rows with a given org.
+It look me awhile to decipher the format, especially the last column, but this is the gist of it (I finally found a doc on the [format](https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf)). The last column essentially is a key to help you associate rows with a given org.
 
 ```
 registry|country_code|type|start|value|date|status|reg-­‐id[|extensions...]
@@ -103,5 +103,7 @@ During my process of searching for data I always find useful looks that directly
 - <https://team-cymru.com/community-services/ip-asn-mapping/>
 - <http://rest.db.ripe.net/search?query-string=8.8.8.8&type-filter=inetnum>
 - <https://hackertarget.com/as-ip-lookup/>
-- <https://rdap.arin.net/registry/ip/8.8.8.8>
+- <https://rdap.arin.net/registry/ip/8.8.8.8> 
+  - Look at `arin_originas0_originautnums` for ASN
 - <https://www.arin.net/resources/registry/whois/rdap/#rdap-urls>
+- <https://www.icann.org/rdap>
