@@ -125,10 +125,10 @@ You can see all the assigments here <a href="https://www.iana.org/assignments/as
 
 <p>For verification that the data was good, I looked up some addresses at IP info to see if things checked out, and everything looked good, but there was some caveats. I looked up some of the ranges and they were noted as inactive. How did I know a given range was “inactive”, there were not clear indicators in the ARIN datasets?</p>
 
+<p>Another challenge was associating ranges to a specific ASN. You can use the <code class="highlighter-rouge">reg-id</code> column to tie ASNs and IPs under the same org, but it isn’t clear how to tie an ASN to a specific IP allocation.</p>
+
 <h3 id="stats-delegated-format">Stats delegated format</h3>
 <p>Looking at the delegated extended datasets, they look like this.</p>
-
-<p><a href="https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf">https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf</a></p>
 
 <pre><code class="language-2.3|arin|1594044013396|154725|19700101|20200706|-0400">arin|*|asn|*|28470|summary
 arin|*|ipv4|*|66069|summary
@@ -145,7 +145,7 @@ arin|US|asn|10|1|00000000|assigned|3fa2e5aa48f205a7696ea6fbcd437cff
 arin|US|asn|11|1|19840704|assigned|88e9e1a9f78221c5b97e72d580642205
 </code></pre>
 
-<p>It look me awhile to decipher the format, especially the last column, but this is the gist of it. The last column essentially is a key to help you associate rows with a given org.</p>
+<p>It look me awhile to decipher the format, especially the last column, but this is the gist of it (I finally found a doc on the <a href="https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf">format</a>). The last column essentially is a key to help you associate rows with a given org.</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>registry|country_code|type|start|value|date|status|reg-­‐id[|extensions...]
 </code></pre>
@@ -192,8 +192,13 @@ bgpdump updates.20200428.1815 | grep <span class="s1">'AS6447'</span>
   <li><a href="https://team-cymru.com/community-services/ip-asn-mapping/">https://team-cymru.com/community-services/ip-asn-mapping/</a></li>
   <li><a href="http://rest.db.ripe.net/search?query-string=8.8.8.8&amp;type-filter=inetnum">http://rest.db.ripe.net/search?query-string=8.8.8.8&amp;type-filter=inetnum</a></li>
   <li><a href="https://hackertarget.com/as-ip-lookup/">https://hackertarget.com/as-ip-lookup/</a></li>
-  <li><a href="https://rdap.arin.net/registry/ip/8.8.8.8">https://rdap.arin.net/registry/ip/8.8.8.8</a></li>
+  <li><a href="https://rdap.arin.net/registry/ip/8.8.8.8">https://rdap.arin.net/registry/ip/8.8.8.8</a>
+    <ul>
+      <li>Look at <code class="highlighter-rouge">arin_originas0_originautnums</code> for ASN</li>
+    </ul>
+  </li>
   <li><a href="https://www.arin.net/resources/registry/whois/rdap/#rdap-urls">https://www.arin.net/resources/registry/whois/rdap/#rdap-urls</a></li>
+  <li><a href="https://www.icann.org/rdap">https://www.icann.org/rdap</a></li>
 </ul>
 
   </section>
