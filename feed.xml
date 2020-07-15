@@ -1,5 +1,347 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.0">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2020-07-09T18:43:16+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
-</subtitle><entry><title type="html">Where does IP data come from?</title><link href="http://ahermosilla.com/tools/2020/07/07/where-ip-data-lives.html" rel="alternate" type="text/html" title="Where does IP data come from?" /><published>2020-07-07T00:00:00+00:00</published><updated>2020-07-07T00:00:00+00:00</updated><id>http://ahermosilla.com/tools/2020/07/07/where-ip-data-lives</id><content type="html" xml:base="http://ahermosilla.com/tools/2020/07/07/where-ip-data-lives.html">&lt;p&gt;I’ve wondered for quite some time, how do sites like &lt;a href=&quot;https://ipinfo.io&quot;&gt;https://ipinfo.io&lt;/a&gt; get their data? Secondly, the question I had was “Could I gather/build out the data used by these sorts of services?”. Off the bat, looking at the data, I made the assumption that the ownership data is stored publicly or “premiumly” that I could access, but where? So I did some digging around and below is some the datasets I discovered.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.0">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2020-07-15T22:17:46+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
+</subtitle><entry><title type="html">Reverse Engineering the az-cli to use the python sdk</title><link href="http://ahermosilla.com/cloud/2020/07/15/reverse-engineering-az-cli-to-sdk.html" rel="alternate" type="text/html" title="Reverse Engineering the az-cli to use the python sdk" /><published>2020-07-15T00:00:00+00:00</published><updated>2020-07-15T00:00:00+00:00</updated><id>http://ahermosilla.com/cloud/2020/07/15/reverse-engineering-az-cli-to-sdk</id><content type="html" xml:base="http://ahermosilla.com/cloud/2020/07/15/reverse-engineering-az-cli-to-sdk.html">&lt;p&gt;For scripting things in AWS, switching between boto and the aws cli is seamless because they use the same interfaces. The name of the python module matches the subcommand in the cli and the arguments and options all line up. This is not the case with Azure ….&lt;/p&gt;
+
+&lt;p&gt;There seems to be inconsistent names between the az-cli, azure-sdk &amp;amp; the Azure portal, which makes creating scripts a bit challenging. Additionally challenging, the docs are not fleshed out and hard to find, so I’ve had to ‘trailblaze’ to discover how to use the sdk.&lt;/p&gt;
+
+&lt;p&gt;After wrestling through figuring out how to find &amp;amp; install the modules necessary for certain datasets I have developed a pattern for discovering how to use the python sdk.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Context&lt;/strong&gt;&lt;br /&gt;
+I was trying to create a script that pulled non-compliant resources from Azure Policy. The steps below document my journey to figuring out how to use the python sdk to do that.&lt;/p&gt;
+
+&lt;h2 id=&quot;clone-azure-cli&quot;&gt;Clone azure-cli&lt;/h2&gt;
+&lt;p&gt;Search around for an &lt;code class=&quot;highlighter-rouge&quot;&gt;az&lt;/code&gt; command that has the same names in the portal or yields similar data to the UI.
+Digging through &lt;a href=&quot;https://docs.microsoft.com/en-us/cli/azure/policy/state?view=azure-cli-latest#az-policy-state-list&quot;&gt;docs&lt;/a&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;az policy state list -g &quot;NameOfResourceGroup&quot;&lt;/code&gt; looked like it was a good place to start. We are going to clone the &lt;code class=&quot;highlighter-rouge&quot;&gt;azure-cli&lt;/code&gt; repo and look for the modules that are used for that command.&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Clone repo&lt;/span&gt;
+git clone https://github.com/Azure/azure-cli
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;azure-cli
+
+&lt;span class=&quot;c&quot;&gt;# Look for the command pattern&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# See output below&lt;/span&gt;
+ag --python &lt;span class=&quot;s1&quot;&gt;'policy state'&lt;/span&gt;  --ignore-dir &lt;span class=&quot;s1&quot;&gt;'*test'&lt;/span&gt; --ignore &lt;span class=&quot;s1&quot;&gt;'**help.py*'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Output&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;src/azure-cli/azure/cli/command_modules/policyinsights/_params.py
+107:    with self.argument_context('policy state') as c:
+112:            help='Within the specified time interval, get all policy states instead of the latest only.')
+120:    with self.argument_context('policy state summarize') as c:
+
+src/azure-cli/azure/cli/command_modules/policyinsights/commands.py
+36:    with self.command_group('policy state', policy_states_sdk, client_factory=policy_states_operations) as g:
+
+src/azure-cli/azure/cli/command_modules/sql/_params.py
+790:                   help='Auditing policy state',
+811:                   help='Threat detection policy state',
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now that the region of the code base is narrowed, let us open that directory in our editor &lt;code class=&quot;highlighter-rouge&quot;&gt;code src/azure-cli/azure/cli/command_modules/policyinsights/&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;When I look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;commands.py&lt;/code&gt; file, I notice &lt;code class=&quot;highlighter-rouge&quot;&gt;azure.mgmt.policyinsights.*&lt;/code&gt;, which looks like a python module (which it is), so that is a good direction indicator.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# ... Parts ommited for brevity&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;load_command_table&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;policy_events_sdk&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CliCommandType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;operations_tmpl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'azure.mgmt.policyinsights.operations#PolicyEventsOperations.{}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;exception_handler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;policy_insights_exception_handler&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;policy_states_sdk&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CliCommandType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;operations_tmpl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'azure.mgmt.policyinsights.operations#PolicyStatesOperations.{}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;exception_handler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;policy_insights_exception_handler&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Next I’ll do a case sensitive search for &lt;code class=&quot;highlighter-rouge&quot;&gt;Client&lt;/code&gt; - I’ve noticed there a is &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$Service&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;Client&lt;/span&gt;&lt;/code&gt; pattern in the python-sdk.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/reversing-az/code-find-client.png&quot; alt=&quot;Search For Client&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Sure enough, you can see the python module imported &lt;code class=&quot;highlighter-rouge&quot;&gt;from azure.mgmt.policyinsights import PolicyInsightsClient&lt;/code&gt;. Equipped with that knowledge, we can take a look at the python sdk. The specific module is found in &lt;a href=&quot;https://github.com/Azure/azure-sdk-for-python/tree/master/sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsights&quot;&gt;here&lt;/a&gt; and we can take a look at it to figure out how to use it.&lt;/p&gt;
+
+&lt;h2 id=&quot;look-at-requests-in-ui&quot;&gt;Look at Requests in UI&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/img/reversing-az/az-policy.png&quot; alt=&quot;AZ Policy&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Starting with the cli is a good place to start, however it doesn’t always yield fruitful results.
+Dig around in the UI for Policy, looking for properties, names, etc. One you can find is 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/205aa080f2cb4xxxxxxxx&lt;/code&gt;. For me, the part that sticks out is the part right before an id, &lt;code class=&quot;highlighter-rouge&quot;&gt;policyAssignments&lt;/code&gt;. Later, I’ll look for anything with &lt;code class=&quot;highlighter-rouge&quot;&gt;policy&lt;/code&gt; in the type of a resource using the Resource Graph Explorer.&lt;/p&gt;
+
+&lt;p&gt;I’ve noticed many pages interact directly with the same apis that the az-cli and python-sdk do, so I’ll open my browser network requests inspector and see what I can find.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/reversing-az/az-policy-network.png&quot; alt=&quot;AZ Policy Network&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So far, the endpoint with consistently useful data is &lt;code class=&quot;highlighter-rouge&quot;&gt;batch?api-version=xxxx&lt;/code&gt;. If you look at the request it gives you a hint at what endpoints we want to interact with. I look at the request and &lt;code class=&quot;highlighter-rouge&quot;&gt;Microsoft.PolicyInsights/policyStates&lt;/code&gt; is the part that sticks out to me as interesting. It is contained in part of a url, likely from an API that the sdk interacts with.&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;requests&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;httpMethod&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;POST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;5f152e3e-xxxx-yyyy-zzzz-000000000000&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;requestHeaderDetails&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;commandName&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Microsoft_Azure_Policy.&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://management.azure.com/providers/Microsoft.Management/managementGroups/codxxxxx/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults?api-version=2019-10-01&amp;amp;$top=250&amp;amp;$select=resourceId,resourceType,resourceLocation,timestamp,complianceState,policyDefinitionVersion,policySetDefinitionVersion&amp;amp;$filter=policyAssignmentId eq '/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/205aa080f2cb446a9exxxxxx' and policyDefinitionId eq '/providers/Microsoft.Authorization/policyDefinitions/34c877ad-xxxx-yyyy-zzzz-000000000000' and policyDefinitionReferenceId eq '13350666179920xxxxxxx' and ((complianceState eq 'noncompliant'))&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Armed with a pattern to look for, let’s try finding &lt;code class=&quot;highlighter-rouge&quot;&gt;Microsoft.PolicyInsights/policyStates&lt;/code&gt; in the SDK.&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# The sdk is ~200mb&lt;/span&gt;
+git clone https://github.com/Azure/azure-sdk-for-python
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;azure-sdk-for-python/
+ag --python &lt;span class=&quot;s1&quot;&gt;'Microsoft.PolicyInsights/policyStates'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Output&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsights/operations/_policy_states_operations.py
+149:    list_query_results_for_management_group.metadata = {'url': '/providers/{managementGroupsNamespace}/managementGroups/{managementGroupName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+230:    summarize_for_management_group.metadata = {'url': '/providers/{managementGroupsNamespace}/managementGroups/{managementGroupName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+331:    list_query_results_for_subscription.metadata = {'url': '/subscriptions/{subscriptionId}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+411:    summarize_for_subscription.metadata = {'url': '/subscriptions/{subscriptionId}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+515:    list_query_results_for_resource_group.metadata = {'url': '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+598:    summarize_for_resource_group.metadata = {'url': '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+704:    list_query_results_for_resource.metadata = {'url': '/{resourceId}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+784:    summarize_for_resource.metadata = {'url': '/{resourceId}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+858:    trigger_subscription_evaluation.metadata = {'url': '/subscriptions/{subscriptionId}/providers/Microsoft.PolicyInsights/policyStates/latest/triggerEvaluation'}
+936:    trigger_resource_group_evaluation.metadata = {'url': '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PolicyInsights/policyStates/latest/triggerEvaluation'}
+1041:    list_query_results_for_policy_set_definition.metadata = {'url': '/subscriptions/{subscriptionId}/providers/{authorizationNamespace}/policySetDefinitions/{policySetDefinitionName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+1126:    summarize_for_policy_set_definition.metadata = {'url': '/subscriptions/{subscriptionId}/providers/{authorizationNamespace}/policySetDefinitions/{policySetDefinitionName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+1231:    list_query_results_for_policy_definition.metadata = {'url': '/subscriptions/{subscriptionId}/providers/{authorizationNamespace}/policyDefinitions/{policyDefinitionName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+1315:    summarize_for_policy_definition.metadata = {'url': '/subscriptions/{subscriptionId}/providers/{authorizationNamespace}/policyDefinitions/{policyDefinitionName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+1420:    list_query_results_for_subscription_level_policy_assignment.metadata = {'url': '/subscriptions/{subscriptionId}/providers/{authorizationNamespace}/policyAssignments/{policyAssignmentName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+1504:    summarize_for_subscription_level_policy_assignment.metadata = {'url': '/subscriptions/{subscriptionId}/providers/{authorizationNamespace}/policyAssignments/{policyAssignmentName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+1612:    list_query_results_for_resource_group_level_policy_assignment.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{authorizationNamespace}/policyAssignments/{policyAssignmentName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
+1700:    summarize_for_resource_group_level_policy_assignment.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{authorizationNamespace}/policyAssignments/{policyAssignmentName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So starting from the UI we’ve narrowed down what part of the SDK to interact with. This lines up with what we discovered earlier looking at the azure-cli. Typically a module for a service has &lt;code class=&quot;highlighter-rouge&quot;&gt;models&lt;/code&gt; &amp;amp;  &lt;code class=&quot;highlighter-rouge&quot;&gt;operations&lt;/code&gt; directories, so we want to open the directory above, &lt;code class=&quot;highlighter-rouge&quot;&gt;sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsight&lt;/code&gt;. Generally, with modules, we don’t want to interact directly with &lt;code class=&quot;highlighter-rouge&quot;&gt;operations/*.py&lt;/code&gt;, there is a “public-interface” via a client which executes operations. To find the “public-interface” you need to look in &lt;code class=&quot;highlighter-rouge&quot;&gt;__init__.py&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Looking at &lt;code class=&quot;highlighter-rouge&quot;&gt;__init__.py&lt;/code&gt; you will find &lt;code class=&quot;highlighter-rouge&quot;&gt;__all__ = ['PolicyInsightsClient', 'PolicyInsightsClientConfiguration']&lt;/code&gt;, which is python for “you can/should access these in this module”. From there if you drill down into the client in &lt;code class=&quot;highlighter-rouge&quot;&gt;_policy_insights_client.py&lt;/code&gt; you will see the operation we found being imported and used in the client’s &lt;code class=&quot;highlighter-rouge&quot;&gt;__init__&lt;/code&gt; method.&lt;/p&gt;
+
+&lt;h2 id=&quot;look-at-resource-graph&quot;&gt;Look at Resource Graph&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/img/reversing-az/az-rg-query.png&quot; alt=&quot;AZ Resource Graph&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Some resources can be fetched using the resource graph. Once you have the pattern down for interacting with the resource graph client, instead of having to figure out additional clients you can possibly just figure a new query.&lt;/p&gt;
+
+&lt;p&gt;For example, if I wanted to get all public ips, using the network module from the python-sdk, it would take some effort. However, I can create a resource graph query to get that same data without having to iterate through all the subscriptions and resource groups&lt;/p&gt;
+
+&lt;h4 id=&quot;example&quot;&gt;Example&lt;/h4&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;where type in~ ('Microsoft.Network/PublicIpAddresses') and isnotempty(properties.ipAddress) 
+  | project id,name,type,location,subscriptionId,resourceGroup,kind,tags,properties.ipAddress 
+  | sort by tolower(tostring(name)) asc
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;azure.mgmt.resourcegraph.models&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;rg&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;azure.mgmt.resourcegraph&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ResourceGraphClient&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Parts omitted for brevity&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;resource_graph_all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;credentials&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;subscriptions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_subscriptions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;subscription_ids&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;subscription_id&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subscriptions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;has_more&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;per_page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;has_more&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;options&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;QueryRequestOptions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;top&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;per_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;skip&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;per_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;query_request&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;QueryRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;subscriptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;subscription_ids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;client&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ResourceGraphClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;client&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;query_request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;columns&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'columns'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]]&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;columns&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'rows'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]]&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;has_more&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;per_page&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;discovery&quot;&gt;Discovery&lt;/h3&gt;
+&lt;p&gt;It’s not immediately clear what resources are available to query. I find querying with &lt;code class=&quot;highlighter-rouge&quot;&gt;type contains '...'&lt;/code&gt; and trying different values helps me to discover what types of data are available. When I looked around for resources around policy, there was nothing that stuck out.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;resources 
+| where type contains 'insight' or type contains 'policy'
+| distinct  type
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;sample&quot;&gt;Sample&lt;/h2&gt;
+&lt;p&gt;Okay, so with all that spelunking, what did we finally land on for getting the policy state using the python-sdk?&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;shared.azure&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;az&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;azure.mgmt.policyinsights&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PolicyInsightsClient&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;credentials&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;az&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;insights&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PolicyInsightsClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;response&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;insights&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;policy_states&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list_query_results_for_management_group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'latest'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'rootmanagementgroup'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# @todo needs pagination&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content><author><name></name></author><category term="azure" /><category term="cloud" /><category term="python" /><summary type="html">For scripting things in AWS, switching between boto and the aws cli is seamless because they use the same interfaces. The name of the python module matches the subcommand in the cli and the arguments and options all line up. This is not the case with Azure ….</summary></entry><entry><title type="html">Setup Windows 10 in Azure</title><link href="http://ahermosilla.com/cloud/2020/07/14/setup-windows-10-azure.html" rel="alternate" type="text/html" title="Setup Windows 10 in Azure" /><published>2020-07-14T00:00:00+00:00</published><updated>2020-07-14T00:00:00+00:00</updated><id>http://ahermosilla.com/cloud/2020/07/14/setup-windows-10-azure</id><content type="html" xml:base="http://ahermosilla.com/cloud/2020/07/14/setup-windows-10-azure.html">&lt;p&gt;&lt;img src=&quot;/assets/img/windows-10-rdp.png&quot; alt=&quot;RDP&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The other day I needed to test a Windows application, but I’m using a Mac. If you need to audit/test a Windows application on a Mac or Linux box, Microsoft provides some developer VM images you can use for free &lt;a href=&quot;https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/&quot;&gt;https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/&lt;/a&gt;. I went ahead and downloaded the VM image for VirtualBox and starting the VM. I allocated 3 cores and 8GB of RAM thinking that should be enough power to test reasonably (I’m using MacBook Pro 2018 with the i5 and 16GB of RAM). Overall performance was tolerable, but I kept having issues where the VM would unresponsive for 30 seconds at a time. When auditing an application, the speed of iteration is important - I want to a fast feedback cycle when interacting with the application - this was not happening.&lt;/p&gt;
+
+&lt;p&gt;Switching gears a bit, I’ve been learning Azure, mostly from the perspective of securing cloud resources. It is really easy to deploy resources &amp;amp; Microsoft tech (eg Windows 10) has first-class support. I thought, what if instead of trying to tune settings in Windows &amp;amp; VirtualBox to get tolerable performance, what if I just deploy a VM in Azure and &lt;a href=&quot;https://apps.apple.com/us/app/microsoft-remote-desktop/id1295203466&quot;&gt;RDP&lt;/a&gt; in? After having gone through the process, I can tell you, a Windows environment in Azure takes very little effort!&lt;/p&gt;
+
+&lt;p&gt;My goal during this discovery process was to be able to quickly setup new environments for new applications I needed to test. I wanted to have a script at the end which I could use to spin up assets. I would start by creating a resource in the Azure Portal and then try to do the same with with the &lt;code class=&quot;highlighter-rouge&quot;&gt;az-cli&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;pip install azure-cli&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h2 id=&quot;steps&quot;&gt;Steps&lt;/h2&gt;
+&lt;h3 id=&quot;resource-group&quot;&gt;Resource Group&lt;/h3&gt;
+&lt;p&gt;In Azure, any resource you create will fall under your subscription, as well as a Resource Group, which is essentially a named grouping bucket you create.&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;az group create -l westus -n DesktopAppTest
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;create-vm&quot;&gt;Create VM&lt;/h3&gt;
+&lt;p&gt;When creating a VM in Azure, there are countless options, but in this context there are a couple that are important. You need to figure the specific image you will be using as well as the size (CPU/MEM) for the VM configuration.&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# List images ... you can find Windows 10&lt;/span&gt;
+az vm image list --output table
+az vm image list --output table --all --offer Windows-10
+
+&lt;span class=&quot;c&quot;&gt;# Output sample&lt;/span&gt;
+Offer       Publisher                Sku                          Urn                                                                                   Version
+----------  -----------------------  ---------------------------  ------------------------------------------------------------------------------------  ---------------------
+Windows-10  MicrosoftWindowsDesktop  19h1-ent                     MicrosoftWindowsDesktop:Windows-10:19h1-ent:18362.836.2005071659                      18362.836.2005071659
+Windows-10  MicrosoftWindowsDesktop  19h1-ent                     MicrosoftWindowsDesktop:Windows-10:19h1-ent:18362.900.2006061800                      18362.900.2006061800
+Windows-10  MicrosoftWindowsDesktop  19h1-ent                     MicrosoftWindowsDesktop:Windows-10:19h1-ent:18362.959.2007101755                      18362.959.2007101755
+Windows-10  MicrosoftWindowsDesktop  19h1-ent-gensecond           MicrosoftWindowsDesktop:Windows-10:19h1-ent-gensecond:18362.836.2005071659            18362.836.2005071659
+Windows-10  MicrosoftWindowsDesktop  19h1-ent-gensecond           MicrosoftWindowsDesktop:Windows-10:19h1-ent-gensecond:18362.900.2006061800            18362.900.2006061800
+Windows-10  MicrosoftWindowsDesktop  19h1-ent-gensecond           MicrosoftWindowsDesktop:Windows-10:19h1-ent-gensecond:18362.959.2007101755            18362.959.2007101755
+Windows-10  MicrosoftWindowsDesktop  19h1-entn                    MicrosoftWindowsDesktop:Windows-10:19h1-entn:18362.836.2005071659                     18362.836.2005071659
+Windows-10  MicrosoftWindowsDesktop  19h1-entn                    MicrosoftWindowsDesktop:Windows-10:19h1-entn:18362.900.2006061800                     18362.900.2006061800
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# List sizes ... we want at least 8GB memory&lt;/span&gt;
+az vm list-sizes --location westus --output table
+
+&lt;span class=&quot;c&quot;&gt;# Output sample&lt;/span&gt;
+MaxDataDiskCount    MemoryInMb    Name                    NumberOfCores    OsDiskSizeInMb    ResourceDiskSizeInMb
+------------------  ------------  ----------------------  ---------------  ----------------  ----------------------
+64                  5836800       Standard_M208ms_v2      208              1047552           4194304
+64                  2918400       Standard_M208s_v2       208              1047552           4194304
+64                  5836800       Standard_M416-208s_v2   416              1047552           8388608
+64                  5836800       Standard_M416s_v2       416              1047552           8388608
+64                  11673600      Standard_M416-208ms_v2  416              1047552           8388608
+64                  11673600      Standard_M416ms_v2      416              1047552           8388608
+8                   172032        Standard_NP10s          10               1047552           753664
+16                  344064        Standard_NP20s          
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;For the image I used &lt;code class=&quot;highlighter-rouge&quot;&gt;MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755&lt;/code&gt;, which is the image you select when you use the Azure portal. The VM size &lt;code class=&quot;highlighter-rouge&quot;&gt;Standard_D2ds_v4&lt;/code&gt; provides 8GB of MEM and 2 CPU, which for the application I was running was going to be enough power.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Create a vm using a Windows 10 VM&lt;/span&gt;
+az vm create -n win-10-app-x-test -g DesktopAppTest &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+	--image &lt;span class=&quot;s1&quot;&gt;'MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+	--admin-username myapp &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+	--size Standard_D2ds_v4 --location  westus &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+	--subscription &lt;span class=&quot;s2&quot;&gt;&quot;c3a7d4a7-xxxx-yyyy-zzzz-000000000000&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When you run the command, it will prompt you to input a password for RDP. Make sure to use a password with at least 20 characters since this asset will be exposed to the internet after deployment. (We’ll remedy this later)&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Output sample&lt;/span&gt;
+Admin Password: 
+Confirm Admin Password: 
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;- Finished ..
+  &lt;span class=&quot;s2&quot;&gt;&quot;fqdns&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;/subscriptions/c3a7d4a7-xxxx-yyyy-zzzz-000000000000/resourceGroups/DesktopAppTest/providers/Microsoft.Compute/virtualMachines/win-10-app-x-test&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;location&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;westus&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;macAddress&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;00-0D-3A-F6-F4-FC&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;powerState&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;VM running&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;privateIpAddress&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;10.0.1.7&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;publicIpAddress&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;40.91.105.xxx&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;resourceGroup&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;DesktopAppTest&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;zones&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;bootstrapping&quot;&gt;Bootstrapping&lt;/h3&gt;
+&lt;p&gt;There is likely a baseline setup of tools &amp;amp; apps you want to be installed on your VM. Having to manually install those tools every time you create a new box up would be time consuming. I wanted to script up installing the tools (Burp,ZAP,FireFox,etc) to get things moving faster. Luckily, for Windows, there is a third party package manager (think &lt;code class=&quot;highlighter-rouge&quot;&gt;brew&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;apt-get&lt;/code&gt;) called &lt;a href=&quot;https://chocolatey.org/&quot;&gt;Chocolatey&lt;/a&gt;. I created a small PowerShell script to install Chocolatey as well as some base packages I would need in every environment. You can copy the script and save in &lt;code class=&quot;highlighter-rouge&quot;&gt;bootstrap.ps1&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Install chocolatey and configure env &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;Set-ExecutionPolicy &lt;/span&gt;Bypass -Scope &lt;span class=&quot;k&quot;&gt;Process&lt;/span&gt; -Force;
+&lt;span class=&quot;nb&quot;&gt;iex&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;New-Object &lt;/span&gt;System.Net.WebClient&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.DownloadString&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://chocolatey.org/install.ps1&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;;
+&lt;span class=&quot;nb&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'PATH=%PATH%;C:\ProgramData\chocolatey\bin'&lt;/span&gt;;
+
+&lt;span class=&quot;c1&quot;&gt;# Set system wide environment variable&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;System.Environment]::SetEnvironmentVariable&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'APP_DEBUG_FLAG'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'1'&lt;/span&gt;, &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;System.EnvironmentVariableTarget]::Machine&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;;
+&lt;span class=&quot;nv&quot;&gt;$env&lt;/span&gt;:path +&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;';C:\ProgramData\chocolatey\bin\'&lt;/span&gt;;
+
+&lt;span class=&quot;c1&quot;&gt;# Install apps with choco&lt;/span&gt;
+choco install -y burp-suite-free-edition
+choco install -y sysmon
+choco install -y procexp
+choco install -y firefox
+choco install -y ag
+choco install -y strings
+choco install -y vscode
+
+&lt;span class=&quot;c1&quot;&gt;# Download specific files&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;New-Item&lt;/span&gt; -ItemType Directory -Force -Path &lt;span class=&quot;s1&quot;&gt;'C:\\installers'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;new-object &lt;/span&gt;System.Net.WebClient&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.Downloadfile&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'https://getcomposer.org/Composer-Setup.exe'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'C:\\installers\Composer-Setup.exe'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Show hidden holders &amp;amp; show extensions in explorer&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$key&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;Set-ItemProperty&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$key&lt;/span&gt; Hidden 1
+&lt;span class=&quot;nb&quot;&gt;Set-ItemProperty&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$key&lt;/span&gt; HideFileExt 0
+&lt;span class=&quot;nb&quot;&gt;Stop-Process&lt;/span&gt; -processname explorer
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Copying and pasting this file via RDP is not that big a deal, but I wanted to make the process as hands off as possible. I tried to embed the script in &lt;code class=&quot;highlighter-rouge&quot;&gt;customdata&lt;/code&gt; during deployment, but never had luck with getting that working. I ending up settling on &lt;code class=&quot;highlighter-rouge&quot;&gt;az vm run-command invoke --command-id RunPowerShellScript&lt;/code&gt; to execute the bootstrapping script.&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'DesktopAppTest'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'westus'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;vmname&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'win-10-app-x-test'&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Run a script using a file &lt;/span&gt;
+az vm run-command invoke  --command-id RunPowerShellScript &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;
+	--name &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;vmname&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; -g &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;  &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+	--scripts @bootstrap.ps1  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;security&quot;&gt;Security&lt;/h3&gt;
+&lt;p&gt;I mentioned earlier, by default, your VM will be exposed to the internet. Azure has assigned/created a Network Security Group which is attached to your VM’s NIC. You can alter to tighten up the security - we should limit the source addresses for RDP to your personal IP&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'DesktopAppTest'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'westus'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;vmname&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'win-10-app-x-test'&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Update network security group to only allow RDP from your ip&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;nsgid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;az network nic show  --ids &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;az vm show --name &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;vmname&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; -g &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; --query &lt;span class=&quot;s1&quot;&gt;'networkProfile.networkInterfaces[0].id'&lt;/span&gt; --output tsv&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; --query &lt;span class=&quot;s1&quot;&gt;'networkSecurityGroup.id'&lt;/span&gt; --output tsv&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;nv&quot;&gt;ruleid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;az network nsg show --ids &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;nsgid&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; --query &lt;span class=&quot;s1&quot;&gt;'securityRules[?name==`RDP`].id | [0]'&lt;/span&gt; --output tsv&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Use ifconfig.co to get your ip to update the rule&lt;/span&gt;
+az network nsg rule update --ids &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ruleid&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;  --source-address-prefixes &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;curl https://ifconfig.co/&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/32&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;improvements&quot;&gt;Improvements&lt;/h2&gt;
+&lt;p&gt;If you are spinning up new VMs often, you should take a look at &lt;a href=&quot;https://www.packer.io/&quot;&gt;Packer&lt;/a&gt; for building base images. Once you have a base image with your apps installed, you can deploy that instead of doing a fresh install of apps each deploy.&lt;/p&gt;</content><author><name></name></author><category term="azure" /><category term="cloud" /><category term="windows" /><summary type="html">[System.Environment]::SetEnvironmentVariable(‘APP_DEBUG_FLAG’, ‘1’, [System.EnvironmentVariableTarget]::Machine);</summary></entry><entry><title type="html">Where does IP data come from?</title><link href="http://ahermosilla.com/tools/2020/07/07/where-ip-data-lives.html" rel="alternate" type="text/html" title="Where does IP data come from?" /><published>2020-07-07T00:00:00+00:00</published><updated>2020-07-07T00:00:00+00:00</updated><id>http://ahermosilla.com/tools/2020/07/07/where-ip-data-lives</id><content type="html" xml:base="http://ahermosilla.com/tools/2020/07/07/where-ip-data-lives.html">&lt;p&gt;I’ve wondered for quite some time, how do sites like &lt;a href=&quot;https://ipinfo.io&quot;&gt;https://ipinfo.io&lt;/a&gt; get their data? Secondly, the question I had was “Could I gather/build out the data used by these sorts of services?”. Off the bat, looking at the data, I made the assumption that the ownership data is stored publicly or “premiumly” that I could access, but where? So I did some digging around and below is some the datasets I discovered.&lt;/p&gt;
 
 &lt;h2 id=&quot;iana&quot;&gt;IANA&lt;/h2&gt;
 &lt;p&gt;ICANN runs IANA which allocates IP addresses globally. The IANA allocates blocks of IPs to RIRs (Regional Internet Registry) which manage the blocks allocated to them. You can view the list of ranges and how they are allocated here &lt;a href=&quot;https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml&quot;&gt;https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml&lt;/a&gt;. It seems they allocate  &lt;code class=&quot;highlighter-rouge&quot;&gt;/8&lt;/code&gt; ranges, which you can also see here &lt;a href=&quot;https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks&quot;&gt;https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks&lt;/a&gt;&lt;/p&gt;
@@ -634,9 +976,9 @@ windows on their platform, so some basic tools to introduce ideas is helpful!&lt
 &lt;p&gt;With the command line you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;powershell&lt;/code&gt; to utilize WMI (Windows Management Instrumentation) which can give you insight into all sorts of things about your system!&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/&quot;&gt;https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;http://www.dedoimedo.com/computers/windows-wmic.html&quot;&gt;http://www.dedoimedo.com/computers/windows-wmic.html&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;http://people.virginia.edu/~rtg2t/winadmin/wmic.html&quot;&gt;http://people.virginia.edu/~rtg2t/winadmin/wmic.html&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/&quot;&gt;https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.dedoimedo.com/computers/windows-wmic.html&quot;&gt;http://www.dedoimedo.com/computers/windows-wmic.html&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://people.virginia.edu/~rtg2t/winadmin/wmic.html&quot;&gt;http://people.virginia.edu/~rtg2t/winadmin/wmic.html&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;strong&gt;Get Windows Version&lt;/strong&gt;&lt;/p&gt;
@@ -736,7 +1078,7 @@ MaxCapacity
 &lt;p&gt;On linux &lt;code class=&quot;highlighter-rouge&quot;&gt;tcpdump&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;netstat&lt;/code&gt; are gold but on Windows the you have different tools. Well, there is netstat, but it’s different.&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/&quot;&gt;https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/&quot;&gt;https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;tcpdump&lt;/code&gt; you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;netsh&lt;/code&gt; to capture traffic&lt;/p&gt;

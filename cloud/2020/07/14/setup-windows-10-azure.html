@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Setup Windows 10 in Azure</title>
+  <meta name="description" content="[System.Environment]::SetEnvironmentVariable(‘APP_DEBUG_FLAG’, ‘1’, [System.EnvironmentVariableTarget]::Machine);">
+  <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://ahermosilla.com/cloud/2020/07/14/setup-windows-10-azure.html">
+  <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33398574-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+    <header class="site-header" role="banner">
+  <div class="wrapper">
+    <span class="post-path">
+      <a href="/">2020-07-14-setup-windows-10-azure.md</a>
+    </span>
+    <nav class="site-nav">
+      <a class="menu-trigger">Menu</a>
+      <div class="menu-items">
+        
+          <a class="page-link" href="/">/root</a>
+        
+          <a class="page-link" href="/about/">/about</a>
+        
+          <a class="page-link" href="/categories/">/categories</a>
+        
+          <a class="page-link" href="/tags/">/tags</a>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main class="page-content">
+      <div class="wrapper" aria-label="Content">
+        <article id="post-setup-windows-10-azure" class="post post-single category-cloudtag-azure tag-cloud tag-windows" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Setup Windows 10 in Azure</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2020-07-14T00:00:00+00:00" itemprop="datePublished">
+        July 14, 2020
+      </time>
+
+
+
+      
+        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/azure/">azure</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/cloud/">cloud</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/windows/">windows</a></li>
+    
+</ul>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <p><img src="/assets/img/windows-10-rdp.png" alt="RDP" /></p>
+
+<p>The other day I needed to test a Windows application, but I’m using a Mac. If you need to audit/test a Windows application on a Mac or Linux box, Microsoft provides some developer VM images you can use for free <a href="https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/">https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/</a>. I went ahead and downloaded the VM image for VirtualBox and starting the VM. I allocated 3 cores and 8GB of RAM thinking that should be enough power to test reasonably (I’m using MacBook Pro 2018 with the i5 and 16GB of RAM). Overall performance was tolerable, but I kept having issues where the VM would unresponsive for 30 seconds at a time. When auditing an application, the speed of iteration is important - I want to a fast feedback cycle when interacting with the application - this was not happening.</p>
+
+<p>Switching gears a bit, I’ve been learning Azure, mostly from the perspective of securing cloud resources. It is really easy to deploy resources &amp; Microsoft tech (eg Windows 10) has first-class support. I thought, what if instead of trying to tune settings in Windows &amp; VirtualBox to get tolerable performance, what if I just deploy a VM in Azure and <a href="https://apps.apple.com/us/app/microsoft-remote-desktop/id1295203466">RDP</a> in? After having gone through the process, I can tell you, a Windows environment in Azure takes very little effort!</p>
+
+<p>My goal during this discovery process was to be able to quickly setup new environments for new applications I needed to test. I wanted to have a script at the end which I could use to spin up assets. I would start by creating a resource in the Azure Portal and then try to do the same with with the <code class="highlighter-rouge">az-cli</code> (<code class="highlighter-rouge">pip install azure-cli</code>).</p>
+
+<h2 id="steps">Steps</h2>
+<h3 id="resource-group">Resource Group</h3>
+<p>In Azure, any resource you create will fall under your subscription, as well as a Resource Group, which is essentially a named grouping bucket you create.</p>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>az group create -l westus -n DesktopAppTest
+</code></pre>
+</div>
+
+<h3 id="create-vm">Create VM</h3>
+<p>When creating a VM in Azure, there are countless options, but in this context there are a couple that are important. You need to figure the specific image you will be using as well as the size (CPU/MEM) for the VM configuration.</p>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="c"># List images ... you can find Windows 10</span>
+az vm image list --output table
+az vm image list --output table --all --offer Windows-10
+
+<span class="c"># Output sample</span>
+Offer       Publisher                Sku                          Urn                                                                                   Version
+----------  -----------------------  ---------------------------  ------------------------------------------------------------------------------------  ---------------------
+Windows-10  MicrosoftWindowsDesktop  19h1-ent                     MicrosoftWindowsDesktop:Windows-10:19h1-ent:18362.836.2005071659                      18362.836.2005071659
+Windows-10  MicrosoftWindowsDesktop  19h1-ent                     MicrosoftWindowsDesktop:Windows-10:19h1-ent:18362.900.2006061800                      18362.900.2006061800
+Windows-10  MicrosoftWindowsDesktop  19h1-ent                     MicrosoftWindowsDesktop:Windows-10:19h1-ent:18362.959.2007101755                      18362.959.2007101755
+Windows-10  MicrosoftWindowsDesktop  19h1-ent-gensecond           MicrosoftWindowsDesktop:Windows-10:19h1-ent-gensecond:18362.836.2005071659            18362.836.2005071659
+Windows-10  MicrosoftWindowsDesktop  19h1-ent-gensecond           MicrosoftWindowsDesktop:Windows-10:19h1-ent-gensecond:18362.900.2006061800            18362.900.2006061800
+Windows-10  MicrosoftWindowsDesktop  19h1-ent-gensecond           MicrosoftWindowsDesktop:Windows-10:19h1-ent-gensecond:18362.959.2007101755            18362.959.2007101755
+Windows-10  MicrosoftWindowsDesktop  19h1-entn                    MicrosoftWindowsDesktop:Windows-10:19h1-entn:18362.836.2005071659                     18362.836.2005071659
+Windows-10  MicrosoftWindowsDesktop  19h1-entn                    MicrosoftWindowsDesktop:Windows-10:19h1-entn:18362.900.2006061800                     18362.900.2006061800
+</code></pre>
+</div>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="c"># List sizes ... we want at least 8GB memory</span>
+az vm list-sizes --location westus --output table
+
+<span class="c"># Output sample</span>
+MaxDataDiskCount    MemoryInMb    Name                    NumberOfCores    OsDiskSizeInMb    ResourceDiskSizeInMb
+------------------  ------------  ----------------------  ---------------  ----------------  ----------------------
+64                  5836800       Standard_M208ms_v2      208              1047552           4194304
+64                  2918400       Standard_M208s_v2       208              1047552           4194304
+64                  5836800       Standard_M416-208s_v2   416              1047552           8388608
+64                  5836800       Standard_M416s_v2       416              1047552           8388608
+64                  11673600      Standard_M416-208ms_v2  416              1047552           8388608
+64                  11673600      Standard_M416ms_v2      416              1047552           8388608
+8                   172032        Standard_NP10s          10               1047552           753664
+16                  344064        Standard_NP20s          
+</code></pre>
+</div>
+<p>For the image I used <code class="highlighter-rouge">MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755</code>, which is the image you select when you use the Azure portal. The VM size <code class="highlighter-rouge">Standard_D2ds_v4</code> provides 8GB of MEM and 2 CPU, which for the application I was running was going to be enough power.</p>
+
+<p><em>An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.</em></p>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="c"># Create a vm using a Windows 10 VM</span>
+az vm create -n win-10-app-x-test -g DesktopAppTest <span class="se">\</span>
+	--image <span class="s1">'MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755'</span> <span class="se">\</span>
+	--admin-username myapp <span class="se">\</span>
+	--size Standard_D2ds_v4 --location  westus <span class="se">\</span>
+	--subscription <span class="s2">"c3a7d4a7-xxxx-yyyy-zzzz-000000000000"</span>
+</code></pre>
+</div>
+
+<p>When you run the command, it will prompt you to input a password for RDP. Make sure to use a password with at least 20 characters since this asset will be exposed to the internet after deployment. (We’ll remedy this later)</p>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="c"># Output sample</span>
+Admin Password: 
+Confirm Admin Password: 
+<span class="o">{</span>- Finished ..
+  <span class="s2">"fqdns"</span>: <span class="s2">""</span>,
+  <span class="s2">"id"</span>: <span class="s2">"/subscriptions/c3a7d4a7-xxxx-yyyy-zzzz-000000000000/resourceGroups/DesktopAppTest/providers/Microsoft.Compute/virtualMachines/win-10-app-x-test"</span>,
+  <span class="s2">"location"</span>: <span class="s2">"westus"</span>,
+  <span class="s2">"macAddress"</span>: <span class="s2">"00-0D-3A-F6-F4-FC"</span>,
+  <span class="s2">"powerState"</span>: <span class="s2">"VM running"</span>,
+  <span class="s2">"privateIpAddress"</span>: <span class="s2">"10.0.1.7"</span>,
+  <span class="s2">"publicIpAddress"</span>: <span class="s2">"40.91.105.xxx"</span>,
+  <span class="s2">"resourceGroup"</span>: <span class="s2">"DesktopAppTest"</span>,
+  <span class="s2">"zones"</span>: <span class="s2">""</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="bootstrapping">Bootstrapping</h3>
+<p>There is likely a baseline setup of tools &amp; apps you want to be installed on your VM. Having to manually install those tools every time you create a new box up would be time consuming. I wanted to script up installing the tools (Burp,ZAP,FireFox,etc) to get things moving faster. Luckily, for Windows, there is a third party package manager (think <code class="highlighter-rouge">brew</code> or <code class="highlighter-rouge">apt-get</code>) called <a href="https://chocolatey.org/">Chocolatey</a>. I created a small PowerShell script to install Chocolatey as well as some base packages I would need in every environment. You can copy the script and save in <code class="highlighter-rouge">bootstrap.ps1</code>.</p>
+
+<div class="language-powershell highlighter-rouge"><pre class="highlight"><code><span class="c1"># Install chocolatey and configure env </span>
+<span class="nb">Set-ExecutionPolicy </span>Bypass -Scope <span class="k">Process</span> -Force;
+<span class="nb">iex</span> <span class="o">((</span><span class="nb">New-Object </span>System.Net.WebClient<span class="o">)</span>.DownloadString<span class="o">(</span><span class="s2">"https://chocolatey.org/install.ps1"</span><span class="o">))</span>;
+<span class="nb">SET</span> <span class="s1">'PATH=%PATH%;C:\ProgramData\chocolatey\bin'</span>;
+
+<span class="c1"># Set system wide environment variable</span>
+<span class="o">[</span>System.Environment]::SetEnvironmentVariable<span class="o">(</span><span class="s1">'APP_DEBUG_FLAG'</span>, <span class="s1">'1'</span>, <span class="o">[</span>System.EnvironmentVariableTarget]::Machine<span class="o">)</span>;
+<span class="nv">$env</span>:path +<span class="o">=</span> <span class="s1">';C:\ProgramData\chocolatey\bin\'</span>;
+
+<span class="c1"># Install apps with choco</span>
+choco install -y burp-suite-free-edition
+choco install -y sysmon
+choco install -y procexp
+choco install -y firefox
+choco install -y ag
+choco install -y strings
+choco install -y vscode
+
+<span class="c1"># Download specific files</span>
+<span class="nb">New-Item</span> -ItemType Directory -Force -Path <span class="s1">'C:\\installers'</span>
+<span class="o">(</span><span class="nb">new-object </span>System.Net.WebClient<span class="o">)</span>.Downloadfile<span class="o">(</span><span class="s1">'https://getcomposer.org/Composer-Setup.exe'</span>, <span class="s1">'C:\\installers\Composer-Setup.exe'</span><span class="o">)</span>
+
+<span class="c1"># Show hidden holders &amp; show extensions in explorer</span>
+<span class="nv">$key</span> <span class="o">=</span> <span class="s1">'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'</span>
+<span class="nb">Set-ItemProperty</span> <span class="nv">$key</span> Hidden 1
+<span class="nb">Set-ItemProperty</span> <span class="nv">$key</span> HideFileExt 0
+<span class="nb">Stop-Process</span> -processname explorer
+</code></pre>
+</div>
+
+<p>Copying and pasting this file via RDP is not that big a deal, but I wanted to make the process as hands off as possible. I tried to embed the script in <code class="highlighter-rouge">customdata</code> during deployment, but never had luck with getting that working. I ending up settling on <code class="highlighter-rouge">az vm run-command invoke --command-id RunPowerShellScript</code> to execute the bootstrapping script.</p>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="nv">group</span><span class="o">=</span><span class="s1">'DesktopAppTest'</span>
+<span class="nv">location</span><span class="o">=</span><span class="s1">'westus'</span>
+<span class="nv">vmname</span><span class="o">=</span><span class="s1">'win-10-app-x-test'</span>
+
+<span class="c"># Run a script using a file </span>
+az vm run-command invoke  --command-id RunPowerShellScript <span class="se">\ </span>
+	--name <span class="s2">"</span><span class="k">${</span><span class="nv">vmname</span><span class="k">}</span><span class="s2">"</span> -g <span class="s2">"</span><span class="k">${</span><span class="nv">group</span><span class="k">}</span><span class="s2">"</span>  <span class="se">\</span>
+	--scripts @bootstrap.ps1  
+</code></pre>
+</div>
+
+<h3 id="security">Security</h3>
+<p>I mentioned earlier, by default, your VM will be exposed to the internet. Azure has assigned/created a Network Security Group which is attached to your VM’s NIC. You can alter to tighten up the security - we should limit the source addresses for RDP to your personal IP</p>
+
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="nv">group</span><span class="o">=</span><span class="s1">'DesktopAppTest'</span>
+<span class="nv">location</span><span class="o">=</span><span class="s1">'westus'</span>
+<span class="nv">vmname</span><span class="o">=</span><span class="s1">'win-10-app-x-test'</span>
+
+<span class="c"># Update network security group to only allow RDP from your ip</span>
+<span class="nv">nsgid</span><span class="o">=</span><span class="k">$(</span>az network nic show  --ids <span class="s2">"</span><span class="k">$(</span>az vm show --name <span class="s2">"</span><span class="k">${</span><span class="nv">vmname</span><span class="k">}</span><span class="s2">"</span> -g <span class="s2">"</span><span class="k">${</span><span class="nv">group</span><span class="k">}</span><span class="s2">"</span> --query <span class="s1">'networkProfile.networkInterfaces[0].id'</span> --output tsv<span class="k">)</span><span class="s2">"</span> --query <span class="s1">'networkSecurityGroup.id'</span> --output tsv<span class="k">)</span>
+
+<span class="nv">ruleid</span><span class="o">=</span><span class="k">$(</span>az network nsg show --ids <span class="s2">"</span><span class="k">${</span><span class="nv">nsgid</span><span class="k">}</span><span class="s2">"</span> --query <span class="s1">'securityRules[?name==`RDP`].id | [0]'</span> --output tsv<span class="k">)</span>
+
+<span class="c"># Use ifconfig.co to get your ip to update the rule</span>
+az network nsg rule update --ids <span class="s2">"</span><span class="k">${</span><span class="nv">ruleid</span><span class="k">}</span><span class="s2">"</span>  --source-address-prefixes <span class="s2">"</span><span class="k">$(</span>curl https://ifconfig.co/<span class="k">)</span><span class="s2">/32"</span>
+</code></pre>
+</div>
+
+<h2 id="improvements">Improvements</h2>
+<p>If you are spinning up new VMs often, you should take a look at <a href="https://www.packer.io/">Packer</a> for building base images. Once you have a base image with your apps installed, you can deploy that instead of doing a fresh install of apps each deploy.</p>
+
+  </section>
+
+  
+</article>
+      </div>
+    </main>
+    <footer id="site-footer">
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1"></div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/rezen"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">rezen</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/dandr3ss"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">dandr3ss</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m evolving and others  are refined from years of experience.
+</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+jQuery(function ($) {
+  // Add anchors to headings that have ids
+  // https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263
+  $('h2,h3,h4,h5,h6').filter('[id]').each(function () {
+    $(this).html('<a href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+  });
+
+  $('.menu-trigger').on('click', function () {
+    $(this).next().toggleClass('expanded');
+  });
+});
+</script>
+  </body>
+</html>
