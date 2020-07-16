@@ -23,7 +23,7 @@ Metalsmith let's you essentially mix your own functionality with plugins to morp
 generator you are used to. Below is an example how to use Metalsmith with a Jekyll structure 
 if you are more inclined to use nodejs tools.
 
-{{ 'https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll' | urlize }}
+<https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll>
 
 
 ## Requirements
@@ -38,7 +38,7 @@ To first install chocolately, run `cmd.exe` as an Administrator and run the foll
 ```powershell
 @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 ```
-{{ 'https://chocolatey.org/install'  | urlize }}
+<https://chocolatey.org/install'  | urlize }}
 
 Once that is complete you can use chocolatey to install ruby!
 
@@ -94,7 +94,7 @@ POPD
 If you are still having certificate errors, I found this answer on [Stackoverflow helpful][stack-answer].
 
 You can also check out this thorough guide for windows install I found after wrestling through SSL troubles.
-{{ 'http://yizeng.me/2013/05/10/setup-jekyll-on-windows/' | urlize }}
+<http://yizeng.me/2013/05/10/setup-jekyll-on-windows/>
 
 ## Editing
 Once you are all setup you'll see the contents of the blog similar to structure below.
@@ -173,7 +173,7 @@ auto urlizer at this point so I made a liquid filter and dropped it into the pro
  `_plugins/urlize-filter.rb`! to use it it's as simple as
 
 ```
-{{ "{{ 'http://jekyllrb.com/docs/home' | urlize " }}}}
+{{ "<http://jekyllrb.com/docs/home' | urlize " }}}}
 ```
 
 ```ruby
@@ -193,7 +193,7 @@ In WordPress you can tag posts as "sticky", essentially pinning them as more imp
 I did some quick searching around and found a solution to add a `pinned` attribute
 and drop in a new plugin!
 
-{{ 'https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4' | urlize }}
+<https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4>
 ```
 ---
 layout: post
@@ -283,10 +283,10 @@ I assume this could be easily remedied by a plugin and found `jekyll-archives`!
 
 Here are some more links on archives you can check out, maybe there is another solution you like better!
 
-- {{ 'https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/' | urlize }}
-- {{ 'https://blog.webjeda.com/jekyll-categories/' | urlize }}
-- {{ 'https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/' | urlize }}
-- {{ 'http://reyhan.org/2013/03/jekyll-archive-without-plugins.html' | urlize }}
+- <https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/>
+- <https://blog.webjeda.com/jekyll-categories/>
+- <https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/>
+- <http://reyhan.org/2013/03/jekyll-archive-without-plugins.html>
 
 ### Image Classes
 I wanted to add a custom class to an image but didn't think markdown supported the
@@ -309,14 +309,14 @@ This markdown ....
 ### More
 I covered some quick "plugins" to get you introduced, but make sure check out the resources below!
 
-- {{ 'https://jekyllrb.com/docs/plugins/' | urlize }}
-- {{ 'http://www.jekyll-plugins.com/' | urlize }}
-- {{ 'https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/' | urlize }}
-- {{ 'https://divshot.com/blog/web-development/advanced-jekyll-features/' | urlize }}
-- {{ 'http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/' | urlize }}
-- {{ 'http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/' | urlize }}
-- {{ 'https://github.com/planetjekyll/awesome-jekyll-plugins' | urlize }}
-- {{ 'http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/' | urlize }}
+- <https://jekyllrb.com/docs/plugins/>
+- <http://www.jekyll-plugins.com/>
+- <https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/>
+- <https://divshot.com/blog/web-development/advanced-jekyll-features/>
+- <http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/>
+- <http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/>
+- <https://github.com/planetjekyll/awesome-jekyll-plugins>
+- <http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/>
 
 ## Next Steps
 Once you are all setup and installed you can jump into creating content
@@ -326,15 +326,15 @@ I will share more
 
 - [Cheatsheet!](https://gist.github.com/smutnyleszek/9803727)
 - [Liquid templating](http://shopify.github.io/liquid/)
-- {{ 'http://jekyllrb.com/docs/home' | urlize }}
-- {{ 'https://github.com/planetjekyll/awesome-jekyll' | urlize }}
-- {{ 'https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content' | urlize }}
-- {{ 'https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts' | urlize }}
-- {{ 'http://jekyll-windows.juthilo.com/' | urlize }}
-- {{ 'https://divshot.com/blog/web-development/advanced-jekyll-features/' | urlize }}
-- {{ 'http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/' | urlize }}
-- {{ 'http://svmiller.com/blog/2015/08/create-your-website-in-jekyll' | urlize }}
-- {{ 'http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html' | urlize }}
+- <http://jekyllrb.com/docs/home>
+- <https://github.com/planetjekyll/awesome-jekyll>
+- <https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content>
+- <https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts>
+- <http://jekyll-windows.juthilo.com/>
+- <https://divshot.com/blog/web-development/advanced-jekyll-features/>
+- <http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/>
+- <http://svmiller.com/blog/2015/08/create-your-website-in-jekyll>
+- <http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html>
 
 
 Check out the [Jekyll docs][jekyll-docs]

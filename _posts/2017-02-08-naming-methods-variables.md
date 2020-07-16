@@ -40,13 +40,13 @@ the name or concept that you are starting with.
 ## Tools
 Using a thesarus helps you to find similar terms that may better communicate 
 intent &/or context
-- {{ 'http://source-code-wordle.de/' | urlize }}
-- {{ 'http://visualthesaurus.com/' | urlize }}
-- {{ 'http://www.thesaurus.com/' | urlize }}
+- <http://source-code-wordle.de/>
+- <http://visualthesaurus.com/>
+- <http://www.thesaurus.com/>
 
 Inversely, if you enter your variable or method on the link and it's on the list
 then you probably shouldn't use the name.
-- {{ 'http://sph.mn/o/svn?words=evnHndlr' | urlize }}
+- <http://sph.mn/o/svn?words=evnHndlr>
 
 ## Seek
 - Names that reveal intent
@@ -87,47 +87,47 @@ then you probably shouldn't use the name.
  - `shun(user)` vs `ban(user)`
 
 ## Inspirations
-- {{ 'http://www.bbc.co.uk/ontologies' | urlize }}
-- {{ 'http://schema.org/CreativeWork' | urlize }}
-- {{ 'https://namingschemes.com/' | urlize }}
-- {{ 'http://www.ereadingworksheets.com/figurative-language/figurative-language-examples/metaphor-examples/' | urlize }}
-- {{ 'http://literarydevices.net/a-huge-list-of-short-metaphor-examples/' | urlize }}
-- {{ 'https://www.scribd.com/doc/29896677/Some-Common-Traditional-Symbols-in-Western-Literature' | urlize }}
-- {{ 'http://fos.iloveindia.com/analogy-examples.html' | urlize }}
+- <http://www.bbc.co.uk/ontologies>
+- <http://schema.org/CreativeWork>
+- <https://namingschemes.com/>
+- <http://www.ereadingworksheets.com/figurative-language/figurative-language-examples/metaphor-examples/>
+- <http://literarydevices.net/a-huge-list-of-short-metaphor-examples/>
+- <https://www.scribd.com/doc/29896677/Some-Common-Traditional-Symbols-in-Western-Literature>
+- <http://fos.iloveindia.com/analogy-examples.html>
 
 ## Links
-- {{ 'https://24ways.org/2014/naming-things/' | urlize }}
-- {{ 'http://deviq.com/naming-things/' | urlize }}
-- {{ 'https://a-nickels-worth.blogspot.com/2016/04/a-guide-to-naming-variables.html' | urlize }}
-- {{ 'http://www.yacoset.com/Home/naming-tips' | urlize }}
-- {{ 'http://bensmith.io/20-tips-for-better-naming' | urlize }}
-- {{ 'http://www.makinggoodsoftware.com/2009/05/04/71-tips-for-naming-variables/' | urlize }}
-- {{ 'http://www.eventhelix.com/RealtimeMantra/Object_Oriented/object_design_tips.htm' | urlize }}
-- {{ 'http://steve-yegge.blogspot.com/2006/03/execution-in-kingdom-of-nouns.html' | urlize }}
-- {{ 'http://objology.blogspot.com/2011/09/one-of-best-bits-of-programming-advice.html' | urlize }}
-- {{ 'http://codebuild.blogspot.com/2012/02/15-best-practices-of-variable-method.html' | urlize }}
-- {{ 'http://caseysoftware.com/blog/useful-naming-conventions' | urlize }}
-- {{ 'http://mojones.net/how-to-pick-bad-function-and-variable-names.html' | urlize }}
-- {{ 'http://www.yegor256.com/2015/03/09/objects-end-with-er.html' | urlize }}
-- {{ 'http://www.ed.ac.uk/records-management/records-management/staff-guidance/electronic-records/naming-conventions' | urlize }}
-- {{ 'http://wiki.c2.com/?IntentionRevealingNames' | urlize }}
-- {{ 'http://wiki.c2.com/?IntentionRevealingSelector' | urlize }}
-- {{ 'http://www.outofscope.com/name-with-intention-not-implementation/' | urlize }}
-- {{ 'http://www.cs.uakron.edu/~chanc/CS490/SeniorSeminar2012/Lecture%202%20-%20Program%20Style/programming%20style.pdf' | urlize }}
-- {{ 'https://signalvnoise.com/posts/3531-intention-revealing-methods' | urlize }}
-- {{ 'https://signalvnoise.com/posts/3250-clarity-over-brevity-in-variable-and-method-names' | urlize }}
-- {{ 'http://wiki.c2.com/?TheWhatButNotTheWhy' | urlize }}
-- {{ 'http://wiki.c2.com/?DontNameClassesObjectManagerHandlerOrData' | urlize }}
-- {{ 'https://blog.codinghorror.com/i-shall-call-it-somethingmanager/' | urlize }}
-- {{ 'http://stackoverflow.com/questions/1866794/naming-classes-how-to-avoid-calling-everything-a-whatevermanager' | urlize }}
-- {{ 'http://www.sandywalsh.com/2010/04/am-i-bad-man-for-naming-my-classes.html' | urlize }}
-- {{ 'https://blog.goyello.com/2013/05/17/express-names-in-code-bad-vs-clean/' | urlize }}
-- {{ 'http://www.itiseezee.com/?p=83' | urlize }}
-- {{ 'http://javarevisited.blogspot.com/2014/10/10-java-best-practices-to-name-variables-methods-classes-packages.html' | urlize }}
-- {{ 'http://www.carlopescio.com/2011/04/your-coding-conventions-are-hurting-you.html' | urlize }}
-- {{ 'http://ontologydesignpatterns.org/wiki/Submissions:ContentOPs' | urlize }}
-- {{ 'http://www.yesodweb.com/blog/2011/12/variable-naming-context' | urlize }}
-- {{ 'http://breckyunits.com/naming-things.html' | urlize }}
-- {{ 'http://slidedeck.io/hoontw/naming-things' | urlize }}
-- {{ 'https://medium.com/@cavill/how-to-name-your-product-876f78b959d4#.rb65jb5ju' | urlize }}
-- {{ 'https://www.freshconsulting.com/development-principle-1-choose-appropriate-variable-names/' | urlize }}
+- <https://24ways.org/2014/naming-things/>
+- <http://deviq.com/naming-things/>
+- <https://a-nickels-worth.blogspot.com/2016/04/a-guide-to-naming-variables.html>
+- <http://www.yacoset.com/Home/naming-tips>
+- <http://bensmith.io/20-tips-for-better-naming>
+- <http://www.makinggoodsoftware.com/2009/05/04/71-tips-for-naming-variables/>
+- <http://www.eventhelix.com/RealtimeMantra/Object_Oriented/object_design_tips.htm>
+- <http://steve-yegge.blogspot.com/2006/03/execution-in-kingdom-of-nouns.html>
+- <http://objology.blogspot.com/2011/09/one-of-best-bits-of-programming-advice.html>
+- <http://codebuild.blogspot.com/2012/02/15-best-practices-of-variable-method.html>
+- <http://caseysoftware.com/blog/useful-naming-conventions>
+- <http://mojones.net/how-to-pick-bad-function-and-variable-names.html>
+- <http://www.yegor256.com/2015/03/09/objects-end-with-er.html>
+- <http://www.ed.ac.uk/records-management/records-management/staff-guidance/electronic-records/naming-conventions>
+- <http://wiki.c2.com/?IntentionRevealingNames>
+- <http://wiki.c2.com/?IntentionRevealingSelector>
+- <http://www.outofscope.com/name-with-intention-not-implementation/>
+- <http://www.cs.uakron.edu/~chanc/CS490/SeniorSeminar2012/Lecture%202%20-%20Program%20Style/programming%20style.pdf>
+- <https://signalvnoise.com/posts/3531-intention-revealing-methods>
+- <https://signalvnoise.com/posts/3250-clarity-over-brevity-in-variable-and-method-names>
+- <http://wiki.c2.com/?TheWhatButNotTheWhy>
+- <http://wiki.c2.com/?DontNameClassesObjectManagerHandlerOrData>
+- <https://blog.codinghorror.com/i-shall-call-it-somethingmanager/>
+- <http://stackoverflow.com/questions/1866794/naming-classes-how-to-avoid-calling-everything-a-whatevermanager>
+- <http://www.sandywalsh.com/2010/04/am-i-bad-man-for-naming-my-classes.html>
+- <https://blog.goyello.com/2013/05/17/express-names-in-code-bad-vs-clean/>
+- <http://www.itiseezee.com/?p=83>
+- <http://javarevisited.blogspot.com/2014/10/10-java-best-practices-to-name-variables-methods-classes-packages.html>
+- <http://www.carlopescio.com/2011/04/your-coding-conventions-are-hurting-you.html>
+- <http://ontologydesignpatterns.org/wiki/Submissions:ContentOPs>
+- <http://www.yesodweb.com/blog/2011/12/variable-naming-context>
+- <http://breckyunits.com/naming-things.html>
+- <http://slidedeck.io/hoontw/naming-things>
+- <https://medium.com/@cavill/how-to-name-your-product-876f78b959d4#.rb65jb5ju>
+- <https://www.freshconsulting.com/development-principle-1-choose-appropriate-variable-names/>

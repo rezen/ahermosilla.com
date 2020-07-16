@@ -41,7 +41,7 @@ You need to consider what how the work you want to do lines up or doesn’t line
 ### What is the forecast of career?
 Will the field be relevant in 10 years? Does it pay enough to support a family? Will robots take over your job very soon?
 
-{{ 'http://www.npr.org/sections/money/2015/05/21/408234543/will-your-job-be-done-by-a-machine' | urlize }}
+<http://www.npr.org/sections/money/2015/05/21/408234543/will-your-job-be-done-by-a-machine>
 
 ### Avoid College Debt
 College debt carries with you until you pay it off. You can’t declare bankruptcy and rid yourself of it.
@@ -49,7 +49,7 @@ College debt carries with you until you pay it off. You can’t declare bankrupt
 with community college and then go to a four year school. This is additionally helpful for students that are unsure – 
 it’s not worth wasting money on general-ed classes.
 
-{{ 'http://www.hamiltonproject.org/charts/undergraduate_student_loan_calculator' | urlize }}
+<http://www.hamiltonproject.org/charts/undergraduate_student_loan_calculator>
 
  
 ## Software/Programming
@@ -70,7 +70,7 @@ Computers are constantly evolving machines. They require you to also evolve to m
 Linux is on servers, phones, cameras, cars … linux is everywhere! No matter what you decide to focus on software wise you will probably have to work with linux. In fact, good ol’ Microsft released .NET for linux and is transitioning Azure to linux? To learn install Ubuntu (easiest to start with) on a computer and learn the command line. You can also get an Amazon EC2 free instance! Most servers are linux and the number of jobs you can get just from being awesome at linux is quite substantial.
 
 - [Virtualbox](https://www.virtualbox.org/) - Fire up a linux vm!
-- {{ 'http://overthewire.org/wargames/bandit/bandit0.html' | urlize }}  - use ssh to learn on a vm
+- <http://overthewire.org/wargames/bandit/bandit0.html>  - use ssh to learn on a vm
 - [AWS EC2](https://aws.amazon.com/ec2/pricing/) - free tier!
 - [CLI Tips & Tricks](https://github.com/jlevy/the-art-of-command-line) - lots of cli tips
 
@@ -114,19 +114,19 @@ and so familiarity with creating data structures and querying data is handy-dand
 Version control is a skill every professioanl developer must have! If you work on a team or even by yourself
 the organization you'll be working at will have something.
 
-- {{ 'https://www.codeschool.com/courses/try-git' | urlize }}
-- {{ 'https://www.git-tower.com/learn/ ' | urlize }}
-- {{ 'https://www.atlassian.com/git/' | urlize }}
-- {{ 'http://learngitbranching.js.org/ ' | urlize }}
+- <https://www.codeschool.com/courses/try-git>
+- <https://www.git-tower.com/learn/ >
+- <https://www.atlassian.com/git/>
+- <http://learngitbranching.js.org/ >
 
 #### Resources for learning
-- {{ 'https://github.com/karlhorky/learn-to-program' | urlize }}
-- {{ 'http://exercism.io/' | urlize }}
-- {{ 'https://www.codecademy.com/' | urlize }}
-- {{ 'http://tutsplus.com/' | urlize }}
-- {{ 'https://teamtreehouse.com/' | urlize }}
-- {{ 'https://www.codeschool.com/' | urlize }}
-- {{ 'https://www.pluralsight.com/' | urlize }}
+- <https://github.com/karlhorky/learn-to-program>
+- <http://exercism.io/>
+- <https://www.codecademy.com/>
+- <http://tutsplus.com/>
+- <https://teamtreehouse.com/>
+- <https://www.codeschool.com/>
+- <https://www.pluralsight.com/>
 
 ### Alternative Degrees
 Computer science degrees don’t guarantee success or jobs and are generally  at least 5+ years  behind current trends. The reality is your best education will be self motivated using many of the online resources available. I think generally getting a degree is a good idea, but it may serve you well to have a degree to complement your self-guided computer education.
@@ -141,6 +141,6 @@ There are tons of industries that have lots of oppurtunity if you have mixed dis
 leveraging computers so many are ripe the evolution brought on by software. For example if you combo a medical education
 with a software education you will have unique opportunities that require expertise in both fields that others could never have.
 
-{{ 'https://www.quora.com/What-advice-would-you-give-to-a-Computer-Science-major-student-that-you-wish-you-were-given-when-you-started-Computer-Science' | urlize }}
+<https://www.quora.com/What-advice-would-you-give-to-a-Computer-Science-major-student-that-you-wish-you-were-given-when-you-started-Computer-Science>
 
  
