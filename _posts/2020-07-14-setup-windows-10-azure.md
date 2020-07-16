@@ -150,7 +150,7 @@ vmname='win-10-app-x-test'
 # Update network security group to only allow RDP from your ip
 nsgid=$(az network nic show  --ids "$(az vm show --name "${vmname}" -g "${group}" --query 'networkProfile.networkInterfaces[0].id' --output tsv)" --query 'networkSecurityGroup.id' --output tsv)
 
-ruleid=$(az network nsg show --ids "${nsgid}" --query 'securityRules[?name==`RDP`].id | [0]' --output tsv)
+ruleid=$(az network nsg show --ids "${nsgid}" --query 'securityRules[?destinationPortRange == `"3389"`].id | [0]' --output tsv)
 
 # Use ifconfig.co to get your ip to update the rule
 az network nsg rule update --ids "${ruleid}"  --source-address-prefixes "$(curl https://ifconfig.co/)/32"
