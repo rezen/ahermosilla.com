@@ -18,9 +18,9 @@ windows on their platform, so some basic tools to introduce ideas is helpful!
 ### WMI
 With the command line you can use `wmic` or `powershell` to utilize WMI (Windows Management Instrumentation) which can give you insight into all sorts of things about your system!
 
-- {{ 'https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/' | urlize }}
-- {{ 'http://www.dedoimedo.com/computers/windows-wmic.html' | urlize }}
-- {{ 'http://people.virginia.edu/~rtg2t/winadmin/wmic.html' | urlize }}
+- <https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/>
+- <http://www.dedoimedo.com/computers/windows-wmic.html>
+- <http://people.virginia.edu/~rtg2t/winadmin/wmic.html>
 
 **Get Windows Version**
 
@@ -120,7 +120,7 @@ Tag=Base Board
 On linux `tcpdump` and `netstat` are gold but on Windows the you have different tools. Well, there is netstat, but it's different.
 
 
-- {{ 'https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/' | urlize }}
+- <https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/>
 
 Instead of `tcpdump` you can use `netsh` to capture traffic
 ```

@@ -30,15 +30,10 @@ Jekyll::Hooks.register :site, :pre_render do |site, payload|
     # stripping out liquid tags, urls and code blocks
     # https://coderwall.com/p/r6b4xg/regex-to-match-github-s-markdown-code-blocks
     excerpt = '' + p.content
-      # .gsub(/\!\[(^\]+)\]\([^\)]+\)/, '') # ![RDP](/assets/img/windows-10-rdp.png)
-      #.gsub(/```[a-z]*\n[\s\S]*?\n```/, '')
-      # .gsub(/\{\{.+\}\}/, '')
       .sub('{:toc}', '')
       .sub('* TOC', '')
       .gsub(/^[\#]+\s[^\n]+/, '')
-      #.gsub(/(?:f|ht)tps?:\/[^\s]+/, '')
       .gsub(/<("[^"]*"|'[^']*'|[^'">])*>/, "")
-      # .gsub(/[\[\]\(\)]/, '')
 
     puts p.content
     p.data['auto_excerpt'] = excerpt.split(' ').slice(0..75).join(' ') +  ' ...'
