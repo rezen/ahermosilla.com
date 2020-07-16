@@ -117,7 +117,7 @@ Metalsmith let’s you essentially mix your own functionality with plugins to mo
 generator you are used to. Below is an example how to use Metalsmith with a Jekyll structure 
 if you are more inclined to use nodejs tools.</p>
 
-<p><a rel="external" href="https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll">https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll</a></p>
+<p><a href="https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll">https://github.com/metalsmith/metalsmith/tree/master/examples/jekyll</a></p>
 
 <h2 id="requirements">Requirements</h2>
 <p><em>An aside, there are plenty of guides to tools on Mac, I want to make sure windows users get some love!</em></p>
@@ -131,7 +131,7 @@ fan of <a href="https://chocolatey.org/">chocolatey</a>,  which is a package man
 <div class="language-powershell highlighter-rouge"><pre class="highlight"><code>@powershell -NoProfile -ExecutionPolicy Bypass -Command <span class="s2">"iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"</span> <span class="o">&amp;&amp;</span> <span class="nb">SET</span> <span class="s2">"PATH=%PATH%;%ALLUSERSPROFILE%</span><span class="se">\c</span><span class="s2">hocolatey</span><span class="se">\b</span><span class="s2">in"</span>
 </code></pre>
 </div>
-<p><a rel="external" href="https://chocolatey.org/install">https://chocolatey.org/install</a></p>
+<p>&lt;https://chocolatey.org/install’  | urlize }}</p>
 
 <p>Once that is complete you can use chocolatey to install ruby!</p>
 
@@ -185,7 +185,7 @@ powershell -Command <span class="s2">"(New-Object Net.WebClient).DownloadFile('h
 <p>If you are still having certificate errors, I found this answer on <a href="http://stackoverflow.com/questions/5720484/how-to-solve-certificate-verify-failed-on-windows#answer-16134586">Stackoverflow helpful</a>.</p>
 
 <p>You can also check out this thorough guide for windows install I found after wrestling through SSL troubles.
-<a rel="external" href="http://yizeng.me/2013/05/10/setup-jekyll-on-windows/">http://yizeng.me/2013/05/10/setup-jekyll-on-windows/</a></p>
+<a href="http://yizeng.me/2013/05/10/setup-jekyll-on-windows/">http://yizeng.me/2013/05/10/setup-jekyll-on-windows/</a></p>
 
 <h2 id="editing">Editing</h2>
 <p>Once you are all setup you’ll see the contents of the blog similar to structure below.
@@ -263,8 +263,8 @@ really easy to create a plugin! I didn’t feel like investing the time to creat
 auto urlizer at this point so I made a liquid filter and dropped it into the project -
  <code class="highlighter-rouge">_plugins/urlize-filter.rb</code>! to use it it’s as simple as</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="err">'http://jekyllrb.com/docs/home'</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="err">urlize</span><span class="w"> </span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;http://jekyllrb.com/docs/home' | urlize }}
+</code></pre>
 </div>
 
 <div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Jekyll</span>
@@ -284,7 +284,7 @@ auto urlizer at this point so I made a liquid filter and dropped it into the pro
 I did some quick searching around and found a solution to add a <code class="highlighter-rouge">pinned</code> attribute
 and drop in a new plugin!</p>
 
-<p><a rel="external" href="https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4">https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4</a></p>
+<p><a href="https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4">https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4</a></p>
 <div class="highlighter-rouge"><pre class="highlight"><code>---
 layout: post
 title:  "Getting going with Jekyll (on Windows!)"
@@ -374,10 +374,10 @@ I assume this could be easily remedied by a plugin and found <code class="highli
 <p>Here are some more links on archives you can check out, maybe there is another solution you like better!</p>
 
 <ul>
-  <li><a rel="external" href="https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/">https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/</a></li>
-  <li><a rel="external" href="https://blog.webjeda.com/jekyll-categories/">https://blog.webjeda.com/jekyll-categories/</a></li>
-  <li><a rel="external" href="https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/">https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/</a></li>
-  <li><a rel="external" href="http://reyhan.org/2013/03/jekyll-archive-without-plugins.html">http://reyhan.org/2013/03/jekyll-archive-without-plugins.html</a></li>
+  <li><a href="https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/">https://www.mikeapted.com/jekyll/2015/12/30/category-and-tag-archives-in-jekyll-no-plugins/</a></li>
+  <li><a href="https://blog.webjeda.com/jekyll-categories/">https://blog.webjeda.com/jekyll-categories/</a></li>
+  <li><a href="https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/">https://www.chrisanthropic.com/blog/2014/jekyll-themed-category-pages-without-plugins/</a></li>
+  <li><a href="http://reyhan.org/2013/03/jekyll-archive-without-plugins.html">http://reyhan.org/2013/03/jekyll-archive-without-plugins.html</a></li>
 </ul>
 
 <h3 id="image-classes">Image Classes</h3>
@@ -402,14 +402,14 @@ This markdown ....
 <p>I covered some quick “plugins” to get you introduced, but make sure check out the resources below!</p>
 
 <ul>
-  <li><a rel="external" href="https://jekyllrb.com/docs/plugins/">https://jekyllrb.com/docs/plugins/</a></li>
-  <li><a rel="external" href="http://www.jekyll-plugins.com/">http://www.jekyll-plugins.com/</a></li>
-  <li><a rel="external" href="https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/">https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/</a></li>
-  <li><a rel="external" href="https://divshot.com/blog/web-development/advanced-jekyll-features/">https://divshot.com/blog/web-development/advanced-jekyll-features/</a></li>
-  <li><a rel="external" href="http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/">http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/</a></li>
-  <li><a rel="external" href="http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/">http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/</a></li>
-  <li><a rel="external" href="https://github.com/planetjekyll/awesome-jekyll-plugins">https://github.com/planetjekyll/awesome-jekyll-plugins</a></li>
-  <li><a rel="external" href="http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/">http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/</a></li>
+  <li><a href="https://jekyllrb.com/docs/plugins/">https://jekyllrb.com/docs/plugins/</a></li>
+  <li><a href="http://www.jekyll-plugins.com/">http://www.jekyll-plugins.com/</a></li>
+  <li><a href="https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/">https://tuananh.org/2014/08/04/writing-your-first-jekyll-plugin/</a></li>
+  <li><a href="https://divshot.com/blog/web-development/advanced-jekyll-features/">https://divshot.com/blog/web-development/advanced-jekyll-features/</a></li>
+  <li><a href="http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/">http://www.createdbypete.com/articles/create-a-custom-liquid-tag-as-a-jekyll-plugin/</a></li>
+  <li><a href="http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/">http://www.xorcode.com/2012/08/15/jekyll-creating-your-first-liquid-plugin/</a></li>
+  <li><a href="https://github.com/planetjekyll/awesome-jekyll-plugins">https://github.com/planetjekyll/awesome-jekyll-plugins</a></li>
+  <li><a href="http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/">http://dev-notes.eu/2016/01/images-in-kramdown-jekyll/</a></li>
 </ul>
 
 <h2 id="next-steps">Next Steps</h2>
@@ -421,15 +421,15 @@ I will share more</p>
 <ul>
   <li><a href="https://gist.github.com/smutnyleszek/9803727">Cheatsheet!</a></li>
   <li><a href="http://shopify.github.io/liquid/">Liquid templating</a></li>
-  <li><a rel="external" href="http://jekyllrb.com/docs/home">http://jekyllrb.com/docs/home</a></li>
-  <li><a rel="external" href="https://github.com/planetjekyll/awesome-jekyll">https://github.com/planetjekyll/awesome-jekyll</a></li>
-  <li><a rel="external" href="https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content">https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content</a></li>
-  <li><a rel="external" href="https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts">https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts</a></li>
-  <li><a rel="external" href="http://jekyll-windows.juthilo.com/">http://jekyll-windows.juthilo.com/</a></li>
-  <li><a rel="external" href="https://divshot.com/blog/web-development/advanced-jekyll-features/">https://divshot.com/blog/web-development/advanced-jekyll-features/</a></li>
-  <li><a rel="external" href="http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/">http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/</a></li>
-  <li><a rel="external" href="http://svmiller.com/blog/2015/08/create-your-website-in-jekyll">http://svmiller.com/blog/2015/08/create-your-website-in-jekyll</a></li>
-  <li><a rel="external" href="http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html">http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html</a></li>
+  <li><a href="http://jekyllrb.com/docs/home">http://jekyllrb.com/docs/home</a></li>
+  <li><a href="https://github.com/planetjekyll/awesome-jekyll">https://github.com/planetjekyll/awesome-jekyll</a></li>
+  <li><a href="https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content">https://www.digitalocean.com/community/tutorials/exploring-jekyll-s-default-content</a></li>
+  <li><a href="https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts">https://www.jflh.ca/2016-01-23-adding-and-displaying-tags-on-jekyll-posts</a></li>
+  <li><a href="http://jekyll-windows.juthilo.com/">http://jekyll-windows.juthilo.com/</a></li>
+  <li><a href="https://divshot.com/blog/web-development/advanced-jekyll-features/">https://divshot.com/blog/web-development/advanced-jekyll-features/</a></li>
+  <li><a href="http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/">http://www.remotesynthesis.com/general/2015/10/02/advanced-jekyll-templates/</a></li>
+  <li><a href="http://svmiller.com/blog/2015/08/create-your-website-in-jekyll">http://svmiller.com/blog/2015/08/create-your-website-in-jekyll</a></li>
+  <li><a href="http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html">http://blog.apps.npr.org/2012/11/08/npr-news-apps-blog.html</a></li>
 </ul>
 
 <p>Check out the <a href="http://jekyllrb.com/docs/home">Jekyll docs</a></p>
