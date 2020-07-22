@@ -35,7 +35,6 @@ Jekyll::Hooks.register :site, :pre_render do |site, payload|
       .gsub(/^[\#]+\s[^\n]+/, '')
       .gsub(/<("[^"]*"|'[^']*'|[^'">])*>/, "")
 
-    puts p.content
     p.data['auto_excerpt'] = excerpt.split(' ').slice(0..75).join(' ') +  ' ...'
   	p
   }

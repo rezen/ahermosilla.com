@@ -6,4 +6,4 @@ RUN bundler install && bundle update --bundler
 COPY . /app
 EXPOSE 4000
 RUN bundler exec jekyll build
-CMD sh -c 'bundler exec jekyll serve --host=0.0.0.0'
+CMD sh -c 'bundler exec jekyll serve  --force_polling  --host=0.0.0.0'
