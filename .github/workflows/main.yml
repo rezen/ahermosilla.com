@@ -11,11 +11,12 @@ jobs:
     steps:
     - uses: actions/setup-ruby@v1
       with:
-        ruby-version: 2.6
+        ruby-version: 2.7
     - name: Checkout
       uses: actions/checkout@v2
     - name: Build Website Content
       run: |
+        bundle update --bundler
         bundler install
         bundler exec jekyll build
     
