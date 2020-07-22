@@ -95,7 +95,7 @@ From the security perspective, a large percent of businesses/corporations run
 windows on their platform, so some basic tools to introduce ideas is helpful!</p>
 
 <h3 id="wmi">WMI</h3>
-<p>With the command line you can use <code class="highlighter-rouge">wmic</code> or <code class="highlighter-rouge">powershell</code> to utilize WMI (Windows Management Instrumentation) which can give you insight into all sorts of things about your system!</p>
+<p>With the command line you can use <code class="language-plaintext highlighter-rouge">wmic</code> or <code class="language-plaintext highlighter-rouge">powershell</code> to utilize WMI (Windows Management Instrumentation) which can give you insight into all sorts of things about your system!</p>
 
 <ul>
   <li><a href="https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/">https://betanews.com/2011/01/14/wmic-the-best-command-line-tool-you-ve-never-used/</a></li>
@@ -105,37 +105,35 @@ windows on their platform, so some basic tools to introduce ideas is helpful!</p
 
 <p><strong>Get Windows Version</strong></p>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>wmic os get Name,Version,BuildNumber,OSArchitecture,InstallDate
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> wmic os get Name,Version,BuildNumber,OSArchitecture,InstallDate
 BuildNumber  InstallDate                Name                             OSArchitecture  Version
 14393        20161028165102.000000-420  Microsoft Windows 10 Enterprise  64-bit          10.0.14393
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h4 id="powershell">Powershell</h4>
 <p>@todo Fill this out more!</p>
 
-<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>:: List available objects
-<span class="nb">Get-WmiObject</span> -List
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">::</span><span class="w"> </span><span class="nf">List</span><span class="w"> </span><span class="nx">available</span><span class="w"> </span><span class="nx">objects</span><span class="w">
+</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nt">-List</span><span class="w">
 
-:: Logged on users
-<span class="nb">Get-WmiObject </span>Win32_LoggedOnUser
+</span><span class="p">::</span><span class="w"> </span><span class="nf">Logged</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">users</span><span class="w">
+</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_LoggedOnUser</span><span class="w">
 
-:: Users ...
-<span class="nb">Get-WmiObject </span>Win32_SystemUsers
+</span><span class="p">::</span><span class="w"> </span><span class="nf">Users</span><span class="w"> </span><span class="o">...</span><span class="w">
+</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_SystemUsers</span><span class="w">
 
-:: Get processes
-<span class="nb">Get-WmiObject </span>Win32_Process | <span class="nb">Format-Table</span> -Wrap -Property Name,Path,ExecutablePath,ProcessId,CreationDate
+</span><span class="p">::</span><span class="w"> </span><span class="nf">Get</span><span class="w"> </span><span class="nx">processes</span><span class="w">
+</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_Process</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nf">Format-Table</span><span class="w"> </span><span class="nt">-Wrap</span><span class="w"> </span><span class="nt">-Property</span><span class="w"> </span><span class="nx">Name</span><span class="p">,</span><span class="nx">Path</span><span class="p">,</span><span class="nx">ExecutablePath</span><span class="p">,</span><span class="nx">ProcessId</span><span class="p">,</span><span class="nx">CreationDate</span><span class="w">
 
-:: What is running <span class="k">in </span>startup?
-<span class="nb">Get-WmiObject </span>Win32_StartupCommand
-</code></pre>
-</div>
+</span><span class="p">::</span><span class="w"> </span><span class="nf">What</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">running</span><span class="w"> </span><span class="nx">in</span><span class="w"> </span><span class="nx">startup</span><span class="nf">?</span><span class="w">
+</span><span class="nx">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_StartupCommand</span><span class="w">
+</span></code></pre></div></div>
 
 <h3 id="hardware">Hardware</h3>
 <p>I used to always use cpu-z to id the hardware, but there are plenty of other tools to
 figure out hardware is on the system you’re using.</p>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>systeminfo
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> systeminfo
 
 Host Name:                 REZEN
 OS Name:                   Microsoft Windows 7 Professional
@@ -157,20 +155,18 @@ BIOS Version:              American Megatrends Inc. P1.90, 5/24/2010
 Windows Directory:         C:<span class="se">\W</span>indows
 System Directory:          C:<span class="se">\W</span>indows<span class="se">\s</span>ystem32
 Boot Device:               <span class="se">\D</span>evice<span class="se">\H</span>arddiskVolume3
-System Locale:             en-us;English <span class="o">(</span>United States<span class="o">)</span>
-Input Locale:              en-us;English <span class="o">(</span>United States<span class="o">)</span>
+System Locale:             en-us<span class="p">;</span>English <span class="o">(</span>United States<span class="o">)</span>
+Input Locale:              en-us<span class="p">;</span>English <span class="o">(</span>United States<span class="o">)</span>
 Time Zone:                 <span class="o">(</span>UTC-08:00<span class="o">)</span> Pacific Time <span class="o">(</span>US &amp; Canada<span class="o">)</span>
 .....
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>wmic memphysical get MaxCapacity
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> wmic memphysical get MaxCapacity
 MaxCapacity
 16777216
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>wmic baseboard list /format:LIST
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> wmic baseboard list /format:LIST
 
 
 <span class="nv">ConfigOptions</span><span class="o">=</span>
@@ -193,27 +189,24 @@ MaxCapacity
 <span class="nv">SpecialRequirements</span><span class="o">=</span>
 <span class="nv">Status</span><span class="o">=</span>OK
 <span class="nv">Tag</span><span class="o">=</span>Base Board
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="network">Network</h3>
-<p>On linux <code class="highlighter-rouge">tcpdump</code> and <code class="highlighter-rouge">netstat</code> are gold but on Windows the you have different tools. Well, there is netstat, but it’s different.</p>
+<p>On linux <code class="language-plaintext highlighter-rouge">tcpdump</code> and <code class="language-plaintext highlighter-rouge">netstat</code> are gold but on Windows the you have different tools. Well, there is netstat, but it’s different.</p>
 
 <ul>
   <li><a href="https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/">https://blogs.technet.microsoft.com/mrsnrub/2009/09/10/capturing-network-traffic-in-windows-7-server-2008-r2/</a></li>
 </ul>
 
-<p>Instead of <code class="highlighter-rouge">tcpdump</code> you can use <code class="highlighter-rouge">netsh</code> to capture traffic</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>netsh trace start capture=yes
+<p>Instead of <code class="language-plaintext highlighter-rouge">tcpdump</code> you can use <code class="language-plaintext highlighter-rouge">netsh</code> to capture traffic</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>netsh trace start capture=yes
 netsh trace stop
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-powershell highlighter-rouge"><pre class="highlight"><code><span class="nb">Get-WmiObject </span>Win32_IP4RouteTable | <span class="nb">Format-Table</span> -Wrap -Property Age,Caption,Mask,Destination,Name
-</code></pre>
-</div>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_IP4RouteTable</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nf">Format-Table</span><span class="w"> </span><span class="nt">-Wrap</span><span class="w"> </span><span class="nt">-Property</span><span class="w"> </span><span class="nx">Age</span><span class="p">,</span><span class="nx">Caption</span><span class="p">,</span><span class="nx">Mask</span><span class="p">,</span><span class="nx">Destination</span><span class="p">,</span><span class="nx">Name</span><span class="w">
+</span></code></pre></div></div>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&gt; netsh int show int
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; netsh int show int
 
 Admin State    State          Type             Interface Name
 -------------------------------------------------------------------------
@@ -223,31 +216,28 @@ Enabled        Connected      Dedicated        VirtualBox Host-Only Network #2
 Enabled        Connected      Dedicated        VirtualBox Host-Only Network #3
 Enabled        Connected      Dedicated        Ethernet 2
 Enabled        Connected      Dedicated        vEthernet (DockerNAT)
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Quickly find gateway address</p>
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netsh interface ip show config | findstr <span class="s2">"Default"</span>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> netsh interface ip show config | findstr <span class="s2">"Default"</span>
     Default Gateway:                      10.15.128.1
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Let’s find DNS!</p>
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netsh interface ip show config | findstr <span class="s2">"DNS"</span>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> netsh interface ip show config | findstr <span class="s2">"DNS"</span>
     DNS servers configured through DHCP:  10.8.1.90
     Statically Configured DNS Servers:    192.168.1.104
     Statically Configured DNS Servers:    None
     Statically Configured DNS Servers:    None
     Statically Configured DNS Servers:    None
     Statically Configured DNS Servers:    None
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netsh interface ipv4 show tcpconnections
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> netsh interface ipv4 show tcpconnections
 
 MIB-II TCP Connection Entry
 Local Address   Local Port      Remote Address  Remote Port     State
------------------------------------------------------------------------------
+<span class="nt">-----------------------------------------------------------------------------</span>
         0.0.0.0       22               0.0.0.0          0       Listen
         0.0.0.0      135               0.0.0.0          0       Listen
       10.0.75.1      139               0.0.0.0          0       Listen
@@ -260,12 +250,11 @@ Local Address   Local Port      Remote Address  Remote Port     State
       127.0.0.1     2222             127.0.0.1      14513  Established
       127.0.0.1     2222               0.0.0.0          0       Listen
   10.15.130.204     3144         65.52.108.195        443  Established
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><strong>netstat</strong> which is familiar is on Windows!</p>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netstat -ab
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> netstat <span class="nt">-ab</span>
 
 Active Connections
 
@@ -283,10 +272,9 @@ Active Connections
   TCP    0.0.0.0:1537           console-10:0           LISTENING
   EventLog
  <span class="o">[</span>svchost.exe]
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>netstat -ao
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> netstat <span class="nt">-ao</span>
 
 Active Connections
 
@@ -302,12 +290,11 @@ Active Connections
   TCP    0.0.0.0:1550           console-10:0           LISTENING       748
   TCP    0.0.0.0:2179           console-10:0           LISTENING       2680
   TCP    0.0.0.0:3389           console-10:0           LISTENING       292
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="processes">Processes</h3>
 <p>You need to be able to quickly check processes for anything phishy!</p>
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>schtasks
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> schtasks
 
 Folder: <span class="se">\</span>
 TaskName                                 Next Run Time          Status
@@ -341,10 +328,9 @@ TaskName                                 Next Run Time          Status
 INFO: There are no scheduled tasks presently available at your access level.
 
 .....
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt; </span>tasklist                                                                        
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> tasklist                                                                        
                                                                                   
 Image Name                     PID Session Name        Session#    Mem Usage      
 <span class="o">=========================</span> <span class="o">========</span> <span class="o">================</span> <span class="o">===========</span> <span class="o">============</span>      
@@ -377,8 +363,7 @@ com.docker.service            2252 Services                   0      2,552 K
 dirmngr.exe                   2280 Services                   0      1,568 K      
 IpOverUsbSvc.exe              2296 Services                   0      2,576 K      
 .....
-</code></pre>
-</div>
+</code></pre></div></div>
 
 
   </section>

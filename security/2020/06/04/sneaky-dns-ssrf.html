@@ -83,37 +83,36 @@
   </header>
   <section class="post-content" itemprop="articleBody">
     
-    <p>Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with <a href="https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF</a> attacks you can have a DNS record point to <code class="highlighter-rouge">127.0.0.1</code>. When a record pointing to <code class="highlighter-rouge">127.0.0.1</code> is resolved, your application will end up making requests <code class="highlighter-rouge">127.0.0.1</code>. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain <code class="highlighter-rouge">volks-seat.de</code> pointing <code class="highlighter-rouge">127.0.0.1</code>. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.</p>
+    <p>Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with <a href="https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF</a> attacks you can have a DNS record point to <code class="language-plaintext highlighter-rouge">127.0.0.1</code>. When a record pointing to <code class="language-plaintext highlighter-rouge">127.0.0.1</code> is resolved, your application will end up making requests <code class="language-plaintext highlighter-rouge">127.0.0.1</code>. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain <code class="language-plaintext highlighter-rouge">volks-seat.de</code> pointing <code class="language-plaintext highlighter-rouge">127.0.0.1</code>. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.</p>
 
 <h3 id="check-record">Check Record</h3>
-<p>You can check DNS record for a domain you suspect is pointing to <code class="highlighter-rouge">127.0.0.1</code>. Using dig check the <code class="highlighter-rouge">ANSWER</code> section for where the domain points. I confirmed <code class="highlighter-rouge">volks-seat.de</code> did in fact point to <code class="highlighter-rouge">127.0.0.1</code></p>
+<p>You can check DNS record for a domain you suspect is pointing to <code class="language-plaintext highlighter-rouge">127.0.0.1</code>. Using dig check the <code class="language-plaintext highlighter-rouge">ANSWER</code> section for where the domain points. I confirmed <code class="language-plaintext highlighter-rouge">volks-seat.de</code> did in fact point to <code class="language-plaintext highlighter-rouge">127.0.0.1</code></p>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code>dig volks-seat.de | grep -A2 <span class="s1">';; ANSWER'</span>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dig volks-seat.de | <span class="nb">grep</span> <span class="nt">-A2</span> <span class="s1">';; ANSWER'</span>
 <span class="c"># ;; ANSWER SECTION:</span>
 <span class="c"># volks-seat.de.          71858   IN      A       127.0.0.1</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="quick-test">Quick Test</h3>
-<p>Okay, so DNS resolves the domain to <code class="highlighter-rouge">127.0.0.1</code>, how do applications actually respond to this? As a basic test, I started a webserver on my machine to simple list the contents of a directory.</p>
+<p>Okay, so DNS resolves the domain to <code class="language-plaintext highlighter-rouge">127.0.0.1</code>, how do applications actually respond to this? As a basic test, I started a webserver on my machine to simple list the contents of a directory.</p>
 
 <ul>
   <li>Start up a webserver in a directory
     <ul>
-      <li><code class="highlighter-rouge">pwd &amp;&amp; echo ruh_roh_raggy &gt; zzzzz_flag.txt</code></li>
-      <li><code class="highlighter-rouge">python -m SimpleHTTPServer 8000</code></li>
+      <li><code class="language-plaintext highlighter-rouge">pwd &amp;&amp; echo ruh_roh_raggy &gt; zzzzz_flag.txt</code></li>
+      <li><code class="language-plaintext highlighter-rouge">python -m SimpleHTTPServer 8000</code></li>
     </ul>
   </li>
   <li>Fetch the page and see if anything looks familiar
     <ul>
-      <li><code class="highlighter-rouge">curl http://volks-seat.de:8000</code>
+      <li><code class="language-plaintext highlighter-rouge">curl http://volks-seat.de:8000</code>
         <ul>
-          <li>You’ll see towards the end of the output <code class="highlighter-rouge">zzzzz_flag.txt</code></li>
+          <li>You’ll see towards the end of the output <code class="language-plaintext highlighter-rouge">zzzzz_flag.txt</code></li>
         </ul>
       </li>
-      <li><code class="highlighter-rouge">curl -vs http://volks-seat.de:8000 2&gt;&amp;1 | grep Connected</code>
+      <li><code class="language-plaintext highlighter-rouge">curl -vs http://volks-seat.de:8000 2&gt;&amp;1 | grep Connected</code>
         <ul>
-          <li>When showing verbose output you’ll see curl connecting to <code class="highlighter-rouge">127.0.0.1</code></li>
+          <li>When showing verbose output you’ll see curl connecting to <code class="language-plaintext highlighter-rouge">127.0.0.1</code></li>
         </ul>
       </li>
     </ul>
@@ -123,7 +122,7 @@
 <h3 id="example-app">Example App</h3>
 <p>So how does this come into play with SSRF in your app? An application may have a whitelist/blacklist of valid hosts to perform certain actions against. Let’s imagine you had an app that simply checked if a site was up or not. We want to prevent users from trying to access private assets so we create a basic blacklist of hosts that we won’t want to be reached. Let’s take a look at this basic example below that captures the concept.</p>
 
-<div class="language-php highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
 
 <span class="nv">$ignore_hosts</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">'127.0.0.1'</span><span class="p">,</span> <span class="s1">'localhost'</span><span class="p">,</span> <span class="s1">'169.254.169.254'</span><span class="p">,</span> 
@@ -132,7 +131,7 @@
 <span class="nv">$url_alive</span>    <span class="o">=</span> <span class="s2">"http://volks-seat.de:3000"</span><span class="p">;</span>
 <span class="nv">$parsed_url</span>   <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nv">$url_alive</span><span class="p">);</span>
 
-<span class="k">if</span> <span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parsed_url</span><span class="p">[</span><span class="s1">'host'</span><span class="p">]))</span> <span class="p">{</span>
+<span class="k">if</span> <span class="p">(</span><span class="nb">empty</span><span class="p">(</span><span class="nv">$parsed_url</span><span class="p">[</span><span class="s1">'host'</span><span class="p">]))</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nb">json_encode</span><span class="p">([</span><span class="s1">'error'</span> <span class="o">=&gt;</span> <span class="s1">'Invalid host'</span><span class="p">]);</span>
 <span class="p">}</span>
 
@@ -140,9 +139,9 @@
     <span class="k">return</span> <span class="nb">json_encode</span><span class="p">([</span><span class="s1">'error'</span> <span class="o">=&gt;</span> <span class="s1">'Invalid host'</span><span class="p">]);</span>
 <span class="p">}</span>
 
-<span class="c1">// We should also check protocol ... 
-// ... but you get the idea
-</span><span class="nv">$response</span>    <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$url_alive</span><span class="p">);</span>
+<span class="c1">// We should also check protocol ... </span>
+<span class="c1">// ... but you get the idea</span>
+<span class="nv">$response</span>    <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$url_alive</span><span class="p">);</span>
 <span class="nv">$status_code</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="nv">$http_response_header</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">??</span> <span class="s2">"HTTP/1.1 0 x"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">??</span> <span class="s2">""</span><span class="p">;</span>
 
 <span class="k">return</span> <span class="nb">json_encode</span><span class="p">([</span>
@@ -150,32 +149,29 @@
     <span class="s1">'status_code'</span> <span class="o">=&gt;</span> <span class="nv">$status_code</span><span class="p">,</span>
     <span class="s1">'body'</span>        <span class="o">=&gt;</span> <span class="nv">$response</span><span class="p">,</span>
 <span class="p">]);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<p>We can see the hostname is checked from the parse uri, but that is not enough to protect yourself. The example above is problematic because once the “bad” DNS record is resolved, the ip the hostname resolves to ends up being <code class="highlighter-rouge">127.0.0.1</code>. An attacker can “recon” our internal server adding tests for every port (0-65535) with the same domain to see what else can be found. If, for example, you had Elasticsearch running without authentication, an attacker could add the url <code class="highlighter-rouge">http://volks-seat.de:9200/_stats/indexing,store</code> and access content you wouldn’t want them to.</p>
+<p>We can see the hostname is checked from the parse uri, but that is not enough to protect yourself. The example above is problematic because once the “bad” DNS record is resolved, the ip the hostname resolves to ends up being <code class="language-plaintext highlighter-rouge">127.0.0.1</code>. An attacker can “recon” our internal server adding tests for every port (0-65535) with the same domain to see what else can be found. If, for example, you had Elasticsearch running without authentication, an attacker could add the url <code class="language-plaintext highlighter-rouge">http://volks-seat.de:9200/_stats/indexing,store</code> and access content you wouldn’t want them to.</p>
 
 <p>To actually make sure everything is sane, the application needs to resolve the host and make sure the host is not a host we want to ignore</p>
 
-<div class="language-php highlighter-rouge"><pre class="highlight"><code>// Resolve the ip and make sure that is not in the blacklist
-// Naive, may not be performant
-$ip = gethostbyname($parsed_url['host']); 
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Resolve the ip and make sure that is not in the blacklist</span>
+<span class="c1">// Naive, may not be performant</span>
+<span class="nv">$ip</span> <span class="o">=</span> <span class="nb">gethostbyname</span><span class="p">(</span><span class="nv">$parsed_url</span><span class="p">[</span><span class="s1">'host'</span><span class="p">]);</span> 
 
-if (in_array($parsed_url['host'], $ignore_hosts) || in_array($ip, $ignore_hosts)) {
-    return json_encode(['error' =&gt; 'Invalid host']);
-}
-</code></pre>
-</div>
+<span class="k">if</span> <span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$parsed_url</span><span class="p">[</span><span class="s1">'host'</span><span class="p">],</span> <span class="nv">$ignore_hosts</span><span class="p">)</span> <span class="o">||</span> <span class="nb">in_array</span><span class="p">(</span><span class="nv">$ip</span><span class="p">,</span> <span class="nv">$ignore_hosts</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">json_encode</span><span class="p">([</span><span class="s1">'error'</span> <span class="o">=&gt;</span> <span class="s1">'Invalid host'</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div></div>
 
 <h3 id="finding-records">Finding Records</h3>
-<p>You can take a look at some dns records pointing to <code class="highlighter-rouge">127.0.0.1</code> using Rapid7’s public dataset
+<p>You can take a look at some dns records pointing to <code class="language-plaintext highlighter-rouge">127.0.0.1</code> using Rapid7’s public dataset
 https://blog.rapid7.com/2018/10/16/how-to-conduct-dns-reconnaissance-for-02-using-rapid7-open-data-and-aws/</p>
 
-<div class="language-sql highlighter-rouge"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">rapid7_fdns_any</span> 
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">rapid7_fdns_any</span> 
 <span class="k">where</span> <span class="n">value</span> <span class="k">like</span> <span class="s1">'127.0.0.1'</span>
-<span class="k">order</span> <span class="k">by</span> <span class="n">date</span> <span class="k">desc</span>
-</code></pre>
-</div>
+<span class="k">order</span> <span class="k">by</span> <span class="nb">date</span> <span class="k">desc</span>
+</code></pre></div></div>
 
 <h3 id="links">Links</h3>
 <ul>

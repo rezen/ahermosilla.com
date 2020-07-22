@@ -83,7 +83,7 @@
     <p>I’ve wondered for quite some time, how do sites like <a href="https://ipinfo.io">https://ipinfo.io</a> get their data? Secondly, the question I had was “Could I gather/build out the data used by these sorts of services?”. Off the bat, looking at the data, I made the assumption that the ownership data is stored publicly or “premiumly” that I could access, but where? So I did some digging around and below is some the datasets I discovered.</p>
 
 <h2 id="iana">IANA</h2>
-<p>ICANN runs IANA which allocates IP addresses globally. The IANA allocates blocks of IPs to RIRs (Regional Internet Registry) which manage the blocks allocated to them. You can view the list of ranges and how they are allocated here <a href="https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml">https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml</a>. It seems they allocate  <code class="highlighter-rouge">/8</code> ranges, which you can also see here <a href="https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks">https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks</a></p>
+<p>ICANN runs IANA which allocates IP addresses globally. The IANA allocates blocks of IPs to RIRs (Regional Internet Registry) which manage the blocks allocated to them. You can view the list of ranges and how they are allocated here <a href="https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml">https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml</a>. It seems they allocate  <code class="language-plaintext highlighter-rouge">/8</code> ranges, which you can also see here <a href="https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks">https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks</a></p>
 
 <h2 id="rir">RIR</h2>
 <p>The RIR is a regional registry (RIPE, APNIC, ARIN, LACNIC, NRO, AFRINIC) and you can see the <a href="https://en.wikipedia.org/wiki/Regional_Internet_registry#/media/File:Regional_Internet_Registries_world_map.svg">map here</a>. Each RIR will further allocate addresses to a LIR.</p>
@@ -118,14 +118,14 @@ You can see all the assigments here <a href="https://www.iana.org/assignments/as
   </li>
   <li>Use whois to get ranges for an ASN
     <ul>
-      <li><code class="highlighter-rouge">whois -h whois.radb.net -- '-i origin AS714' | grep -Eo "([0-9.]+){4}/[0-9]+" | head</code></li>
+      <li><code class="language-plaintext highlighter-rouge">whois -h whois.radb.net -- '-i origin AS714' | grep -Eo "([0-9.]+){4}/[0-9]+" | head</code></li>
     </ul>
   </li>
 </ul>
 
 <p>For verification that the data was good, I looked up some addresses at IP info to see if things checked out, and everything looked good, but there was some caveats. I looked up some of the ranges and they were noted as inactive. How did I know a given range was “inactive”, there were not clear indicators in the ARIN datasets?</p>
 
-<p>Another challenge was associating ranges to a specific ASN. You can use the <code class="highlighter-rouge">reg-id</code> column to tie ASNs and IPs under the same org, but it isn’t clear how to tie an ASN to a specific IP allocation.</p>
+<p>Another challenge was associating ranges to a specific ASN. You can use the <code class="language-plaintext highlighter-rouge">reg-id</code> column to tie ASNs and IPs under the same org, but it isn’t clear how to tie an ASN to a specific IP allocation.</p>
 
 <h3 id="stats-delegated-format">Stats delegated format</h3>
 <p>Looking at the delegated extended datasets, they look like this.</p>
@@ -147,31 +147,28 @@ arin|US|asn|11|1|19840704|assigned|88e9e1a9f78221c5b97e72d580642205
 
 <p>It look me awhile to decipher the format, especially the last column, but this is the gist of it (I finally found a doc on the <a href="https://www.arin.net/reference/research/statistics/nro_extended_stats_format.pdf">format</a>). The last column essentially is a key to help you associate rows with a given org.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>registry|country_code|type|start|value|date|status|reg-­‐id[|extensions...]
-</code></pre>
-</div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>registry|country_code|type|start|value|date|status|reg-­‐id[|extensions...]
+</code></pre></div></div>
 
 <h2 id="bgp">BGP</h2>
 <p>During my research process, verifying information about ranges and ownership I ran into <a href="https://bgp.he.net/AS3356">https://bgp.he.net/AS3356</a>. BGP (which I won’t dig into because I haven’t take the time yet to understand) is a protcol for exchanging routing information. I found you can download dumps of the exchanges and parse through them. Inside those dumps (<a href="http://archive.routeviews.org/bgpdata/">http://archive.routeviews.org/bgpdata/</a>
 ), you can find ASNs and ranges - aha! this is where I can sort out if a range is inactive or not!</p>
 
-<p>The data roughly looks like this when you dump it out with <code class="highlighter-rouge">bgpdump</code></p>
+<p>The data roughly looks like this when you dump it out with <code class="language-plaintext highlighter-rouge">bgpdump</code></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TYPE      ?|  DATE    |?|FROM     |ASN |PREFIX    |ASNPATH   |ORG|NEXT_HOP |?|?|COMMUNITY
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TYPE      ?|  DATE    |?|FROM     |ASN |PREFIX    |ASNPATH   |ORG|NEXT_HOP |?|?|COMMUNITY
 TABLE_DUMP2|1593640801|B|12.0.1.63|7018|8.8.8.0/24|7018 15169|IGP|12.0.1.63|0|0|7018:2500 7018:37232|NAG||
 TABLE_DUMP2|1593640801|B|144.228.241.130|1239|8.8.8.0/24|1239 15169|IGP|144.228.241.130|0|80||NAG||
 TABLE_DUMP2|1593640801|B|208.51.134.246|3549|8.8.8.0/24|3549 3356 15169|IGP|208.51.134.246|0|2504|3356:2 3356:86 3356:500 3356:666 3356:2064 3356:11078 3549:2352 3549:31826|NAG||
 TABLE_DUMP2|1593640801|B|202.232.0.3|2497|8.8.8.0/24|2497 15169|IGP|202.232.0.3|0|0||NAG||
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="c"># Get outgoing IP and asn</span>
-bgpdump -m rib.20200701.2200.bz2  | cut -d<span class="s1">'|'</span> -f 4,5
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Get outgoing IP and asn</span>
+bgpdump <span class="nt">-m</span> rib.20200701.2200.bz2  | <span class="nb">cut</span> <span class="nt">-d</span><span class="s1">'|'</span> <span class="nt">-f</span> 4,5
 
 <span class="c"># Find matches for a specific ASN</span>
-bgpdump updates.20200428.1815 | grep <span class="s1">'AS6447'</span>
-</code></pre>
-</div>
+bgpdump updates.20200428.1815 | <span class="nb">grep</span> <span class="s1">'AS6447'</span>
+</code></pre></div></div>
 
 <p>Parsing through a rib file you can find figure out what ASNs are associated with what ranges and are still active.</p>
 
@@ -194,7 +191,7 @@ bgpdump updates.20200428.1815 | grep <span class="s1">'AS6447'</span>
   <li><a href="https://hackertarget.com/as-ip-lookup/">https://hackertarget.com/as-ip-lookup/</a></li>
   <li><a href="https://rdap.arin.net/registry/ip/8.8.8.8">https://rdap.arin.net/registry/ip/8.8.8.8</a>
     <ul>
-      <li>Look at <code class="highlighter-rouge">arin_originas0_originautnums</code> for ASN</li>
+      <li>Look at <code class="language-plaintext highlighter-rouge">arin_originas0_originautnums</code> for ASN</li>
     </ul>
   </li>
   <li><a href="https://www.arin.net/resources/registry/whois/rdap/#rdap-urls">https://www.arin.net/resources/registry/whois/rdap/#rdap-urls</a></li>

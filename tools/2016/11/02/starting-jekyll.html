@@ -126,61 +126,55 @@ if you are more inclined to use nodejs tools.</p>
 specific <a href="http://rubyinstaller.org/">ruby installer</a>  which is an executable to set ruby up. Personally I’m a big 
 fan of <a href="https://chocolatey.org/">chocolatey</a>,  which is a package mananger for windows! (A post on my windows setup coming soon!)</p>
 
-<p>To first install chocolately, run <code class="highlighter-rouge">cmd.exe</code> as an Administrator and run the following command</p>
+<p>To first install chocolately, run <code class="language-plaintext highlighter-rouge">cmd.exe</code> as an Administrator and run the following command</p>
 
-<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>@powershell -NoProfile -ExecutionPolicy Bypass -Command <span class="s2">"iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"</span> <span class="o">&amp;&amp;</span> <span class="nb">SET</span> <span class="s2">"PATH=%PATH%;%ALLUSERSPROFILE%</span><span class="se">\c</span><span class="s2">hocolatey</span><span class="se">\b</span><span class="s2">in"</span>
-</code></pre>
-</div>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">@</span><span class="nf">powershell</span><span class="w"> </span><span class="nt">-NoProfile</span><span class="w"> </span><span class="nt">-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w"> </span><span class="nt">-Command</span><span class="w"> </span><span class="s2">"iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">SET</span><span class="w"> </span><span class="s2">"PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"</span><span class="w">
+</span></code></pre></div></div>
 <p>&lt;https://chocolatey.org/install’  | urlize }}</p>
 
 <p>Once that is complete you can use chocolatey to install ruby!</p>
 
-<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>choco install -y ruby
-</code></pre>
-</div>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">ruby</span><span class="w">
+</span></code></pre></div></div>
 
-<p>Alternatively if you are a running <code class="highlighter-rouge">bash</code> on Windows 10 via the <code class="highlighter-rouge">Windows Subsystems for Linux</code> you can 
+<p>Alternatively if you are a running <code class="language-plaintext highlighter-rouge">bash</code> on Windows 10 via the <code class="language-plaintext highlighter-rouge">Windows Subsystems for Linux</code> you can 
 quickly setup ruby! (You can find installation guide for setting up <a href="https://msdn.microsoft.com/en-us/commandline/wsl/install_guide">bash on Windows here</a>.)</p>
 
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="c"># Debian setup instructions!</span>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Debian setup instructions!</span>
 <span class="c"># https://www.brightbox.com/blog/2016/01/06/ruby-2-3-ubuntu-packages/</span>
-sudo apt-add-repository ppa:brightbox/ruby-ng
-sudo apt-get update
-sudo apt-get install ruby2.3 ruby2.3-dev
-gem install jekyll bundler
-</code></pre>
-</div>
+<span class="nb">sudo </span>apt-add-repository ppa:brightbox/ruby-ng
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>ruby2.3 ruby2.3-dev
+gem <span class="nb">install </span>jekyll bundler
+</code></pre></div></div>
 
 <h2 id="installing-jekyll">Installing jekyll</h2>
 <p>Once ruby is installed, getting jekyll installed is pretty straight forward!</p>
-<div class="language-shell highlighter-rouge"><pre class="highlight"><code>gem install jekyll bundler
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem <span class="nb">install </span>jekyll bundler
 jekyll new awesome-blog
 <span class="nb">cd </span>awesome-blog
-gem install
-bundle <span class="nb">exec </span>jekyll serve
-</code></pre>
-</div>
+gem <span class="nb">install
+</span>bundle <span class="nb">exec </span>jekyll serve
+</code></pre></div></div>
 
 <h3 id="ssl-errors">SSL Errors</h3>
 <p>If you are running windows you may run into a certificate error …</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
-</code></pre>
-</div>
-<p>… luckily there is a guide for that! You can create a <code class="highlighter-rouge">batch</code> script <code class="highlighter-rouge">ruby_gem_fix.bat</code> width the snippet below are run that!
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+</code></pre></div></div>
+<p>… luckily there is a guide for that! You can create a <code class="language-plaintext highlighter-rouge">batch</code> script <code class="language-plaintext highlighter-rouge">ruby_gem_fix.bat</code> width the snippet below are run that!
 I used the <a href="http://guides.rubygems.org/ssl-certificate-update/">guide on rubygems.org</a> to 
 help me figure out how to fix the issue.</p>
 
-<div class="language-powershell highlighter-rouge"><pre class="highlight"><code>:: http://stackoverflow.com/questions/636381/what-is-the-best-way-to-do-a-substring-in-a-batch-file
-:: http://stackoverflow.com/questions/6359820/how-to-set-commands-output-as-a-variable-in-a-batch-file
-<span class="k">FOR</span> /F <span class="s2">"tokens=* USEBACKQ"</span> %%F <span class="k">IN</span> <span class="o">(</span><span class="sb">`</span>gem which rubygems<span class="sb">`</span><span class="o">)</span> <span class="k">DO</span> <span class="o">(</span>
-<span class="nb">SET </span><span class="nv">GEM_BIN</span><span class="o">=</span>%%F
-<span class="o">)</span>
-<span class="nb">PUSHD</span> <span class="s2">"%GEM_BIN:~0,-3%/ssl_certs"</span>
-powershell -Command <span class="s2">"(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem', 'GlobalSignRootCA.pem')"</span>
-<span class="nb">POPD</span>
-</code></pre>
-</div>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">::</span><span class="w"> </span><span class="nf">http://stackoverflow.com/questions/636381/what-is-the-best-way-to-do-a-substring-in-a-batch-file</span><span class="w">
+</span><span class="p">::</span><span class="w"> </span><span class="nx">http://stackoverflow.com/questions/6359820/how-to-set-commands-output-as-a-variable-in-a-batch-file</span><span class="w">
+</span><span class="kr">FOR</span><span class="w"> </span><span class="nf">/F</span><span class="w"> </span><span class="s2">"tokens=* USEBACKQ"</span><span class="w"> </span><span class="o">%%</span><span class="nx">F</span><span class="w"> </span><span class="nx">IN</span><span class="w"> </span><span class="p">(</span><span class="err">`</span><span class="nf">gem</span><span class="w"> </span><span class="nx">which</span><span class="w"> </span><span class="nx">rubygems</span><span class="se">`)</span><span class="w"> </span><span class="nx">DO</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span><span class="nf">SET</span><span class="w"> </span><span class="nx">GEM_BIN</span><span class="o">=%%</span><span class="nf">F</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="nf">PUSHD</span><span class="w"> </span><span class="s2">"%GEM_BIN:~0,-3%/ssl_certs"</span><span class="w">
+</span><span class="nf">powershell</span><span class="w"> </span><span class="nt">-Command</span><span class="w"> </span><span class="s2">"(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem', 'GlobalSignRootCA.pem')"</span><span class="w">
+</span><span class="nf">POPD</span><span class="w">
+</span></code></pre></div></div>
 
 <p>If you are still having certificate errors, I found this answer on <a href="http://stackoverflow.com/questions/5720484/how-to-solve-certificate-verify-failed-on-windows#answer-16134586">Stackoverflow helpful</a>.</p>
 
@@ -189,11 +183,11 @@ powershell -Command <span class="s2">"(New-Object Net.WebClient).DownloadFile('h
 
 <h2 id="editing">Editing</h2>
 <p>Once you are all setup you’ll see the contents of the blog similar to structure below.
-If you aren’t tweaking the theme, the <code class="highlighter-rouge">_posts</code> directory is where you can write and 
+If you aren’t tweaking the theme, the <code class="language-plaintext highlighter-rouge">_posts</code> directory is where you can write and 
 edit posts. The name of the each file contains the date the post will be published as well as
 the url/slug of the post.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>|-- _posts
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>|-- _posts
 |   |-- 2016-11-09-post.md
 |   |-- 2016-11-10-best-cats.md
 |   `-- 2020-11-11-gifs-on-fire.md
@@ -203,12 +197,11 @@ the url/slug of the post.</p>
 |-- Gemfile
 |-- Gemfile.lock
 `-- index.md
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The content of a post looks like this!</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>---
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---
 layout: post
 title:  "Getting going with Jekyll"
 subtitle: "Jumping into THE static site generator"
@@ -228,8 +221,7 @@ viverra enim non, rhoncus mauris. Phasellus vel turpis tincidunt, tristique mi v
 - Phasellus vel 
 - Aenean elementum
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><strong>Note</strong> One thing nice I discovered by accident is you can future 
 date a post and it won’t render/display until that date!</p>
@@ -237,11 +229,11 @@ date a post and it won’t render/display until that date!</p>
 <h2 id="customizing--plugins">Customizing &amp; Plugins</h2>
 <p>Jekyll has a healthy ecosystem which of course includes plugins &amp; themes. One feature I 
 wanted to add that I found a plugin for was embedding twitter posts.
-Adding the new plugin was pretty straightforward! I edited the <code class="highlighter-rouge">Gemfile</code> in the project
-root and under the <code class="highlighter-rouge">:jekyll_plugins</code> group added the name of the plugins I wanted
+Adding the new plugin was pretty straightforward! I edited the <code class="language-plaintext highlighter-rouge">Gemfile</code> in the project
+root and under the <code class="language-plaintext highlighter-rouge">:jekyll_plugins</code> group added the name of the plugins I wanted
 installed.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">source</span> <span class="s2">"https://rubygems.org"</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">source</span> <span class="s2">"https://rubygems.org"</span>
 <span class="n">ruby</span> <span class="no">RUBY_VERSION</span>
 
 <span class="n">gem</span> <span class="s2">"jekyll"</span><span class="p">,</span> <span class="s2">"3.3.0"</span>
@@ -251,23 +243,21 @@ installed.</p>
   <span class="c1"># Added a new plugin</span>
   <span class="n">gem</span> <span class="s2">"jekyll-twitter-plugin"</span> 
 <span class="k">end</span>
-</code></pre>
-</div>
-<p>After I updated the <code class="highlighter-rouge">Gemfile</code>  I ran <code class="highlighter-rouge">bundler install</code> and the additional dependancies were added!</p>
+</code></pre></div></div>
+<p>After I updated the <code class="language-plaintext highlighter-rouge">Gemfile</code>  I ran <code class="language-plaintext highlighter-rouge">bundler install</code> and the additional dependancies were added!</p>
 
 <h3 id="no-auto-urlize">No auto-urlize?</h3>
 <p>One thing that I’ve grown accustom to with markdown on github, was automatic url to link conversion.
 I’m not sure if I used another markdown renderer if it would be different, but the default renderer,
-<code class="highlighter-rouge">kramdown</code> didn’t handle that automagically. Luckily it is 
+<code class="language-plaintext highlighter-rouge">kramdown</code> didn’t handle that automagically. Luckily it is 
 really easy to create a plugin! I didn’t feel like investing the time to create an 
 auto urlizer at this point so I made a liquid filter and dropped it into the project -
- <code class="highlighter-rouge">_plugins/urlize-filter.rb</code>! to use it it’s as simple as</p>
+ <code class="language-plaintext highlighter-rouge">_plugins/urlize-filter.rb</code>! to use it it’s as simple as</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;http://jekyllrb.com/docs/home' | urlize }}
-</code></pre>
-</div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;http://jekyllrb.com/docs/home' | urlize }}
+</code></pre></div></div>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Jekyll</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Jekyll</span>
   <span class="k">module</span> <span class="nn">UrlizeFilter</span>
     <span class="k">def</span> <span class="nf">urlize</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
       <span class="s2">"&lt;a rel=</span><span class="se">\"</span><span class="s2">external</span><span class="se">\"</span><span class="s2"> href=</span><span class="se">\"</span><span class="si">#{</span><span class="n">input</span><span class="si">}</span><span class="se">\"</span><span class="s2">&gt;</span><span class="si">#{</span><span class="n">input</span><span class="si">}</span><span class="s2">&lt;/a&gt;"</span>
@@ -276,58 +266,53 @@ auto urlizer at this point so I made a liquid filter and dropped it into the pro
 <span class="k">end</span>
 
 <span class="no">Liquid</span><span class="o">::</span><span class="no">Template</span><span class="p">.</span><span class="nf">register_filter</span><span class="p">(</span><span class="no">Jekyll</span><span class="o">::</span><span class="no">UrlizeFilter</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="pinning-posts">Pinning Posts</h3>
 <p>In WordPress you can tag posts as “sticky”, essentially pinning them as more important.
-I did some quick searching around and found a solution to add a <code class="highlighter-rouge">pinned</code> attribute
+I did some quick searching around and found a solution to add a <code class="language-plaintext highlighter-rouge">pinned</code> attribute
 and drop in a new plugin!</p>
 
 <p><a href="https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4">https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4</a></p>
-<div class="highlighter-rouge"><pre class="highlight"><code>---
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---
 layout: post
 title:  "Getting going with Jekyll (on Windows!)"
 categories: tools
 tags: [ tools, windows ]
 pinned: true
 ---
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<p>I dropped a new ruby file into the <code class="highlighter-rouge">_plugins</code> directory following the 
+<p>I dropped a new ruby file into the <code class="language-plaintext highlighter-rouge">_plugins</code> directory following the 
 pattern found <a href="https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4">on this this</a></p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">Jekyll</span><span class="o">::</span><span class="no">Hooks</span><span class="p">.</span><span class="nf">register</span> <span class="ss">:site</span><span class="p">,</span> <span class="ss">:pre_render</span> <span class="k">do</span> <span class="o">|</span><span class="n">site</span><span class="p">,</span> <span class="n">payload</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="no">Jekyll</span><span class="o">::</span><span class="no">Hooks</span><span class="p">.</span><span class="nf">register</span> <span class="ss">:site</span><span class="p">,</span> <span class="ss">:pre_render</span> <span class="k">do</span> <span class="o">|</span><span class="n">site</span><span class="p">,</span> <span class="n">payload</span><span class="o">|</span>
   <span class="c1"># Sort pinned posts up!</span>
   <span class="c1"># https://talk.jekyllrb.com/t/pinned-posts-like-wordpress/1595/4</span>
   <span class="n">payload</span><span class="p">[</span><span class="s1">'site'</span><span class="p">][</span><span class="s1">'posts'</span><span class="p">].</span><span class="nf">sort_by!</span><span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="p">[</span><span class="nb">p</span><span class="p">.</span><span class="nf">data</span><span class="p">[</span><span class="s1">'pinned'</span><span class="p">]</span> <span class="p">?</span> <span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nb">p</span><span class="p">.</span><span class="nf">date</span><span class="p">]}.</span><span class="nf">reverse!</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>Now pinned posts percolate to the top! Once I unpin the post it will be sorted normally.</p>
 
 <h3 id="post-css-classes">Post CSS Classes</h3>
-<p>In WordPress there is a handy dandy function <code class="highlighter-rouge">post_class();</code> that give a CSS 
+<p>In WordPress there is a handy dandy function <code class="language-plaintext highlighter-rouge">post_class();</code> that give a CSS 
 class with names derived from the post attributes, including post type, category,
 tags etc. I wanted to implement a post_class attribute on posts/pages that I could
 use in the templates.</p>
 
 <p>In templates I wanted to be able to reference the attribute like this!</p>
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"{{ post.post_class }}"</span><span class="nt">&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"{{ post.post_class }}"</span><span class="nt">&gt;</span>
   <span class="c">&lt;!-- ... --&gt;</span>
 <span class="nt">&lt;/div&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>… which would render this!</p>
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"category-tools tag-tools tag-windows is-pinned"</span><span class="nt">&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"category-tools tag-tools tag-windows is-pinned"</span><span class="nt">&gt;</span>
   <span class="c">&lt;!-- ... --&gt;</span>
 <span class="nt">&lt;/div&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>… so I went ahead and dropped in another plugin which I quickly wrote!</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">Jekyll</span><span class="o">::</span><span class="no">Hooks</span><span class="p">.</span><span class="nf">register</span> <span class="ss">:site</span><span class="p">,</span> <span class="ss">:pre_render</span> <span class="k">do</span> <span class="o">|</span><span class="n">site</span><span class="p">,</span> <span class="n">payload</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="no">Jekyll</span><span class="o">::</span><span class="no">Hooks</span><span class="p">.</span><span class="nf">register</span> <span class="ss">:site</span><span class="p">,</span> <span class="ss">:pre_render</span> <span class="k">do</span> <span class="o">|</span><span class="n">site</span><span class="p">,</span> <span class="n">payload</span><span class="o">|</span>
   <span class="c1"># Add an attribute, post_class, for use in templates</span>
   <span class="n">payload</span><span class="p">[</span><span class="s1">'site'</span><span class="p">][</span><span class="s1">'posts'</span><span class="p">].</span><span class="nf">map!</span><span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span>
     <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span>
@@ -343,8 +328,7 @@ use in the templates.</p>
     <span class="nb">p</span>
   <span class="p">}</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>The nice thing about having category and tag classes is I can customize the style of the page
 depending on the tag!</p>
 
@@ -353,23 +337,22 @@ depending on the tag!</p>
 ids to headers but not links. The quickest way to remedy this missing feature is 
 to use JavaScript to add a link!</p>
 
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;script&gt;</span>
 <span class="nx">jQuery</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
   <span class="c1">// Add anchors to headings that have ids</span>
   <span class="c1">// https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263</span>
-  <span class="nx">$</span><span class="p">(</span><span class="s1">'h2,h3,h4,h5,h6'</span><span class="p">).</span><span class="nx">filter</span><span class="p">(</span><span class="s1">'[id]'</span><span class="p">).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="s1">'&lt;a href="#'</span><span class="o">+</span><span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span><span class="o">+</span><span class="s1">'"&gt;'</span> <span class="o">+</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">text</span><span class="p">()</span> <span class="o">+</span> <span class="s1">'&lt;/a&gt;'</span><span class="p">);</span>
+  <span class="nx">$</span><span class="p">(</span><span class="dl">'</span><span class="s1">h2,h3,h4,h5,h6</span><span class="dl">'</span><span class="p">).</span><span class="nx">filter</span><span class="p">(</span><span class="dl">'</span><span class="s1">[id]</span><span class="dl">'</span><span class="p">).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="dl">'</span><span class="s1">&lt;a href="#</span><span class="dl">'</span><span class="o">+</span><span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="dl">'</span><span class="s1">id</span><span class="dl">'</span><span class="p">)</span><span class="o">+</span><span class="dl">'</span><span class="s1">"&gt;</span><span class="dl">'</span> <span class="o">+</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">text</span><span class="p">()</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">&lt;/a&gt;</span><span class="dl">'</span><span class="p">);</span>
   <span class="p">});</span>
 <span class="p">});</span>
 <span class="nt">&lt;/script&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="archives">Archives</h3>
 <p>In WordPress I am used to have an archives page for categories, tags etc.
 One thing that appeared to be missing by default from Jekyll is the notion of a category archives.
-I assume this could be easily remedied by a plugin and found <code class="highlighter-rouge">jekyll-archives</code>!</p>
+I assume this could be easily remedied by a plugin and found <code class="language-plaintext highlighter-rouge">jekyll-archives</code>!</p>
 
 <p>Here are some more links on archives you can check out, maybe there is another solution you like better!</p>
 
@@ -382,12 +365,12 @@ I assume this could be easily remedied by a plugin and found <code class="highli
 
 <h3 id="image-classes">Image Classes</h3>
 <p>I wanted to add a custom class to an image but didn’t think markdown supported the
-notion of arbitrary attributes on elements. Apparently the <code class="highlighter-rouge">kramdown</code> markdown render
+notion of arbitrary attributes on elements. Apparently the <code class="language-plaintext highlighter-rouge">kramdown</code> markdown render
 supports <strong>“extended”</strong> features including extra attributes. I found the 
 <a href="https://thornelabs.net/2014/11/30/centering-images-with-jekyll-and-markdown.html">link here</a>
 that explains the details, but below is how you do it in the markdown.</p>
 
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="c">&lt;!--
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!--
 This markdown ....
 
 ![Andres](https://s.gravatar.com/avatar/md5yo?s=100){:class="biopic gravatar"}
@@ -395,8 +378,7 @@ This markdown ....
 ... turns into
 --&gt;</span>
 <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"https://s.gravatar.com/avatar/md5yo?s=100"</span> <span class="na">alt=</span><span class="s">"Andres"</span> <span class="na">class=</span><span class="s">"biopic gravatar"</span> <span class="nt">/&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="more">More</h3>
 <p>I covered some quick “plugins” to get you introduced, but make sure check out the resources below!</p>

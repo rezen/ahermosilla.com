@@ -5,12 +5,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>cloud</title>
+  <title>snippet</title>
   <meta name="description" content="Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m ...">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
 
   <link rel="stylesheet" href="/assets/main.css">
-  <link rel="canonical" href="http://ahermosilla.com/tags/cloud/">
+  <link rel="canonical" href="http://ahermosilla.com/categories/snippet/">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
   
@@ -33,7 +33,7 @@
     <header class="site-header" role="banner">
   <div class="wrapper">
     <span class="post-path">
-      <a href="/">tags/cloud/index.html</a>
+      <a href="/">categories/snippet/index.html</a>
     </span>
     <nav class="site-nav">
       <a class="menu-trigger">Menu</a>
@@ -55,93 +55,20 @@
     <main class="page-content">
       <div class="wrapper" aria-label="Content">
         <div class="home">
-  <h1>cloud</h1>
+  <h1>snippet</h1>
   <ul class="post-list">
     
       <li>
-        <article id="post-reverse-engineering-az-cli-to-sdk" class="post post-preview category-cloudtag-azure tag-cloud tag-python">
+        <article id="post-snippet-dig-without-dig" class="post post-preview category-snippettag-dns">
 	
-	  	<header class="post-header">
-			<h3 class="post-title" itemprop="name headline">
-				<a href="/cloud/2020/07/15/reverse-engineering-az-cli-to-sdk.html">
-					Reverse Engineering the az-cli to use the python sdk
-					<span class="post-subtitle">
-						Figuring out how to use the azure-sdk for python
-					</span>
-				</a>
-			</h3>
-	  	</header>
-		<p class="post-excerpt"><p>For scripting things in AWS, switching between boto and the aws cli is seamless because they use the same interfaces. The name of the python module matches the subcommand in the cli and the arguments and options all line up. This is not the case with Azure …. There seems to be inconsistent names between the az-cli, azure-sdk &amp; the Azure portal, which makes creating scripts a bit challenging. Additionally challenging, the docs are not fleshed …</p>
+		<div class="snippet">
+			<h3>dig without dig</h3>
+			<p><div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-H</span> <span class="s1">'host: dns.google.com'</span> <span class="se">\</span>
+  <span class="s1">'https://8.8.8.8/resolve?name=assets.github.com&amp;type=NS'</span> <span class="se">\</span>
+  | jq
+</code></pre></div></div>
 </p>
-		<p style="display:none" class="post-excerpt">For scripting things in AWS, switching between boto and the aws cli is seamless because they use the same interfaces. The name of the python module matches the subcommand in the cli and the arguments and options all line up. This is not the case with Azure …. There seems to be inconsistent names between the az-cli, azure-sdk &amp; the Azure portal, which makes creating scripts a bit challenging. Additionally challenging, the docs are not...</p>
-		<section class="post-meta">
-			<time datetime="2020-07-15T00:00:00+00:00" itemprop="datePublished">
-				July 15, 2020
-			</time>
-		   
-		   
-			
-				
-
-
-<ul class="tag-links topic-links">
-	
-	
-    <li class="tag-link-item"><a href="/tags/azure/">azure</a></li>
-    
-	
-    <li class="tag-link-item"><a href="/tags/cloud/">cloud</a></li>
-    
-	
-    <li class="tag-link-item"><a href="/tags/python/">python</a></li>
-    
-</ul>
-		   	
-		</section>
-	
-</article>
-      </li>
-    
-      <li>
-        <article id="post-setup-windows-10-azure" class="post post-preview category-cloudtag-azure tag-cloud tag-windows">
-	
-	  	<header class="post-header">
-			<h3 class="post-title" itemprop="name headline">
-				<a href="/cloud/2020/07/14/setup-windows-10-azure.html">
-					Setup Windows 10 in Azure
-					<span class="post-subtitle">
-						Have an environment for testing apps without running a VM
-					</span>
-				</a>
-			</h3>
-	  	</header>
-		<p class="post-excerpt"><p><img src="/assets/img/windows-10-rdp.png" alt="RDP" /> The other day I needed to test a Windows application, but I’m using a Mac. If you need to audit/test a Windows application on a Mac or Linux box, Microsoft provides some developer VM images you can use for free . I went ahead and downloaded the VM image for VirtualBox and starting the VM. I allocated 3 cores and 8GB of RAM thinking that should be enough power to test reasonably (I’m using MacBook …</p>
-</p>
-		<p style="display:none" class="post-excerpt">The other day I needed to test a Windows application, but I’m using a Mac. If you need to audit/test a Windows application on a Mac or Linux box, Microsoft provides some developer VM images you can use for free https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/. I went ahead and downloaded the VM image for VirtualBox and starting the VM. I allocated 3 cores and 8GB of RAM thinking that should be enough power to test reasonably (I’m using MacBook...</p>
-		<section class="post-meta">
-			<time datetime="2020-07-14T00:00:00+00:00" itemprop="datePublished">
-				July 14, 2020
-			</time>
-		   
-		   
-			
-				
-
-
-<ul class="tag-links topic-links">
-	
-	
-    <li class="tag-link-item"><a href="/tags/azure/">azure</a></li>
-    
-	
-    <li class="tag-link-item"><a href="/tags/cloud/">cloud</a></li>
-    
-	
-    <li class="tag-link-item"><a href="/tags/windows/">windows</a></li>
-    
-</ul>
-		   	
-		</section>
+		</div>
 	
 </article>
       </li>

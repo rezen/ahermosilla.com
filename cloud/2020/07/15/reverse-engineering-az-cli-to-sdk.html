@@ -96,20 +96,19 @@
 I was trying to create a script that pulled non-compliant resources from Azure Policy. The steps below document my journey to figuring out how to use the python sdk to do that.</p>
 
 <h2 id="clone-azure-cli">Clone azure-cli</h2>
-<p>Search around for an <code class="highlighter-rouge">az</code> command that has the same names in the portal or yields similar data to the UI.
-Digging through <a href="https://docs.microsoft.com/en-us/cli/azure/policy/state?view=azure-cli-latest#az-policy-state-list">docs</a>, <code class="highlighter-rouge">az policy state list -g "NameOfResourceGroup"</code> looked like it was a good place to start. We are going to clone the <code class="highlighter-rouge">azure-cli</code> repo and look for the modules that are used for that command.</p>
+<p>Search around for an <code class="language-plaintext highlighter-rouge">az</code> command that has the same names in the portal or yields similar data to the UI.
+Digging through <a href="https://docs.microsoft.com/en-us/cli/azure/policy/state?view=azure-cli-latest#az-policy-state-list">docs</a>, <code class="language-plaintext highlighter-rouge">az policy state list -g "NameOfResourceGroup"</code> looked like it was a good place to start. We are going to clone the <code class="language-plaintext highlighter-rouge">azure-cli</code> repo and look for the modules that are used for that command.</p>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="c"># Clone repo</span>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Clone repo</span>
 git clone https://github.com/Azure/azure-cli
 <span class="nb">cd </span>azure-cli
 
 <span class="c"># Look for the command pattern</span>
 <span class="c"># See output below</span>
-ag --python <span class="s1">'policy state'</span>  --ignore-dir <span class="s1">'*test'</span> --ignore <span class="s1">'**help.py*'</span>
-</code></pre>
-</div>
+ag <span class="nt">--python</span> <span class="s1">'policy state'</span>  <span class="nt">--ignore-dir</span> <span class="s1">'*test'</span> <span class="nt">--ignore</span> <span class="s1">'**help.py*'</span>
+</code></pre></div></div>
 <p><strong>Output</strong></p>
-<div class="highlighter-rouge"><pre class="highlight"><code>src/azure-cli/azure/cli/command_modules/policyinsights/_params.py
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src/azure-cli/azure/cli/command_modules/policyinsights/_params.py
 107:    with self.argument_context('policy state') as c:
 112:            help='Within the specified time interval, get all policy states instead of the latest only.')
 120:    with self.argument_context('policy state summarize') as c:
@@ -120,15 +119,14 @@ src/azure-cli/azure/cli/command_modules/policyinsights/commands.py
 src/azure-cli/azure/cli/command_modules/sql/_params.py
 790:                   help='Auditing policy state',
 811:                   help='Threat detection policy state',
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<p>Now that the region of the code base is narrowed, let us open that directory in our editor <code class="highlighter-rouge">code src/azure-cli/azure/cli/command_modules/policyinsights/</code>.</p>
+<p>Now that the region of the code base is narrowed, let us open that directory in our editor <code class="language-plaintext highlighter-rouge">code src/azure-cli/azure/cli/command_modules/policyinsights/</code>.</p>
 
-<p>When I look at the <code class="highlighter-rouge">commands.py</code> file, I notice <code class="highlighter-rouge">azure.mgmt.policyinsights.*</code>, which looks like a python module (which it is), so that is a good direction indicator.</p>
+<p>When I look at the <code class="language-plaintext highlighter-rouge">commands.py</code> file, I notice <code class="language-plaintext highlighter-rouge">azure.mgmt.policyinsights.*</code>, which looks like a python module (which it is), so that is a good direction indicator.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># ... Parts ommited for brevity</span>
-<span class="k">def</span> <span class="nf">load_command_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ... Parts ommited for brevity
+</span><span class="k">def</span> <span class="nf">load_command_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
     <span class="n">policy_events_sdk</span> <span class="o">=</span> <span class="n">CliCommandType</span><span class="p">(</span>
         <span class="n">operations_tmpl</span><span class="o">=</span><span class="s">'azure.mgmt.policyinsights.operations#PolicyEventsOperations.{}'</span><span class="p">,</span>
         <span class="n">exception_handler</span><span class="o">=</span><span class="n">policy_insights_exception_handler</span>
@@ -138,54 +136,51 @@ src/azure-cli/azure/cli/command_modules/sql/_params.py
         <span class="n">operations_tmpl</span><span class="o">=</span><span class="s">'azure.mgmt.policyinsights.operations#PolicyStatesOperations.{}'</span><span class="p">,</span>
         <span class="n">exception_handler</span><span class="o">=</span><span class="n">policy_insights_exception_handler</span>
     <span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<p>Next I’ll do a case sensitive search for <code class="highlighter-rouge">Client</code> - I’ve noticed there a is <code class="highlighter-rouge"><span class="p">{</span><span class="err">$Service</span><span class="p">}</span><span class="err">Client</span></code> pattern in the python-sdk.</p>
+<p>Next I’ll do a case sensitive search for <code class="language-plaintext highlighter-rouge">Client</code> - I’ve noticed there a is <code class="language-plaintext highlighter-rouge">{$Service}Client</code> pattern in the python-sdk.</p>
 
 <p><img src="/assets/img/reversing-az/code-find-client.png" alt="Search For Client" /></p>
 
-<p>Sure enough, you can see the python module imported <code class="highlighter-rouge">from azure.mgmt.policyinsights import PolicyInsightsClient</code>. Equipped with that knowledge, we can take a look at the python sdk. The specific module is found in <a href="https://github.com/Azure/azure-sdk-for-python/tree/master/sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsights">here</a> and we can take a look at it to figure out how to use it.</p>
+<p>Sure enough, you can see the python module imported <code class="language-plaintext highlighter-rouge">from azure.mgmt.policyinsights import PolicyInsightsClient</code>. Equipped with that knowledge, we can take a look at the python sdk. The specific module is found in <a href="https://github.com/Azure/azure-sdk-for-python/tree/master/sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsights">here</a> and we can take a look at it to figure out how to use it.</p>
 
 <h2 id="look-at-requests-in-ui">Look at Requests in UI</h2>
 <p><img src="/assets/img/reversing-az/az-policy.png" alt="AZ Policy" /></p>
 
 <p>Starting with the cli is a good place to start, however it doesn’t always yield fruitful results.
 Dig around in the UI for Policy, looking for properties, names, etc. One you can find is 
-<code class="highlighter-rouge">providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/205aa080f2cb4xxxxxxxx</code>. For me, the part that sticks out is the part right before an id, <code class="highlighter-rouge">policyAssignments</code>. Later, I’ll look for anything with <code class="highlighter-rouge">policy</code> in the type of a resource using the Resource Graph Explorer.</p>
+<code class="language-plaintext highlighter-rouge">providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/205aa080f2cb4xxxxxxxx</code>. For me, the part that sticks out is the part right before an id, <code class="language-plaintext highlighter-rouge">policyAssignments</code>. Later, I’ll look for anything with <code class="language-plaintext highlighter-rouge">policy</code> in the type of a resource using the Resource Graph Explorer.</p>
 
 <p>I’ve noticed many pages interact directly with the same apis that the az-cli and python-sdk do, so I’ll open my browser network requests inspector and see what I can find.</p>
 
 <p><img src="/assets/img/reversing-az/az-policy-network.png" alt="AZ Policy Network" /></p>
 
-<p>So far, the endpoint with consistently useful data is <code class="highlighter-rouge">batch?api-version=xxxx</code>. If you look at the request it gives you a hint at what endpoints we want to interact with. I look at the request and <code class="highlighter-rouge">Microsoft.PolicyInsights/policyStates</code> is the part that sticks out to me as interesting. It is contained in part of a url, likely from an API that the sdk interacts with.</p>
+<p>So far, the endpoint with consistently useful data is <code class="language-plaintext highlighter-rouge">batch?api-version=xxxx</code>. If you look at the request it gives you a hint at what endpoints we want to interact with. I look at the request and <code class="language-plaintext highlighter-rouge">Microsoft.PolicyInsights/policyStates</code> is the part that sticks out to me as interesting. It is contained in part of a url, likely from an API that the sdk interacts with.</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"requests"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"requests"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"httpMethod"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5f152e3e-xxxx-yyyy-zzzz-000000000000"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"requestHeaderDetails"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"commandName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Microsoft_Azure_Policy."</span><span class="w">
+      </span><span class="nl">"httpMethod"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5f152e3e-xxxx-yyyy-zzzz-000000000000"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"requestHeaderDetails"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"commandName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Microsoft_Azure_Policy."</span><span class="w">
       </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://management.azure.com/providers/Microsoft.Management/managementGroups/codxxxxx/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults?api-version=2019-10-01&amp;$top=250&amp;$select=resourceId,resourceType,resourceLocation,timestamp,complianceState,policyDefinitionVersion,policySetDefinitionVersion&amp;$filter=policyAssignmentId eq '/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/205aa080f2cb446a9exxxxxx' and policyDefinitionId eq '/providers/Microsoft.Authorization/policyDefinitions/34c877ad-xxxx-yyyy-zzzz-000000000000' and policyDefinitionReferenceId eq '13350666179920xxxxxxx' and ((complianceState eq 'noncompliant'))"</span><span class="w">
+      </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://management.azure.com/providers/Microsoft.Management/managementGroups/codxxxxx/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults?api-version=2019-10-01&amp;$top=250&amp;$select=resourceId,resourceType,resourceLocation,timestamp,complianceState,policyDefinitionVersion,policySetDefinitionVersion&amp;$filter=policyAssignmentId eq '/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/205aa080f2cb446a9exxxxxx' and policyDefinitionId eq '/providers/Microsoft.Authorization/policyDefinitions/34c877ad-xxxx-yyyy-zzzz-000000000000' and policyDefinitionReferenceId eq '13350666179920xxxxxxx' and ((complianceState eq 'noncompliant'))"</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
-<p>Armed with a pattern to look for, let’s try finding <code class="highlighter-rouge">Microsoft.PolicyInsights/policyStates</code> in the SDK.</p>
+<p>Armed with a pattern to look for, let’s try finding <code class="language-plaintext highlighter-rouge">Microsoft.PolicyInsights/policyStates</code> in the SDK.</p>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="c"># The sdk is ~200mb</span>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># The sdk is ~200mb</span>
 git clone https://github.com/Azure/azure-sdk-for-python
 <span class="nb">cd </span>azure-sdk-for-python/
-ag --python <span class="s1">'Microsoft.PolicyInsights/policyStates'</span>
-</code></pre>
-</div>
+ag <span class="nt">--python</span> <span class="s1">'Microsoft.PolicyInsights/policyStates'</span>
+</code></pre></div></div>
 
 <p><strong>Output</strong></p>
-<div class="highlighter-rouge"><pre class="highlight"><code>sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsights/operations/_policy_states_operations.py
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsights/operations/_policy_states_operations.py
 149:    list_query_results_for_management_group.metadata = {'url': '/providers/{managementGroupsNamespace}/managementGroups/{managementGroupName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
 230:    summarize_for_management_group.metadata = {'url': '/providers/{managementGroupsNamespace}/managementGroups/{managementGroupName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
 331:    list_query_results_for_subscription.metadata = {'url': '/subscriptions/{subscriptionId}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
@@ -204,12 +199,11 @@ ag --python <span class="s1">'Microsoft.PolicyInsights/policyStates'</span>
 1504:    summarize_for_subscription_level_policy_assignment.metadata = {'url': '/subscriptions/{subscriptionId}/providers/{authorizationNamespace}/policyAssignments/{policyAssignmentName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
 1612:    list_query_results_for_resource_group_level_policy_assignment.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{authorizationNamespace}/policyAssignments/{policyAssignmentName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesResource}/queryResults'}
 1700:    summarize_for_resource_group_level_policy_assignment.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{authorizationNamespace}/policyAssignments/{policyAssignmentName}/providers/Microsoft.PolicyInsights/policyStates/{policyStatesSummaryResource}/summarize'}
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<p>So starting from the UI we’ve narrowed down what part of the SDK to interact with. This lines up with what we discovered earlier looking at the azure-cli. Typically a module for a service has <code class="highlighter-rouge">models</code> &amp;  <code class="highlighter-rouge">operations</code> directories, so we want to open the directory above, <code class="highlighter-rouge">sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsight</code>. Generally, with modules, we don’t want to interact directly with <code class="highlighter-rouge">operations/*.py</code>, there is a “public-interface” via a client which executes operations. To find the “public-interface” you need to look in <code class="highlighter-rouge">__init__.py</code>.</p>
+<p>So starting from the UI we’ve narrowed down what part of the SDK to interact with. This lines up with what we discovered earlier looking at the azure-cli. Typically a module for a service has <code class="language-plaintext highlighter-rouge">models</code> &amp;  <code class="language-plaintext highlighter-rouge">operations</code> directories, so we want to open the directory above, <code class="language-plaintext highlighter-rouge">sdk/policyinsights/azure-mgmt-policyinsights/azure/mgmt/policyinsight</code>. Generally, with modules, we don’t want to interact directly with <code class="language-plaintext highlighter-rouge">operations/*.py</code>, there is a “public-interface” via a client which executes operations. To find the “public-interface” you need to look in <code class="language-plaintext highlighter-rouge">__init__.py</code>.</p>
 
-<p>Looking at <code class="highlighter-rouge">__init__.py</code> you will find <code class="highlighter-rouge">__all__ = ['PolicyInsightsClient', 'PolicyInsightsClientConfiguration']</code>, which is python for “you can/should access these in this module”. From there if you drill down into the client in <code class="highlighter-rouge">_policy_insights_client.py</code> you will see the operation we found being imported and used in the client’s <code class="highlighter-rouge">__init__</code> method.</p>
+<p>Looking at <code class="language-plaintext highlighter-rouge">__init__.py</code> you will find <code class="language-plaintext highlighter-rouge">__all__ = ['PolicyInsightsClient', 'PolicyInsightsClientConfiguration']</code>, which is python for “you can/should access these in this module”. From there if you drill down into the client in <code class="language-plaintext highlighter-rouge">_policy_insights_client.py</code> you will see the operation we found being imported and used in the client’s <code class="language-plaintext highlighter-rouge">__init__</code> method.</p>
 
 <h2 id="look-at-resource-graph">Look at Resource Graph</h2>
 
@@ -220,66 +214,62 @@ ag --python <span class="s1">'Microsoft.PolicyInsights/policyStates'</span>
 <p>For example, if I wanted to get all public ips, using the network module from the python-sdk, it would take some effort. However, I can create a resource graph query to get that same data without having to iterate through all the subscriptions and resource groups</p>
 
 <h4 id="example">Example</h4>
-<div class="highlighter-rouge"><pre class="highlight"><code>where type in~ ('Microsoft.Network/PublicIpAddresses') and isnotempty(properties.ipAddress) 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>where type in~ ('Microsoft.Network/PublicIpAddresses') and isnotempty(properties.ipAddress) 
   | project id,name,type,location,subscriptionId,resourceGroup,kind,tags,properties.ipAddress 
   | sort by tolower(tostring(name)) asc
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">azure.mgmt.resourcegraph.models</span> <span class="kn">as</span> <span class="nn">rg</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">azure.mgmt.resourcegraph.models</span> <span class="k">as</span> <span class="n">rg</span>
 <span class="kn">from</span> <span class="nn">azure.mgmt.resourcegraph</span> <span class="kn">import</span> <span class="n">ResourceGraphClient</span>
-<span class="c"># Parts omitted for brevity</span>
-<span class="k">def</span> <span class="nf">resource_graph_all</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
+<span class="c1"># Parts omitted for brevity
+</span><span class="k">def</span> <span class="nf">resource_graph_all</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
     <span class="n">credentials</span> <span class="o">=</span> <span class="n">get_credentials</span><span class="p">()</span>
     <span class="n">subscriptions</span> <span class="o">=</span> <span class="n">get_subscriptions</span><span class="p">()</span>
-    <span class="n">subscription_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">subscription_id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subscriptions</span><span class="p">]</span>
+    <span class="n">subscription_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">.</span><span class="n">subscription_id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subscriptions</span><span class="p">]</span>
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">has_more</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="n">per_page</span> <span class="o">=</span> <span class="mi">1000</span>
     <span class="n">page</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">while</span> <span class="n">has_more</span><span class="p">:</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">QueryRequestOptions</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">per_page</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">page</span> <span class="o">*</span> <span class="n">per_page</span><span class="p">)</span>
-        <span class="n">query_request</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">QueryRequest</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">rg</span><span class="p">.</span><span class="n">QueryRequestOptions</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">per_page</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">page</span> <span class="o">*</span> <span class="n">per_page</span><span class="p">)</span>
+        <span class="n">query_request</span> <span class="o">=</span> <span class="n">rg</span><span class="p">.</span><span class="n">QueryRequest</span><span class="p">(</span>
             <span class="n">subscriptions</span><span class="o">=</span><span class="n">subscription_ids</span><span class="p">,</span>
             <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
             <span class="n">options</span><span class="o">=</span><span class="n">options</span>
         <span class="p">)</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">ResourceGraphClient</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="n">query_request</span><span class="p">)</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s">'name'</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">'columns'</span><span class="p">]]</span>
-        <span class="n">results</span> <span class="o">=</span>  <span class="n">results</span> <span class="o">+</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">'rows'</span><span class="p">]]</span>
-        <span class="n">has_more</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="n">per_page</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">resources</span><span class="p">(</span><span class="n">query_request</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s">'name'</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">'columns'</span><span class="p">]]</span>
+        <span class="n">results</span> <span class="o">=</span>  <span class="n">results</span> <span class="o">+</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">'rows'</span><span class="p">]]</span>
+        <span class="n">has_more</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="n">count</span> <span class="o">==</span> <span class="n">per_page</span>
         <span class="n">page</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">results</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="discovery">Discovery</h3>
-<p>It’s not immediately clear what resources are available to query. I find querying with <code class="highlighter-rouge">type contains '...'</code> and trying different values helps me to discover what types of data are available. When I looked around for resources around policy, there was nothing that stuck out.</p>
+<p>It’s not immediately clear what resources are available to query. I find querying with <code class="language-plaintext highlighter-rouge">type contains '...'</code> and trying different values helps me to discover what types of data are available. When I looked around for resources around policy, there was nothing that stuck out.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>resources 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>resources 
 | where type contains 'insight' or type contains 'policy'
 | distinct  type
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="sample">Sample</h2>
 <p>Okay, so with all that spelunking, what did we finally land on for getting the policy state using the python-sdk?</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">shared.azure</span> <span class="kn">as</span> <span class="nn">az</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">shared.azure</span> <span class="k">as</span> <span class="n">az</span>
 <span class="kn">from</span> <span class="nn">azure.mgmt.policyinsights</span> <span class="kn">import</span> <span class="n">PolicyInsightsClient</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">get_credentials</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">get_credentials</span><span class="p">()</span>
 <span class="n">insights</span> <span class="o">=</span> <span class="n">PolicyInsightsClient</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">insights</span><span class="o">.</span><span class="n">policy_states</span><span class="o">.</span><span class="n">list_query_results_for_management_group</span><span class="p">(</span><span class="s">'latest'</span><span class="p">,</span> <span class="s">'rootmanagementgroup'</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">insights</span><span class="p">.</span><span class="n">policy_states</span><span class="p">.</span><span class="n">list_query_results_for_management_group</span><span class="p">(</span><span class="s">'latest'</span><span class="p">,</span> <span class="s">'rootmanagementgroup'</span><span class="p">)</span>
 
-<span class="c"># @todo needs pagination</span>
-<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+<span class="c1"># @todo needs pagination
+</span><span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">value</span><span class="p">:</span>
   <span class="k">print</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
   </section>
 
