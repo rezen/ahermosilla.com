@@ -95,8 +95,10 @@ li {
  */
 h1, h2, h3, h4, h5, h6 {
   color: $brand-alt-color;
-  font-weight: normal;
+  // font-weight: normal;
   margin: 24px 0 0 0;
+  font-weight: bold;
+  line-height: 1.2em;
 }
 
 h2[id],
