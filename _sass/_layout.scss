@@ -374,10 +374,21 @@ h1 {
   font-weight: normal;
 }
 .snippet {
-  background: #eee;
+  background: repeating-linear-gradient(
+    45deg,
+    #eee,
+    #eee 14px,
+    #fff 10px,
+    #fff 20px
+  );
   padding: 2px 40px 20px 40px;
   margin: 8px -40px;
   position: relative;
+
+  .inner {
+    z-index: 2;
+    position: relative;
+  }
 
   &:before {
     content: 'i';
@@ -394,5 +405,17 @@ h1 {
     border-radius: 50%;
     left: -16px;
     top: 24px;
+    z-index: 2;
+  }
+
+  &:after {
+    content:'';
+    background: rgba(255, 255, 255, 1);
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    position: absolute;
+    top:8px;
+    left:8px;
+    z-index: 1;
   }
 }

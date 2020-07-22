@@ -1,8 +1,10 @@
 <article id="post-{{ post.slug }}" class="post post-preview {{ post.post_class }}">
 	{% if post.category == 'snippet' %}
 		<div class="snippet">
-			<h3>{{ post.title }}</h3>
-			<p>{{ post.content }}</p>
+			<div class="inner">
+				<h3>{{ post.title }}</h3>
+				<p>{{ post.content }}</p>
+			</div>
 		</div>
 	{% else %}
 	  	<header class="post-header">
