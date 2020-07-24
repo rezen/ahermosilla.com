@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Setup ZAP baseline for CI &amp; tracking with JIRA</title>
+  <meta name="description" content="Doing a baseline security scan of your web application before deployment is a simple way to improve the security of your application. Adding a scan to your C...">
+  <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/main.css?h=a30a86a%0A">
+  <link rel="canonical" href="http://ahermosilla.com/security/2020/07/24/zap-baseline-with-jira.html">
+  <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33398574-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+  <body>
+    <header class="site-header" role="banner">
+  <div class="wrapper">
+    <span class="post-path">
+      <a href="/">2020-07-24-zap-baseline-with-jira.md</a>
+    </span>
+    <nav class="site-nav">
+      <a class="menu-trigger">Menu</a>
+      <div class="menu-items">
+        
+          <a class="page-link" href="/">/root</a>
+        
+          <a class="page-link" href="/about/">/about</a>
+        
+          <a class="page-link" href="/categories/">/categories</a>
+        
+          <a class="page-link" href="/tags/">/tags</a>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main class="page-content">
+      <div class="wrapper" aria-label="Content">
+        <article id="post-zap-baseline-with-jira" class="post post-single category-securitytag-security tag-zap" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Setup ZAP baseline for CI &amp; tracking with JIRA</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2020-07-24T00:00:00+00:00" itemprop="datePublished">
+        July 24, 2020
+      </time>
+
+
+
+      
+        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/security/">security</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/zap/">zap</a></li>
+    
+</ul>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <p>Doing a baseline security scan of your web application before deployment is a simple way to improve the security of your application. Adding a scan to your CI as part of your SDLC makes it effortless to iterate and improve your application’s security. There are lots of options for scanning your web application, but in this post we’ll focus on scanning with <a href="https://www.zaproxy.org/">OWASP ZAP</a>! I’m going to walk through getting a basic scan setup and configured and then show how you can script up loading the results into <a href="https://www.atlassian.com/software/jira">JIRA</a>. I don’t get into configuration details of the CI, I’ve done this setup primarily with teams using Jenkins, but it translate well into any CI. (If you are using Github, there is a nice post on <a href="https://www.zaproxy.org/blog/2020-04-09-automate-security-testing-with-zap-and-github-actions/">ZAP with Github Actions</a>)</p>
+
+<p><em>I put together the majority of this guide a couple years ago so some of the scripts haven’t been tested recently</em></p>
+
+<h2 id="requirements">Requirements</h2>
+<ul>
+  <li>Docker</li>
+  <li><code class="language-plaintext highlighter-rouge">jq</code>  <a href="https://stedolan.github.io/jq/">https://stedolan.github.io/jq/</a></li>
+  <li><code class="language-plaintext highlighter-rouge">jira</code> (cli) <a href="https://github.com/Netflix-Skunkworks/go-jira">https://github.com/Netflix-Skunkworks/go-jira</a></li>
+</ul>
+
+<h2 id="prepare">Prepare</h2>
+<p>You’ll need Docker installed on your system to try things out. When you are setup, you can execute this command to do a test run against your application  (Change the url to your application endpoint). The <code class="language-plaintext highlighter-rouge">alerts.json</code> will have a report of findings and <code class="language-plaintext highlighter-rouge">alerts.conf</code> is a config file (being generated this time with the <code class="language-plaintext highlighter-rouge">-g</code> flag) you can change (<a href="https://www.zaproxy.org/docs/docker/baseline-scan/">https://www.zaproxy.org/docs/docker/baseline-scan/</a>) - pay attention to stdout for now. There will be minimal output, running the command will take 30 seconds to 5 minutes depending on how many crawlable urls you have.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">--env</span> <span class="nv">PYTHONBUFFERED</span><span class="o">=</span>1 <span class="se">\</span>
+  <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/zap/wrk/:rw <span class="nt">-t</span> owasp/zap2docker-stable zap-baseline.py <span class="se">\</span>
+  <span class="nt">-t</span> https://ahermosilla.com/ <span class="se">\</span>
+  <span class="nt">-a</span> <span class="nt">-d</span> <span class="nt">-j</span> <span class="se">\</span>
+  <span class="nt">-J</span> <span class="s2">"alerts.json"</span> <span class="se">\</span>
+  <span class="nt">-g</span> alerts.conf <span class="se">\</span>
+  <span class="nt">-m</span> 1 <span class="se">\</span>
+  <span class="nt">-z</span> <span class="s1">'-config spider.maxDepth=1 -config spider.thread=4 -config spider.maxChildren=1'</span>
+</code></pre></div></div>
+
+<h2 id="review">Review</h2>
+<p>After the command runs &amp; finishes you’ll see some results in stdout that look like the output below. Review the results &amp; make note of any items that may be false positives, noting the number in the square brackets after the label (e.g <code class="language-plaintext highlighter-rouge">[10010]</code>)</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>--- snip ---
+PASS: WSDL File Passive Scanner [90030]
+PASS: Loosely Scoped Cookie [90033]
+WARN-NEW: Cookie No HttpOnly Flag [10010] x 13 
+	https://ahermosilla.com/
+	https://ahermosilla.com/account/login?return_url=https%3A%2F%2Fahermosilla.com
+	https://ahermosilla.com/user/auth/login?return_url=https%3A%2F%2Fahermosilla.com
+	https://ahermosilla.com/robots.txt
+	https://ahermosilla.com/sitemap.xml
+WARN-NEW: Cookie Without Secure Flag [10011] x 13 
+	https://ahermosilla.com/
+--- snip ---
+</code></pre></div></div>
+
+<h2 id="tune">Tune</h2>
+<p>The scan from the first step will generate an  <code class="language-plaintext highlighter-rouge">alerts.conf</code> which you can tune.  You can change <code class="language-plaintext highlighter-rouge">WARN</code> to <code class="language-plaintext highlighter-rouge">IGNORE</code> for false positives or <code class="language-plaintext highlighter-rouge">WARN</code> to <code class="language-plaintext highlighter-rouge">FAIL</code> for items that you would want to fail builds for. Tuning is optional, but like most tools, you can get better mileage with tuning. Once you have altered the config, do some more test runs with the supplied config to verify the changes are what you want.</p>
+
+<p><strong>alerts.conf</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># zap-baseline rule configuration file
+# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches
+# Only the rule identifiers are used - the names are just for info
+# You can add your own messages to each rule by appending them after a tab on each line.
+10009   WARN    (In Page Banner Information Leak)
+10010   WARN    (Cookie No HttpOnly Flag)
+10011   WARN    (Cookie Without Secure Flag)
+10015   WARN    (Incomplete or No Cache-control and Pragma HTTP Header Set)
+10016   WARN    (Web Browser XSS Protection Not Enabled)
+10017   WARN    (Cross-Domain JavaScript Source File Inclusion)
+10019   WARN    (Content-Type Header Missing)
+10020   WARN    (X-Frame-Options Header Scanner)
+10021   WARN    (X-Content-Type-Options Header Missing)
+10023   WARN    (Information Disclosure - Debug Error Messages)
+10024   WARN    (Information Disclosure - Sensitive Information in URL)
+10025   WARN    (Information Disclosure - Sensitive Information in HTTP Referrer Header)
+10026   WARN    (HTTP Parameter Override)
+10027   WARN    (Information Disclosure - Suspicious Comments)
+</code></pre></div></div>
+
+<p>Now that you have adjusted the <code class="language-plaintext highlighter-rouge">alerts.conf</code> file, you 
+ can run the command again, this time with the <code class="language-plaintext highlighter-rouge">-c</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/zap/wrk/:rw <span class="nt">-t</span> owasp/zap2docker-stable zap-baseline.py  <span class="se">\</span>
+    <span class="nt">-t</span> https://ahermosilla.com/ <span class="se">\</span>
+    <span class="nt">-a</span> <span class="nt">-d</span> <span class="nt">-j</span> <span class="se">\</span>
+    <span class="nt">-J</span> <span class="s2">"alerts.json"</span> <span class="se">\</span>
+    <span class="nt">-c</span> alerts.conf <span class="se">\</span>
+    <span class="nt">-m</span> 1 <span class="se">\</span>
+    <span class="nt">-z</span> <span class="s1">'-config spider.maxDepth=1 -config spider.thread=4 -config spider.maxChildren=1'</span>
+</code></pre></div></div>
+
+<h2 id="building">Building</h2>
+<p>Once you have everything tuned &amp; verified, add a job to your CI environment. You should setup parameterized builds to pass in your target and alerts configuration. I recommend running the scans after acceptance testing, but find where it best fits into your team’s SDLC. This is essentially the script you can use.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">export </span><span class="nv">JIRA_PROJECT</span><span class="o">=</span>TST
+<span class="nb">export </span><span class="nv">TARGET</span><span class="o">=</span><span class="s1">'https://ahermosilla.com/'</span>
+<span class="nb">export </span><span class="nv">IGNORE_IDS</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">cat </span>alerts.conf  | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'^#'</span> | <span class="nb">grep </span>IGNORE | <span class="nb">cut</span> <span class="nt">-f1</span> | <span class="nb">tr</span> <span class="s1">'\r\n'</span> <span class="s1">' '</span><span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span><span class="nv">REPORT_FILE</span><span class="o">=</span><span class="s2">"report-</span><span class="si">$(</span><span class="nb">date</span> <span class="s1">'+%Y%m%d%H%M%S'</span><span class="si">)</span><span class="s2">.json"</span>
+ 
+docker run <span class="nt">--rm</span> <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/zap/wrk/:rw <span class="nt">-t</span> owasp/zap2docker-stable zap-baseline.py  <span class="se">\</span>
+    <span class="nt">-t</span> <span class="s2">"</span><span class="nv">$TARGET</span><span class="s2">"</span> <span class="se">\</span>
+    <span class="nt">-a</span> <span class="se">\</span>
+    <span class="nt">-J</span> <span class="s2">"</span><span class="nv">$REPORT_FILE</span><span class="s2">"</span> <span class="se">\</span>
+    <span class="nt">-c</span> alerts.conf <span class="se">\</span>
+    <span class="nt">-m</span> 1 <span class="se">\</span>
+    <span class="nt">-z</span> <span class="s1">'-config spider.maxDepth=1 -config spider.thread=4 -config spider.maxChildren=1'</span>
+
+<span class="c"># Export alerts to JIRA</span>
+./zap_alerts_to_jira.sh <span class="s2">"</span><span class="nv">$REPORT_FILE</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="jira">JIRA</h2>
+<p>Everyone who has used JIRA has feelings about JIRA (myself included). This base script enables you to use the <code class="language-plaintext highlighter-rouge">jira</code> cli to create tickets from the alerts generated by ZAP. For teams that primarily work out of JIRA, this is very helpful for keeping tabs of any issues ZAP has found.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nb">set</span> <span class="nt">-e</span>
+
+<span class="nv">report_file</span><span class="o">=</span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+<span class="nv">target_host</span><span class="o">=</span><span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
+<span class="nv">project</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">JIRA_PROJECT</span><span class="k">}</span><span class="s2">"</span>
+<span class="nv">ignore_ids</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">IGNORE_IDS</span><span class="k">:-</span><span class="nv">2</span><span class="p"> 10026</span><span class="k">}</span><span class="s2">"</span>
+
+<span class="c"># If ignore_ids is actually a file instead of numbers</span>
+<span class="k">if</span> <span class="o">[</span> <span class="nt">-f</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ignore_ids</span><span class="k">}</span><span class="s2">"</span> <span class="o">]</span>
+<span class="k">then</span>
+  <span class="c"># https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan#configuration-file</span>
+  <span class="nb">echo</span> <span class="s2">"[i] Reading alerts conf file for alerts to ignore"</span>
+  <span class="nv">ignore_ids</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">cat</span> <span class="k">${</span><span class="nv">ignore_ids</span><span class="k">}</span>  | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'^#'</span> | <span class="nb">grep </span>IGNORE | <span class="nb">awk</span> <span class="s1">'{ print $1 }'</span> | <span class="nb">tr</span> <span class="s1">'\r\n'</span> <span class="s1">' '</span><span class="si">)</span><span class="s2">"</span>
+<span class="k">fi
+
+if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="s2">"</span><span class="k">${</span><span class="nv">target_host</span><span class="k">}</span><span class="s2">"</span> <span class="o">]</span>
+<span class="k">then
+  </span><span class="nb">echo</span> <span class="s1">'[!] You need to provide a target host ./zap_alerts_to_jira.sh report.json myapp.com'</span>
+  <span class="nb">exit </span>10
+<span class="k">fi
+
+</span>should_ignore_id<span class="o">()</span>
+<span class="o">{</span>
+  <span class="nb">local id</span><span class="o">=</span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+  <span class="k">if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$ignore_ids</span><span class="s2">"</span> <span class="o">]</span>
+  <span class="k">then
+    return </span>1
+  <span class="k">fi
+
+  for </span>iid <span class="k">in</span> <span class="k">${</span><span class="nv">ignore_ids</span><span class="k">}</span>
+  <span class="k">do
+    if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$iid</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">"</span><span class="nv">$id</span><span class="s2">"</span> <span class="o">]</span>
+    <span class="k">then
+      return </span>0
+    <span class="k">fi
+  done
+  return </span>1
+<span class="o">}</span>
+
+create_jira_issue<span class="o">()</span> 
+<span class="o">{</span>
+  <span class="nb">local </span><span class="nv">summary</span><span class="o">=</span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+  <span class="nb">local </span><span class="nv">alert</span><span class="o">=</span><span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
+  <span class="nv">description</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alert</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s1">'.description,"\n", (.uris[] | " - \(.)")'</span> | <span class="nb">sed</span> <span class="s2">"s/://g"</span><span class="si">)</span>
+  
+  <span class="c"># If you want to add custom fields etc, you will need to change the go-jira create templates</span>
+  <span class="c"># which can be generated with `jira export-templates` and then</span>
+  <span class="c"># adjusted in ~/.jira.d/templates/create</span>
+  jira create <span class="nt">--project</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">project</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+    <span class="nt">--issuetype</span><span class="o">=</span>Task <span class="se">\</span>
+    <span class="nt">--noedit</span> <span class="se">\</span>
+    <span class="nt">--override</span><span class="o">=</span><span class="s2">"summary=</span><span class="k">${</span><span class="nv">summary</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+    <span class="nt">--override</span><span class="o">=</span><span class="s2">"description=</span><span class="k">${</span><span class="nv">description</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+
+handle_target_alerts<span class="o">()</span>
+<span class="o">{</span>
+  <span class="nb">local </span><span class="nv">target</span><span class="o">=</span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+  <span class="nb">local </span><span class="nv">alerts</span><span class="o">=</span><span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
+  <span class="k">while </span><span class="nb">read</span> <span class="nt">-r</span> alert
+  <span class="k">do
+    </span><span class="nb">id</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alert</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s1">'.id'</span><span class="si">)</span>
+    <span class="nv">prefix</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alert</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s1">'"\(.id) -- \(.name)"'</span><span class="si">)</span>
+
+    <span class="k">if </span>should_ignore_id <span class="s2">"</span><span class="nv">$id</span><span class="s2">"</span>
+    <span class="k">then
+      </span><span class="nb">echo</span> <span class="s2">"[i] Ignoring alert </span><span class="nv">$prefix</span><span class="s2">"</span>
+      <span class="k">continue
+    fi
+
+    </span><span class="nv">risk_code</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alert</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s1">'.riskcode'</span><span class="si">)</span>
+
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$risk_code</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">"0"</span> <span class="o">]</span>
+    <span class="k">then
+      </span><span class="nb">echo</span> <span class="s2">"[i] Low risk ... skipping creating [</span><span class="k">${</span><span class="nv">prefix</span><span class="k">}</span><span class="s2">]"</span>
+      <span class="k">continue
+    fi</span>
+
+    <span class="c"># If you change your summary after issues have been created, you will end up with duplicates</span>
+    <span class="nv">summary</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">prefix</span><span class="k">}</span><span class="s2"> -- </span><span class="k">${</span><span class="nv">target</span><span class="k">}</span><span class="s2">"</span>
+    <span class="nv">found</span><span class="o">=</span><span class="si">$(</span>jira list <span class="nt">--limit</span><span class="o">=</span>1 <span class="nt">--query</span> <span class="s2">"project=</span><span class="k">${</span><span class="nv">project</span><span class="k">}</span><span class="s2"> AND summary~'</span><span class="se">\"</span><span class="k">${</span><span class="nv">summary</span><span class="k">}</span><span class="se">\"</span><span class="s2">'"</span><span class="si">)</span>
+
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="k">${</span><span class="nv">found</span><span class="k">}</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">""</span> <span class="o">]</span>
+    <span class="k">then
+      </span>create_jira_issue <span class="s2">"</span><span class="k">${</span><span class="nv">summary</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alert</span><span class="k">}</span><span class="s2">"</span>
+    <span class="k">else
+      </span><span class="nv">issue_key</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">found</span><span class="k">}</span><span class="s2">"</span> | <span class="nb">cut</span> <span class="nt">-d</span><span class="s1">':'</span> <span class="nt">-f1</span><span class="si">)</span>
+      <span class="nb">echo</span> <span class="s2">"[i] Issue already being tracked </span><span class="k">${</span><span class="nv">issue_key</span><span class="k">}</span><span class="s2"> [</span><span class="k">${</span><span class="nv">prefix</span><span class="k">}</span><span class="s2">]"</span>
+      jira comment <span class="s2">"</span><span class="k">${</span><span class="nv">issue_key</span><span class="k">}</span><span class="s2">"</span> <span class="nt">--noedit</span>  <span class="nt">--comment</span><span class="o">=</span><span class="s1">'ZAP issue still being seen'</span>
+    <span class="k">fi
+  done</span><span class="o">&lt;&lt;&lt;</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alerts</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+
+<span class="k">if</span> <span class="o">!(</span><span class="nb">command</span> <span class="nt">-v</span> jira<span class="o">)</span> <span class="o">||</span> <span class="o">!(</span><span class="nb">command</span> <span class="nt">-v</span> jq<span class="o">)</span>
+<span class="k">then
+  </span><span class="nb">echo</span> <span class="s2">"[!] Expects jira cli &amp; jq to be installed"</span>
+  <span class="nb">echo</span> <span class="s2">" - https://github.com/Netflix-Skunkworks/go-jira"</span>
+  <span class="nb">exit </span>1
+<span class="k">fi
+
+if</span> <span class="o">[</span> <span class="o">!</span> <span class="nt">-f</span> <span class="s2">"</span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span> <span class="o">]</span>
+<span class="k">then
+  </span><span class="nb">echo</span> <span class="s2">"[!] That does not appear to be a report file </span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span>
+  <span class="nb">exit </span>1
+<span class="k">fi
+
+if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="s2">"</span><span class="k">${</span><span class="nv">project</span><span class="k">}</span><span class="s2">"</span> <span class="o">]</span>
+<span class="k">then
+  </span><span class="nb">echo</span> <span class="s1">'[!] Specify your jira project with JIRA_PROJECT env variable'</span>
+  <span class="nb">exit </span>1
+<span class="k">fi
+
+</span><span class="nb">echo</span> <span class="s1">'[i] Checking if the configured JIRA project exists'</span>
+
+<span class="k">if</span> <span class="o">!(</span>jira list <span class="nt">--project</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">project</span><span class="k">}</span><span class="s2">"</span> <span class="nt">--limit</span><span class="o">=</span>1<span class="o">)</span>
+<span class="k">then
+  </span><span class="nb">echo</span> <span class="s2">"[!] That project does not exist"</span>
+  <span class="nb">exit </span>1
+<span class="k">fi
+
+</span><span class="nv">site_type</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat</span> <span class="s2">"</span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s1">'.site | type'</span><span class="si">)</span>
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$site_type</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">"array"</span> <span class="o">]</span>
+<span class="k">then
+  </span><span class="nv">max</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat</span> <span class="s2">"</span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s1">'.site | length'</span><span class="si">)</span>
+  <span class="nv">max</span><span class="o">=</span><span class="k">$((</span>max-1<span class="k">))</span>
+  <span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>0 <span class="nv">$max</span><span class="si">)</span>
+  <span class="k">do
+    </span><span class="nv">target</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat</span> <span class="s2">"</span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s2">".site[</span><span class="nv">$i</span><span class="s2">][</span><span class="se">\"</span><span class="s2">@host</span><span class="se">\"</span><span class="s2">]"</span><span class="si">)</span>
+
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="k">${</span><span class="nv">target</span><span class="k">}</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">target_host</span><span class="k">}</span><span class="s2">"</span> <span class="o">]</span>
+    <span class="k">then
+      </span><span class="nb">echo</span> <span class="s2">"[!] Ignoring alerts for </span><span class="k">${</span><span class="nv">target</span><span class="k">}</span><span class="s2">"</span> 
+      <span class="k">continue
+    fi
+
+    </span><span class="nv">alerts</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat</span> <span class="s2">"</span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="nt">-c</span> <span class="nt">-a</span> <span class="nt">-M</span> <span class="s2">".site[</span><span class="nv">$i</span><span class="s2">].alerts[] | {uris: [.instances[]|.uri], description: .desc, id: .pluginid, name: .alert, riskcode: .riskcode }"</span> | xargs <span class="nt">-L1</span> <span class="nt">-0</span><span class="si">)</span>
+    handle_target_alerts <span class="s2">"</span><span class="k">${</span><span class="nv">target</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alerts</span><span class="k">}</span><span class="s2">"</span>
+  <span class="k">done
+else 
+  </span><span class="nv">target</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat</span> <span class="s2">"</span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="s1">'.site["@host"]'</span><span class="si">)</span>
+
+  <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="k">${</span><span class="nv">target</span><span class="k">}</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"</span><span class="k">${</span><span class="nv">target_host</span><span class="k">}</span><span class="s2">"</span> <span class="o">]</span>
+  <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"[!] Ignoring alerts for </span><span class="k">${</span><span class="nv">target</span><span class="k">}</span><span class="s2">"</span>
+    <span class="k">return
+  fi
+    
+  </span><span class="nv">alerts</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat</span> <span class="s2">"</span><span class="k">${</span><span class="nv">report_file</span><span class="k">}</span><span class="s2">"</span> | jq <span class="nt">-r</span> <span class="nt">-c</span> <span class="nt">-a</span> <span class="nt">-M</span> <span class="s1">'.site.alerts[] | {uris: [.instances[]|.uri], description: .desc, id: .pluginid, name: .alert, riskcode: .riskcode }'</span> | xargs <span class="nt">-L1</span> <span class="nt">-0</span><span class="si">)</span>
+  handle_target_alerts <span class="s2">"</span><span class="k">${</span><span class="nv">target</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">alerts</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<p><br />
+<strong>jira_cli_login.sh</strong><br />
+Configuring authentication with the <code class="language-plaintext highlighter-rouge">jira</code> cli typically requires manually interaction. In the context of CI, configuring auth to work with <code class="language-plaintext highlighter-rouge">expect</code> is a bit hacky. Doing some digging, I found <code class="language-plaintext highlighter-rouge">jira</code> use a json file ( <code class="language-plaintext highlighter-rouge">~/.jira.d/cookies</code>) credentials … so I just created a script that generates that json file. <em>Warning, I haven’t tested this script in awhile</em></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nb">set</span> <span class="nt">-e</span>
+
+<span class="nv">json</span><span class="o">=</span><span class="s1">'[{"Name":"atlassian.xsrf.token","Value":"","Path":"/","Domain":"jira.internal.net","Expires":"2030-04-30T11:35:02.409249143-07:00","RawExpires":"","MaxAge":0,"Secure":false,"HttpOnly":false,"Raw":"atlassian.xsrf.token=; Path=/","Unparsed":null},{"Name":"JSESSIONID","Value":"","Path":"/","Domain":"jira.internal.net","Expires":"2030-04-30T11:35:02.301767644-07:00","RawExpires":"","MaxAge":0,"Secure":false,"HttpOnly":true,"Raw":"JSESSIONID=; Path=/; HttpOnly","Unparsed":null}]'</span>
+<span class="nv">cookies</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">--silent</span>  <span class="nt">--output</span> /dev/null  <span class="nt">-c</span> - <span class="nt">-X</span> POST   https://jira.internal.net/rest/auth/1/session   <span class="nt">-H</span> <span class="s1">'content-type: application/json'</span>   <span class="nt">-d</span> <span class="s1">'{ "username": "'</span><span class="s2">"</span><span class="nv">$JIRA_USER</span><span class="s2">"</span><span class="s1">'", "password": "'</span><span class="s2">"</span><span class="nv">$JIRA_PASS</span><span class="s2">"</span><span class="s1">' }'</span>  | <span class="nb">tail</span> <span class="nt">-n3</span> | <span class="nb">cut</span> <span class="nt">-f6</span>,7 | <span class="nb">tr</span> <span class="s1">'\t'</span> <span class="s1">'='</span><span class="si">)</span>
+<span class="nv">token</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$cookies</span><span class="s2">"</span> | <span class="nb">grep </span>token | <span class="nb">cut</span> <span class="nt">-d</span><span class="s1">'='</span> <span class="nt">-f2</span><span class="si">)</span>
+<span class="nv">JID</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$cookies</span><span class="s2">"</span> | <span class="nb">grep </span>JSESSIONID | <span class="nb">cut</span> <span class="nt">-d</span><span class="s1">'='</span> <span class="nt">-f2</span><span class="si">)</span>
+
+<span class="nv">json</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$json</span><span class="s2">"</span> | <span class="nb">sed</span> <span class="s2">"s//</span><span class="nv">$token</span><span class="s2">/g"</span> <span class="si">)</span>
+<span class="nv">json</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$json</span><span class="s2">"</span> | <span class="nb">sed</span> <span class="s2">"s//</span><span class="nv">$JID</span><span class="s2">/g"</span> <span class="si">)</span>
+
+<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$json</span><span class="s2">"</span> <span class="o">&gt;</span> ~/.jira.d/cookies.js
+</code></pre></div></div>
+
+  </section>
+
+  
+</article>
+      </div>
+    </main>
+    <footer id="site-footer">
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1"></div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/rezen"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">rezen</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/dandr3ss"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">dandr3ss</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m evolving and others  are refined from years of experience.
+</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+jQuery(function ($) {
+  // Add anchors to headings that have ids
+  // https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263
+  $('h2,h3,h4,h5,h6').filter('[id]').each(function () {
+    $(this).html('<a href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+  });
+
+  $('.menu-trigger').on('click', function () {
+    $(this).next().toggleClass('expanded');
+  });
+});
+</script>
+  </body>
+</html>
