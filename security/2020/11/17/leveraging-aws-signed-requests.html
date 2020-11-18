@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Leveraging AWS signed requests for Identity Proof</title>
+  <meta name="description" content="I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their o...">
+  <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/main.css?h=b87db70%0A">
+  <link rel="canonical" href="http://ahermosilla.com/security/2020/11/17/leveraging-aws-signed-requests.html">
+  <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33398574-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+  <body>
+    <header class="site-header" role="banner">
+  <div class="wrapper">
+    <span class="post-path">
+      <a href="/">2020-11-17-leveraging-aws-signed-requests.md</a>
+    </span>
+    <nav class="site-nav">
+      <a class="menu-trigger">Menu</a>
+      <div class="menu-items">
+        
+          <a class="page-link" href="/">/root</a>
+        
+          <a class="page-link" href="/about/">/about</a>
+        
+          <a class="page-link" href="/categories/">/categories</a>
+        
+          <a class="page-link" href="/tags/">/tags</a>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main class="page-content">
+      <div class="wrapper" aria-label="Content">
+        <article id="post-leveraging-aws-signed-requests" class="post post-single category-securitytag-api tag-aws tag-cloud" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Leveraging AWS signed requests for Identity Proof</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2020-11-17T00:00:00+00:00" itemprop="datePublished">
+        November 17, 2020
+      </time>
+
+
+
+      
+        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/api/">api</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/aws/">aws</a></li>
+    
+	
+    <li class="tag-link-item"><a href="/tags/cloud/">cloud</a></li>
+    
+</ul>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <p>I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their own AWS accounts as well as the various product teams business units. I wanted to, with little effort, enable teams to use my API which was built on AWS API Gateway + AWS Lambda. There is no need for granular authorization since the API is readonly so I configured the API Gateway to use API Keys. I wanted to have self-service API key generation, where the user could generate their own API key with their username as the key name.</p>
+
+<p>Previously, I have used IAM permissions to enable other teams in our same AWS organization to read objects from an S3 Bucket (<a href="https://gist.github.com/rezen/018c4bf5e98de4c04baacf678df8b80f">See sample here</a>). I figured there had to be similar constructs that could be leveraged to enable users to generate API keys with their AWS authentication material (aws_access_key_id,aws_secret_access_key,aws_session_token). One bit that made this less straightforward was I wanted to create a key with the username of the actor. How could I get a verified username and not just a random username supplied by an actor.</p>
+
+<p>If you are familiar with <code class="language-plaintext highlighter-rouge">awscli</code> and have had to work with multiple accounts and use temporary credentials from STS you have probably used <code class="language-plaintext highlighter-rouge">aws sts get-caller-identity</code>. I like to think of it as the <code class="language-plaintext highlighter-rouge">whoami</code> of AWS. I interact with many accounts so sometimes I have to check and remember what role &amp; account a session is connected to. I figured there had to be a way to build that request and send that to a key generation endpoint which would pass it on to AWS and then get the identity out of the response back.</p>
+
+<h3 id="aws-signed-requests">AWS Signed Requests</h3>
+<p>After doing some research, my assumptions were confirmed, the answers lied within how AWS’ API worked with signed requests. Before we jump into that, I want to take a step back.  When you use <code class="language-plaintext highlighter-rouge">boto3</code> or <code class="language-plaintext highlighter-rouge">awscli</code>  or any other AWS library, they are just wrappers for AWS APIs. When you interact with those APIs, your credential material is not used in the same way as it is frequently with other APIs. For example, when you generate API tokens for Github, when you use the token, it will look something like this.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-H</span> <span class="s2">"Authorization: token XXXXXXXXXXX"</span> https://api.github.com
+</code></pre></div></div>
+
+<p>With AWS APIs, you don’t send your credential material in that way, as explained in their docs.</p>
+
+<blockquote>
+  <p>When you send HTTP requests to AWS, you sign the requests so that AWS can identify who sent them. You sign requests with your AWS access key, which consists of an access key ID and secret access key.
+https://docs.amazonaws.cn/en_us/general/latest/gr/signing_aws_api_requests.html</p>
+</blockquote>
+
+<p>AWS states the following reasons for using signed requests:</p>
+<ul>
+  <li>Verify the identity of the requester</li>
+  <li>Protect data in transit</li>
+  <li>Protect against potential replay attacks</li>
+</ul>
+
+<h4 id="request-signing">Request Signing</h4>
+<p>I’m not going to go into the details of how to make signed requests, here are the docs and some examples you can check out. Essentially the url (with params), body &amp; headers need to be signed, it’s not terribly hard to follow along and implement yourself.</p>
+
+<ul>
+  <li>https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html</li>
+  <li>https://docs.aws.amazon.com/general/latest/gr/sigv4-signed-request-examples.html</li>
+  <li>https://github.com/boto/botocore/blob/develop/botocore/auth.py#L151</li>
+</ul>
+
+<p>To get an idea of what a request looks like you can use <code class="language-plaintext highlighter-rouge">--debug</code> flag with the <code class="language-plaintext highlighter-rouge">aws sts get-caller-identity</code>. As debug output is being generated you should see <code class="language-plaintext highlighter-rouge">Calculating signature using v4 auth</code> and from there you can see the details of the request.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> aws <span class="nt">--debug</span> sts get-caller-identity
+<span class="nt">---</span> snip <span class="nt">---</span>
+2020-11-16 15:09:44,909 - MainThread - botocore.auth - DEBUG - Calculating signature using v4 auth.
+2020-11-16 15:09:44,909 - MainThread - botocore.auth - DEBUG - CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded<span class="p">;</span> <span class="nv">charset</span><span class="o">=</span>utf-8
+host:sts.amazonaws.com
+x-amz-date:20201116T230944Z
+x-amz-security-token:<span class="k">**************************</span>
+
+content-type<span class="p">;</span>host<span class="p">;</span>x-amz-date<span class="p">;</span>x-amz-security-token
+ab821ae955788b0e33ebd34c208442ccfc2d406<span class="k">***************</span>
+2020-11-16 15:09:44,909 - MainThread - botocore.auth - DEBUG - StringToSign:
+AWS4-HMAC-SHA256
+20201116T230944Z
+20201116/us-east-1/sts/aws4_request
+45dd2e3a3e33191062c6a6b8d88adfee856877d<span class="k">****************</span>
+2020-11-16 15:09:44,909 - MainThread - botocore.auth - DEBUG - Signature:
+5ef29f57c5df6bd4283faa328e8a74ea940dcac695fc71d70<span class="k">*************</span>
+2020-11-16 15:09:44,909 - MainThread - botocore.endpoint - DEBUG - Sending http request: &lt;AWSPreparedRequest <span class="nv">stream_output</span><span class="o">=</span>False, <span class="nv">method</span><span class="o">=</span>POST, <span class="nv">url</span><span class="o">=</span>https://sts.amazonaws.com/, <span class="nv">headers</span><span class="o">={</span><span class="s1">'Content-Type'</span>: b<span class="s1">'application/x-www-form-urlencoded; charset=utf-8'</span>, <span class="s1">'User-Agent'</span>: b<span class="s1">'aws-cli/1.18.122 Python/3.8.5 Darwin/18.7.0 botocore/1.13.50'</span>, <span class="s1">'X-Amz-Date'</span>: b<span class="s1">'20201116T230944Z'</span>, <span class="s1">'X-Amz-Security-Token'</span>: b<span class="s1">'********************'</span>, <span class="s1">'Authorization'</span>: b<span class="s1">'AWS4-HMAC-SHA256 Credential=ASIASBWKLLBJOPCMUUVR/20201116/us-east-1/sts/aws4_request, SignedHeaders=content-type;host;x-amz-date;x-amz-security-token, Signature=5ef29f57c5df6bd4283faa328e8a74ea940dcac695fc71d70*************'</span>, <span class="s1">'Content-Length'</span>: <span class="s1">'43'</span><span class="o">}&gt;</span>
+2020-11-16 15:09:44,910 - MainThread - urllib3.connectionpool - DEBUG - Starting new HTTPS connection <span class="o">(</span>1<span class="o">)</span>: sts.amazonaws.com:443
+2020-11-16 15:09:45,338 - MainThread - urllib3.connectionpool - DEBUG - https://sts.amazonaws.com:443 <span class="s2">"POST / HTTP/1.1"</span> 200 465
+2020-11-16 15:09:45,339 - MainThread - botocore.parsers - DEBUG - Response headers: <span class="o">{</span><span class="s1">'x-amzn-RequestId'</span>: <span class="s1">'17d14169-3a03-421d-837e-a*****'</span>, <span class="s1">'Content-Type'</span>: <span class="s1">'text/xml'</span>, <span class="s1">'Content-Length'</span>: <span class="s1">'465'</span>, <span class="s1">'Date'</span>: <span class="s1">'Tue, 17 Nov 2020 00:57:17 GMT'</span><span class="o">}</span>
+2020-11-16 16:57:17,451 - MainThread - botocore.parsers - DEBUG - Response body:
+b<span class="s1">'&lt;GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/"&gt;\n  &lt;GetCallerIdentityResult&gt;\n    &lt;Arn&gt;arn:aws:sts::1499999991:assumed-role/ReadOnly/ahermosilla@example.com&lt;/Arn&gt;\n    &lt;UserId&gt;AROASBWKLLBJFBLYSYIDR:ahermosilla@example.com&lt;/UserId&gt;\n    &lt;Account&gt;1499999991&lt;/Account&gt;\n  &lt;/GetCallerIdentityResult&gt;\n  &lt;ResponseMetadata&gt;\n    &lt;RequestId&gt;8f4dec63-58a0-49b1-8e31-dea0a309b7bc&lt;/RequestId&gt;\n  &lt;/ResponseMetadata&gt;\n&lt;/GetCallerIdentityResponse&gt;\n'</span>
+2020-11-16 16:57:17,452 - MainThread - botocore.hooks - DEBUG - Event needs-retry.sts.GetCallerIdentity: calling handler &lt;botocore.retryhandler.RetryHandler object at 0x10b6c1ca0&gt;
+2020-11-16 16:57:17,452 - MainThread - botocore.retryhandler - DEBUG - No retry needed.
+2020-11-16 16:57:17,453 - MainThread - awscli.formatter - DEBUG - RequestId: 8f4dec63-58a0-49b1-8e31-dea0a309b7bc
+<span class="o">{</span>
+    <span class="s2">"UserId"</span>: <span class="s2">"AROASBWKLLBJFBLYSYIDX:ahermosilla@example.com"</span>,
+    <span class="s2">"Account"</span>: <span class="s2">"1499999991"</span>,
+    <span class="s2">"Arn"</span>: <span class="s2">"arn:aws:sts::1499999991:assumed-role/ReadOnly/ahermosilla@example.com"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The debug output provides a good idea of the shape of a request to an AWS API.  We know  (and verified) requests are signed with our credential materials which means we could hand off that request to another service and not worry about that service tampering with the request or making requests to other APIs since AWS verifies the signature of the request. (You should also notice the object <code class="language-plaintext highlighter-rouge">AWSPreparedRequest</code> is referenced in the logs, hinting at what class boto is using to construct the request.)</p>
+
+<h4 id="an-aside-on-s3">An aside on S3</h4>
+<p>Outside of signed requests happening “under the hood” with boto and awscli, one place you have probably seen signed requests is with S3. It is a common pattern for applications to store files in S3 and then later provide access to the user to those files. Instead of having a route pass the file through (incurring additional network latency) you can create a <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html">presigned url</a> and the user hits AWS directly to download the file. This pattern is also leveraged to enable end users to <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html#generating-a-presigned-url-to-upload-a-file">directly upload files</a> to your S3 bucket with parameters you specify.</p>
+
+<p><strong>STS API</strong><br />
+AWS has thorough docs of all their APIs (https://docs.aws.amazon.com/), but the one specifically we are looking for is the one around <code class="language-plaintext highlighter-rouge">get-caller-identity</code> which can be found here https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html. If you compare the API examples versus the output from the last request you see they match up, we can verify this is the API we want to build the request for.</p>
+
+<p>Unlike the examples of S3 mentioned above, where a service is providing signed urls for the user to interact with an AWS account’s resources, we want the user to provide a signed request to act as bearer of their identity. We want to know they are part of organization <strong>X</strong> and have <strong>Y</strong> assumed role before we vend them an API key. Our endpoint is going to pass on the signed request with the response as bearer proof of identity, inspecting the response to verify the actor’s identity is allowed to interact with our API.</p>
+
+<h3 id="use-botocore-to-create-client">Use Botocore to create client</h3>
+<p>Now we could put together all pieces ourselves starting from the example for creating signed requests, but why? We know <strong>boto</strong> already has the pieces for creating signed requests so let’s go ahead and leverage it. We need to build the request like we are going send it to STS, but then send it to our endpoint instead.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">botocore.auth</span> <span class="kn">import</span> <span class="n">SigV4Auth</span>
+<span class="kn">from</span> <span class="nn">botocore.awsrequest</span> <span class="kn">import</span> <span class="n">AWSRequest</span>
+<span class="kn">from</span> <span class="nn">botocore.credentials</span> <span class="kn">import</span> <span class="n">get_credentials</span>
+<span class="kn">from</span> <span class="nn">botocore.endpoint</span> <span class="kn">import</span> <span class="n">URLLib3Session</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">session</span><span class="p">.</span><span class="n">get_credentials</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">credentials</span><span class="p">.</span><span class="n">get_frozen_credentials</span><span class="p">()</span>
+<span class="n">signer</span> <span class="o">=</span> <span class="n">SigV4Auth</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="s">'sts'</span><span class="p">,</span> <span class="s">'us-east-1'</span><span class="p">)</span>
+
+<span class="n">endpoint</span> <span class="o">=</span> <span class="s">'api.example.com'</span>
+<span class="n">request</span> <span class="o">=</span> <span class="n">AWSRequest</span><span class="p">(</span>
+    <span class="n">method</span><span class="o">=</span><span class="s">'POST'</span><span class="p">,</span> 
+    <span class="n">url</span><span class="o">=</span><span class="s">"https://sts.amazonaws.com/"</span><span class="p">,</span> 
+    <span class="n">data</span><span class="o">=</span><span class="s">"Action=GetCallerIdentity&amp;Version=2011-06-15"</span><span class="p">,</span> 
+    <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+        <span class="s">'Host'</span><span class="p">:</span> <span class="s">'sts.amazonaws.com'</span><span class="p">,</span>
+        <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">'application/x-www-form-urlencoded; charset=utf-8'</span><span class="p">,</span>
+        <span class="s">'X-Audience'</span><span class="p">:</span> <span class="n">endpoint</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">signer</span><span class="p">.</span><span class="n">add_auth</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="s">'dev'</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'PY_ENV'</span><span class="p">,</span> <span class="s">''</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">body</span><span class="p">)</span>
+
+<span class="c1"># To send to STS directly ....
+# sender = URLLib3Session()
+# response = sender.send(request.prepare())
+</span>
+<span class="c1"># To send to our API, we use the request boto created with the 
+# signature components
+</span><span class="n">headers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
+<span class="n">headers</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="s">'Host'</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">f'https://</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s">/key'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="p">.</span><span class="n">body</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The endpoint needs to pull out the headers authorization, x-amz-date, x-amz-security-token, x-audience to pass on to the STS API. Our endpoint is on a different host, so we don’t use that, rather we use <code class="language-plaintext highlighter-rouge">sts.amazonaws.com</code>, but the other parts are part of the original request to STS. Below is an example implementation of passing on the identity request on to AWS STS. This shows an example using <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html">API Gateway Authorizer</a> to authorize request paths. There is an endpoint to <code class="language-plaintext highlighter-rouge">POST /key</code> which will is behind this authorizer which will receive the identity (passed from the authorize context) in it’s handler context.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">import</span> <span class="nn">http.client</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+
+<span class="k">def</span> <span class="nf">deny_response</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+    	<span class="s">"policyDocument"</span><span class="p">:</span> <span class="p">{</span>
+    		<span class="s">"Version"</span><span class="p">:</span> <span class="s">"2012-10-17"</span><span class="p">,</span>
+    		<span class="s">"Statement"</span><span class="p">:</span> <span class="p">[</span>
+    			<span class="p">{</span>
+    				<span class="s">"Action"</span><span class="p">:</span> <span class="s">"execute-api:Invoke"</span><span class="p">,</span>
+    				<span class="s">"Effect"</span><span class="p">:</span> <span class="s">"Deny"</span><span class="p">,</span>
+    				<span class="s">"Resource"</span><span class="p">:</span> <span class="s">"*"</span><span class="p">,</span>
+    			<span class="p">}</span>
+    		<span class="p">]</span>
+    	<span class="p">},</span>
+    	<span class="s">"context"</span><span class="p">:</span> <span class="p">{</span>
+    	    <span class="s">'message'</span><span class="p">:</span> <span class="s">f'</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s">'</span>
+    	<span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="n">authorized_accounts</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'AUTHD_ACCTS'</span><span class="p">,</span> <span class="s">''</span><span class="p">).</span><span class="n">split</span><span class="p">(</span><span class="s">","</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span><span class="p">]</span>
+    <span class="n">authorized_roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'AUTHD_ROLES'</span><span class="p">,</span> <span class="s">''</span><span class="p">).</span><span class="n">split</span><span class="p">(</span><span class="s">","</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span><span class="p">]</span>
+
+    <span class="n">headers</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'headers'</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="c1"># Since API Gateway routes based on hostnames we know the host can be 
+</span>    <span class="c1"># trusted. To be extra sure you could instead compare against
+</span>    <span class="c1"># an environment variable of X_AUDIENCE 
+</span>    <span class="n">host</span> <span class="o">=</span> <span class="n">headers</span><span class="p">[</span><span class="s">'host'</span><span class="p">]</span> <span class="k">if</span> <span class="s">'host'</span> <span class="ow">in</span> <span class="n">headers</span> <span class="k">else</span> <span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Host'</span><span class="p">)</span>
+    
+    <span class="c1"># For the client's safety, expect this header
+</span>    <span class="k">if</span> <span class="s">'x-audience'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Did not supply x-audience header"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"A x-audience header is required"</span><span class="p">)</span>
+    
+    <span class="c1"># ... and then assert the audience and the host are the same
+</span>    <span class="c1"># This protects the client from host replay attacks
+</span>    <span class="k">if</span> <span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'x-audience'</span><span class="p">)</span> <span class="o">!=</span> <span class="n">host</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">f"Mismatch with host and x-audience header - audience=</span><span class="si">{</span><span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'x-audience'</span><span class="p">)</span><span class="si">}</span><span class="s"> host=</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s">"</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"Mismatch with host and x-audience header"</span><span class="p">)</span>
+
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="s">'authorization'</span><span class="p">,</span> <span class="s">"x-amz-date"</span><span class="p">,</span> <span class="s">"x-amz-security-token"</span><span class="p">,</span> <span class="s">'x-audience'</span><span class="p">]</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headers</span> <span class="k">if</span> <span class="n">k</span><span class="p">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">]</span>
+    
+    <span class="n">authd</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">headers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keep</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">}</span>
+    
+    <span class="k">if</span> <span class="s">'x-authorization'</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+        <span class="n">authd</span><span class="p">[</span><span class="s">'authorization'</span><span class="p">]</span> <span class="o">=</span> <span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'x-authorization'</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="s">'authorization'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authd</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"No authorization provided"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"No authorization header provided"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s">'x-audience'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authd</span><span class="p">[</span><span class="s">'authorization'</span><span class="p">]:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"The header x-audience was not included in the signature"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"The header x-audience was not included in the signature"</span><span class="p">)</span>
+    
+    <span class="n">params</span> <span class="o">=</span> <span class="n">urllib</span><span class="p">.</span><span class="n">parse</span><span class="p">.</span><span class="n">urlencode</span><span class="p">({</span> 
+        <span class="s">'Action'</span><span class="p">:</span> <span class="s">"GetCallerIdentity"</span><span class="p">,</span> 
+        <span class="s">'Version'</span><span class="p">:</span> <span class="s">"2011-06-15"</span> 
+    <span class="p">})</span>
+
+    <span class="n">authd</span><span class="p">[</span><span class="s">'User-Agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Boto3/1.10.28 Python/3.8.5 Darwin/18.7.0 Botocore/1.13.50'</span>
+    <span class="n">authd</span><span class="p">[</span><span class="s">'Accept-Encoding'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'identity'</span>
+    <span class="n">authd</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="s">"application/x-www-form-urlencoded; charset=utf-8"</span>
+    <span class="n">authd</span><span class="p">[</span><span class="s">'Content-Length'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">http</span><span class="p">.</span><span class="n">client</span><span class="p">.</span><span class="n">HTTPSConnection</span><span class="p">(</span><span class="s">"sts.amazonaws.com"</span><span class="p">)</span> 
+    <span class="n">conn</span><span class="p">.</span><span class="n">request</span><span class="p">(</span><span class="s">"POST"</span><span class="p">,</span> <span class="s">"/"</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">authd</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">getresponse</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="p">.</span><span class="n">reason</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">getheaders</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="s">"ExpiredToken"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Using expired tokens ...."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"The token provided is expired"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">response</span><span class="p">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Request was not successful with sts"</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"Request STS failed"</span><span class="p">)</span>
+    
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="p">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="p">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="p">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span><span class="p">.</span><span class="n">getchildren</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">root</span> <span class="k">if</span> <span class="n">n</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"}"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">"GetCallerIdentityResult"</span><span class="p">].</span><span class="n">pop</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"No nodes?"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"STS response not validated"</span><span class="p">)</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"}"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="n">n</span><span class="p">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
+    
+    <span class="k">if</span> <span class="s">'Arn'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">or</span> <span class="s">'Account'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"The sts data is missing bits"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"STS response not validated"</span><span class="p">)</span>
+    
+    <span class="k">print</span><span class="p">(</span><span class="s">"Authorized "</span>  <span class="o">+</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">'Arn'</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">"/"</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">'Username'</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">'Role'</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Account'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Account'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authorized_accounts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"That account is not authorized"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Role'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Role'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authorized_roles</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"That role is not authorized"</span><span class="p">)</span>
+
+    <span class="n">resource</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'methodArn'</span><span class="p">)</span> <span class="k">if</span> <span class="s">'methodArn'</span> <span class="ow">in</span> <span class="n">event</span> <span class="k">else</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'routeArn'</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+    	<span class="s">"principalId"</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s">'Username'</span><span class="p">],</span>
+    	<span class="s">"policyDocument"</span><span class="p">:</span> <span class="p">{</span>
+    		<span class="s">"Version"</span><span class="p">:</span> <span class="s">"2012-10-17"</span><span class="p">,</span>
+    		<span class="s">"Statement"</span><span class="p">:</span> <span class="p">[</span>
+    			<span class="p">{</span>
+    				<span class="s">"Action"</span><span class="p">:</span> <span class="s">"execute-api:Invoke"</span><span class="p">,</span>
+    				<span class="s">"Effect"</span><span class="p">:</span> <span class="s">"Allow"</span><span class="p">,</span>
+    				<span class="s">"Resource"</span><span class="p">:</span> <span class="n">resource</span><span class="p">,</span>
+    			<span class="p">}</span>
+    		<span class="p">]</span>
+    	<span class="p">},</span>
+    	<span class="s">"context"</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>x-audience</strong><br />
+Signed requests support adding arbitrary headers. We pass on <code class="language-plaintext highlighter-rouge">x-audience</code> with the hostname of endpoint the client intends to provide the proof of identity. The endpoint needs to verify the <code class="language-plaintext highlighter-rouge">x-audience</code> matches the hostname it has been assigned to protect against replay attacks. Without this additional header, another service could accept a user’s proof of identity, pass it on to our service and then receive the user’s API key. However, the client signs this header and sets it to the value of the intended audience which is the same value as the hostname of the endpoint. This prevents the client from sending the proof of identity to a “bad acting endpoint” and have the request go all the way through. When our endpoint receives the request in from a “bad actor”, it will see the <code class="language-plaintext highlighter-rouge">x-audience</code> does not match it’s configured hostname (the client sets it to the bad actor’s hostname) and reject the request. If a client made a request with <code class="language-plaintext highlighter-rouge">x-audience</code> not matching the hostname of the endpoint, they would not be protected, ultimately it is up to the client to protect themselves. (This technique was directly inspired by Hashicorp Vault, check out the section on validation below)</p>
+
+<h3 id="creating-the-api-key">Creating the API Key</h3>
+<p>After the authorizer allows the request to continue on, the authorizer context will be passed on to the request lambda. The event will include the context <code class="language-plaintext highlighter-rouge">event['requestContext']['authorizer']</code> which you can then  be used to create an API Key in API Gateway.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">import</span> <span class="nn">string</span> 
+<span class="kn">import</span> <span class="nn">random</span> 
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="c1"># You should use secrets manager to generate randomness but alas this serves as an example
+# aws secretsmanager get-random-password --password-length 32 --require-each-included-type --exclude-characters '"'@/\"'"' | jq -r ".RandomPassword"'
+</span><span class="k">def</span> <span class="nf">generate_random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">48</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="p">.</span><span class="n">ascii_letters</span> <span class="o">+</span>
+                             <span class="n">string</span><span class="p">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">size</span><span class="p">))</span> 
+
+
+<span class="k">def</span> <span class="nf">unauthorized</span><span class="p">(</span><span class="n">actor</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+        <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span>
+            <span class="s">'message'</span><span class="p">:</span> <span class="s">'You are not authorized for this'</span><span class="p">,</span>
+            <span class="s">'actor'</span><span class="p">:</span> <span class="n">actor</span><span class="p">,</span>
+        <span class="p">}),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="c1"># Verify this is called with an authorizer in front
+</span>    <span class="n">actor</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'requestContext'</span><span class="p">,</span> <span class="p">{}).</span><span class="n">get</span><span class="p">(</span><span class="s">'authorizer'</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">actor</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">unauthorized</span><span class="p">(</span><span class="s">'No authorizer'</span><span class="p">)</span>
+    
+    <span class="c1"># ... which provides us a username
+</span>    <span class="n">username</span> <span class="o">=</span> <span class="n">actor</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Username'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">username</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">unauthorized</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
+    
+    <span class="n">plan_id</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">'USAGE_PLAN'</span><span class="p">]</span>
+    <span class="n">api_id</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">'API_ID'</span><span class="p">]</span>
+    <span class="n">stages</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">'API_STAGES'</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="p">.</span><span class="n">strip</span><span class="p">()]</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="n">client</span><span class="p">(</span><span class="s">'apigateway'</span><span class="p">)</span>
+    <span class="n">already_has_key</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">key_id</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">get_api_keys</span><span class="p">(</span>
+            <span class="n">nameQuery</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+            <span class="n">includeValues</span><span class="o">=</span><span class="bp">False</span>
+        <span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'items'</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">already_has_key</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">key_id</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'id'</span><span class="p">]</span> <span class="k">if</span> <span class="n">already_has_key</span> <span class="k">else</span> <span class="bp">None</span>
+
+    <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="n">err_string</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"\d"</span><span class="p">,</span> <span class="s">"x"</span><span class="p">,</span> <span class="s">f'</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">"error"</span><span class="p">:</span> <span class="n">err_string</span><span class="p">})</span>
+        <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">already_has_key</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span>
+                <span class="s">"message"</span><span class="p">:</span> <span class="s">"You already generated an api key"</span><span class="p">,</span>
+                <span class="s">'key_id'</span><span class="p">:</span> <span class="n">key_id</span><span class="p">,</span>
+                <span class="s">"username"</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+            <span class="p">})</span>
+        <span class="p">}</span>
+
+    <span class="n">key_value</span> <span class="o">=</span> <span class="n">username</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">generate_random</span><span class="p">()</span>
+    <span class="n">key_value</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">key_value</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">)).</span><span class="n">decode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>    
+        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">create_api_key</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> 
+            <span class="n">description</span><span class="o">=</span><span class="s">'Self service created key'</span><span class="p">,</span> 
+            <span class="n">enabled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> 
+            <span class="n">value</span><span class="o">=</span><span class="n">key_value</span><span class="p">,</span>
+            <span class="n">stageKeys</span><span class="o">=</span><span class="p">[{</span><span class="s">'restApiId'</span><span class="p">:</span> <span class="n">api_id</span><span class="p">,</span> <span class="s">'stageName'</span><span class="p">:</span> <span class="n">s</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">],</span>
+            <span class="n">tags</span><span class="o">=</span><span class="p">{</span>
+                <span class="s">'SrcAccount'</span><span class="p">:</span> <span class="n">actor</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Account'</span><span class="p">),</span>
+                <span class="s">'Role'</span><span class="p">:</span> <span class="n">actor</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Role'</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    
+        <span class="n">client</span><span class="p">.</span><span class="n">create_usage_plan_key</span><span class="p">(</span>
+            <span class="n">usagePlanId</span><span class="o">=</span><span class="n">plan_id</span><span class="p">,</span>
+            <span class="n">keyId</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s">'id'</span><span class="p">],</span>
+            <span class="n">keyType</span><span class="o">=</span><span class="s">'API_KEY'</span><span class="p">)</span>    
+    <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="n">err_string</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"\d"</span><span class="p">,</span> <span class="s">"x"</span><span class="p">,</span> <span class="s">f'</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">"error"</span><span class="p">:</span> <span class="n">err_string</span><span class="p">})</span>
+        <span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span>
+            <span class="s">'username'</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+            <span class="s">'key_id'</span><span class="p">:</span> <span class="n">response</span><span class="p">[</span><span class="s">'id'</span><span class="p">],</span>
+            <span class="s">'api_key'</span><span class="p">:</span> <span class="n">response</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span>
+        <span class="p">}),</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="validation">Validation</h2>
+<p>If you are wondering if it is a good idea to use signed requests to STS as bearer proof of identity, you are not alone. I asked myself this same question, but it turns out Hashicorp Vault uses this same technique for authentication. That is where I discovered the pattern of adding additional headers for verification</p>
+
+<ul>
+  <li>https://www.youtube.com/watch?v=bCNSvUrK_BA&amp;list=WL&amp;index=2&amp;t=1377s</li>
+</ul>
+
+  </section>
+
+  
+</article>
+      </div>
+    </main>
+    <footer id="site-footer">
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1"></div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/rezen"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">rezen</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/dandr3ss"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">dandr3ss</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m evolving and others  are refined from years of experience.
+</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+jQuery(function ($) {
+  // Add anchors to headings that have ids
+  // https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263
+  $('h2,h3,h4,h5,h6').filter('[id]').each(function () {
+    $(this).html('<a href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+  });
+
+  $('.menu-trigger').on('click', function () {
+    $(this).next().toggleClass('expanded');
+  });
+});
+</script>
+  </body>
+</html>
