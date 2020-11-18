@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Leveraging AWS signed requests for Identity Proof</title>
-  <meta name="description" content="I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their o...">
+  <meta name="description" content="">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/main.css?h=b87db70%0A">
-  <link rel="canonical" href="http://ahermosilla.com/security/2020/11/17/leveraging-aws-signed-requests.html">
+  <link rel="stylesheet" href="/assets/main.css?h=a320946%0A">
+  <link rel="canonical" href="http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
   
@@ -52,7 +52,7 @@
 
     <main class="page-content">
       <div class="wrapper" aria-label="Content">
-        <article id="post-leveraging-aws-signed-requests" class="post post-single category-securitytag-api tag-aws tag-cloud" itemscope itemtype="http://schema.org/BlogPosting">
+        <article id="post-leveraging-aws-signed-requests" class="post post-single category-cloudtag-api tag-aws tag-cloud" itemscope itemtype="http://schema.org/BlogPosting">
   <header class="post-header">
     <h1 class="post-title" itemprop="name headline">Leveraging AWS signed requests for Identity Proof</h1>
     <section class="post-meta">
@@ -84,7 +84,9 @@
   </header>
   <section class="post-content" itemprop="articleBody">
     
-    <p>I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their own AWS accounts as well as the various product teams business units. I wanted to, with little effort, enable teams to use my API which was built on AWS API Gateway + AWS Lambda. There is no need for granular authorization since the API is readonly so I configured the API Gateway to use API Keys. I wanted to have self-service API key generation, where the user could generate their own API key with their username as the key name.</p>
+    <p><img src="/assets/img/aws-sts-header.png" alt="RDP" /></p>
+
+<p>I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their own AWS accounts as well as the various product teams business units. I wanted to, with little effort, enable teams to use my API which was built on AWS API Gateway + AWS Lambda. There is no need for granular authorization since the API is readonly so I configured the API Gateway to use API Keys. I wanted to have self-service API key generation, where the user could generate their own API key with their username as the key name.</p>
 
 <p>Previously, I have used IAM permissions to enable other teams in our same AWS organization to read objects from an S3 Bucket (<a href="https://gist.github.com/rezen/018c4bf5e98de4c04baacf678df8b80f">See sample here</a>). I figured there had to be similar constructs that could be leveraged to enable users to generate API keys with their AWS authentication material (aws_access_key_id,aws_secret_access_key,aws_session_token). One bit that made this less straightforward was I wanted to create a key with the username of the actor. How could I get a verified username and not just a random username supplied by an actor.</p>
 
@@ -470,6 +472,10 @@ Signed requests support adding arbitrary headers. We pass on <code class="langua
 <ul>
   <li>https://www.youtube.com/watch?v=bCNSvUrK_BA&amp;list=WL&amp;index=2&amp;t=1377s</li>
 </ul>
+
+<p><small>
+    Card icon by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+</small></p>
 
   </section>
 
