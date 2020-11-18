@@ -1,9 +1,12 @@
 ---
 layout: post
 title:  "Leveraging AWS signed requests for Identity Proof"
-categories: security
+categories: cloud
 tags: [ api, aws, cloud ]
 ---
+
+![RDP](/assets/img/aws-sts-header.png)  
+
 
 I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their own AWS accounts as well as the various product teams business units. I wanted to, with little effort, enable teams to use my API which was built on AWS API Gateway + AWS Lambda. There is no need for granular authorization since the API is readonly so I configured the API Gateway to use API Keys. I wanted to have self-service API key generation, where the user could generate their own API key with their username as the key name.
 
@@ -394,3 +397,9 @@ def handler(event, context):
 If you are wondering if it is a good idea to use signed requests to STS as bearer proof of identity, you are not alone. I asked myself this same question, but it turns out Hashicorp Vault uses this same technique for authentication. That is where I discovered the pattern of adding additional headers for verification
 
 - https://www.youtube.com/watch?v=bCNSvUrK_BA&list=WL&index=2&t=1377s
+
+
+
+<small>
+    Card icon by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+</small>
