@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2020-11-18T15:10:04+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2020-12-09T17:22:06+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
 </subtitle><entry><title type="html">Leveraging AWS signed requests for Identity Proof</title><link href="http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests.html" rel="alternate" type="text/html" title="Leveraging AWS signed requests for Identity Proof" /><published>2020-11-17T00:00:00+00:00</published><updated>2020-11-17T00:00:00+00:00</updated><id>http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests</id><content type="html" xml:base="http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests.html">&lt;p&gt;&lt;img src=&quot;/assets/img/aws-sts-header.png&quot; alt=&quot;RDP&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their own AWS accounts as well as the various product teams business units. I wanted to, with little effort, enable teams to use my API which was built on AWS API Gateway + AWS Lambda. There is no need for granular authorization since the API is readonly so I configured the API Gateway to use API Keys. I wanted to have self-service API key generation, where the user could generate their own API key with their username as the key name.&lt;/p&gt;
@@ -864,6 +864,12 @@ ag &lt;span class=&quot;nt&quot;&gt;--python&lt;/span&gt; &lt;span class=&quot;s
 &lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;az group create &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; westus &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; DesktopAppTest
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
+&lt;p&gt;&lt;em&gt;An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Select which subscription you want to perform actions in&lt;/span&gt;
+az account &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--subscription&lt;/span&gt; c3a7d4a7-xxxx-yyyy-zzzz-000000000000
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;h3 id=&quot;create-vm&quot;&gt;Create VM&lt;/h3&gt;
 &lt;p&gt;When creating a VM in Azure, there are countless options, but in this context there are a couple that are important. You need to figure the specific image you will be using as well as the size (CPU/MEM) for the VM configuration.&lt;/p&gt;
 
@@ -901,14 +907,11 @@ MaxDataDiskCount    MemoryInMb    Name                    NumberOfCores    OsDis
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;For the image I used &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755&lt;/code&gt;, which is the image you select when you use the Azure portal. The VM size &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Standard_D2ds_v4&lt;/code&gt; provides 8GB of MEM and 2 CPU, which for the application I was running was going to be enough power.&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.&lt;/em&gt;&lt;/p&gt;
-
 &lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Create a vm using a Windows 10 VM&lt;/span&gt;
 az vm create &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; win-10-app-x-test &lt;span class=&quot;nt&quot;&gt;-g&lt;/span&gt; DesktopAppTest &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
 	&lt;span class=&quot;nt&quot;&gt;--image&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
 	&lt;span class=&quot;nt&quot;&gt;--admin-username&lt;/span&gt; myapp &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-	&lt;span class=&quot;nt&quot;&gt;--size&lt;/span&gt; Standard_D2ds_v4 &lt;span class=&quot;nt&quot;&gt;--location&lt;/span&gt;  westus &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-	&lt;span class=&quot;nt&quot;&gt;--subscription&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;c3a7d4a7-xxxx-yyyy-zzzz-000000000000&quot;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;--size&lt;/span&gt; Standard_D2ds_v4 &lt;span class=&quot;nt&quot;&gt;--location&lt;/span&gt;  westus
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;When you run the command, it will prompt you to input a password for RDP. Make sure to use a password with at least 20 characters since this asset will be exposed to the internet after deployment. (We’ll remedy this later)&lt;/p&gt;

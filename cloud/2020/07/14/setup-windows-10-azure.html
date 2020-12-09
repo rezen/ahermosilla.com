@@ -8,7 +8,7 @@
   <title>Setup Windows 10 in Azure</title>
   <meta name="description" content="">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/main.css?h=a320946%0A">
+  <link rel="stylesheet" href="/assets/main.css?h=01d6bdf%0A">
   <link rel="canonical" href="http://ahermosilla.com/cloud/2020/07/14/setup-windows-10-azure.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
@@ -99,6 +99,12 @@
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>az group create <span class="nt">-l</span> westus <span class="nt">-n</span> DesktopAppTest
 </code></pre></div></div>
 
+<p><em>An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.</em></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Select which subscription you want to perform actions in</span>
+az account <span class="nb">set</span> <span class="nt">--subscription</span> c3a7d4a7-xxxx-yyyy-zzzz-000000000000
+</code></pre></div></div>
+
 <h3 id="create-vm">Create VM</h3>
 <p>When creating a VM in Azure, there are countless options, but in this context there are a couple that are important. You need to figure the specific image you will be using as well as the size (CPU/MEM) for the VM configuration.</p>
 
@@ -136,14 +142,11 @@ MaxDataDiskCount    MemoryInMb    Name                    NumberOfCores    OsDis
 </code></pre></div></div>
 <p>For the image I used <code class="language-plaintext highlighter-rouge">MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755</code>, which is the image you select when you use the Azure portal. The VM size <code class="language-plaintext highlighter-rouge">Standard_D2ds_v4</code> provides 8GB of MEM and 2 CPU, which for the application I was running was going to be enough power.</p>
 
-<p><em>An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.</em></p>
-
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create a vm using a Windows 10 VM</span>
 az vm create <span class="nt">-n</span> win-10-app-x-test <span class="nt">-g</span> DesktopAppTest <span class="se">\</span>
 	<span class="nt">--image</span> <span class="s1">'MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755'</span> <span class="se">\</span>
 	<span class="nt">--admin-username</span> myapp <span class="se">\</span>
-	<span class="nt">--size</span> Standard_D2ds_v4 <span class="nt">--location</span>  westus <span class="se">\</span>
-	<span class="nt">--subscription</span> <span class="s2">"c3a7d4a7-xxxx-yyyy-zzzz-000000000000"</span>
+	<span class="nt">--size</span> Standard_D2ds_v4 <span class="nt">--location</span>  westus
 </code></pre></div></div>
 
 <p>When you run the command, it will prompt you to input a password for RDP. Make sure to use a password with at least 20 characters since this asset will be exposed to the internet after deployment. (We’ll remedy this later)</p>
