@@ -23,6 +23,13 @@ In Azure, any resource you create will fall under your subscription, as well as 
 az group create -l westus -n DesktopAppTest
 ```
 
+*An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.*
+
+```sh
+# Select which subscription you want to perform actions in
+az account set --subscription c3a7d4a7-xxxx-yyyy-zzzz-000000000000
+```
+
 ### Create VM
 When creating a VM in Azure, there are countless options, but in this context there are a couple that are important. You need to figure the specific image you will be using as well as the size (CPU/MEM) for the VM configuration.
 
@@ -62,15 +69,12 @@ MaxDataDiskCount    MemoryInMb    Name                    NumberOfCores    OsDis
 ```
 For the image I used `MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755`, which is the image you select when you use the Azure portal. The VM size `Standard_D2ds_v4` provides 8GB of MEM and 2 CPU, which for the application I was running was going to be enough power.
 
-*An aside, if you have multiple Azure subscriptions, you will need to specify which subscription the resources will deploy into.*
-
 ```sh
 # Create a vm using a Windows 10 VM
 az vm create -n win-10-app-x-test -g DesktopAppTest \
 	--image 'MicrosoftWindowsDesktop:Windows-10:19h1-pro:18362.959.2007101755' \
 	--admin-username myapp \
-	--size Standard_D2ds_v4 --location  westus \
-	--subscription "c3a7d4a7-xxxx-yyyy-zzzz-000000000000"
+	--size Standard_D2ds_v4 --location  westus
 ```
 
 
