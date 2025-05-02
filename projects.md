@@ -40,8 +40,16 @@ To meet compliance requirements at one organization, we needed to perform authen
 - SNS
         
 
-## Security Engineering
+## Security Education
 
 
 ### Security Newsletter
 At Barracuda to help improve the security culture I started and authored a monthly internal newsletter shared with engineering curating security resources, tools, and blog posts around specific topics. It was our internal tldrsec before there was tldrsec! I'm also experienced presenting internally in orgs on topics such as using security tools such as ZAP, semgrep & also on specific topics like CSP. I've also given talks at local meetups on nodejs OWASP Top 10 as well as WordPress security.
+
+
+### Presentations
+- [node.js Meetup - nodejs security](https://docs.google.com/presentation/d/1pQcfKgEKXjw4m_AX7P9kQJqdUjF8ry08ZSqVfXGBXbk/edit?slide=id.p#slide=id.p)
+- [WordPress Meetup - WordPress Security](https://docs.google.com/presentation/d/1YWiDDrFljaBcg_6GVnS-PlK4vGSU_v2xP2M0pFaGW4o/edit?usp=sharing)
+- [ZAP Intro & Automated Security Intro Training Extravaganza!](https://docs.google.com/presentation/d/1HH90X1Y6a0NfNnwJC9zyjSAIfWcjJviH1RxrNJ574qY/edit?usp=sharing)
+- [CSP Intro](https://docs.google.com/presentation/d/1VSAJWZIvoVt3sBG93Lh4HZQ128nhaX9DCE6Wn0q77Lo/edit?usp=sharing)
+- [Guest Speaker Presentation for AP Computer Science](https://docs.google.com/presentation/d/1sCf-GV25FwNFerIXxhOP3xP5tiZczj4lIJ_0m9kVFyE/edit?slide=id.g27e984ae0cb_0_50#slide=id.g27e984ae0cb_0_50)
