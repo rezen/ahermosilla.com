@@ -17,8 +17,8 @@ $brand-color:      rgba(183, 77, 0, 0.96) !default;
 $brand-alt-color: #866552;
 $text-on-dark: #f7aa49;
 $grey-color:       #828282 !default;
-$grey-color-light: lighten($grey-color, 40%) !default;
-$grey-color-dark:  darken($grey-color, 25%) !default;
+$grey-color-light: rgba($grey-color, 0.6) !default;
+$grey-color-dark:  rgba($grey-color, 0.75) !default;
 
 // Width of the content area
 $content-width:    800px !default;

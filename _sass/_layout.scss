@@ -167,7 +167,7 @@ h1 {
 
 .footer-heading {
   font-size: 18px;
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: calc(#{$spacing-unit} / 2);
 }
 
 .contact-list,
@@ -179,49 +179,49 @@ h1 {
 .footer-col-wrapper {
   font-size: 15px;
   color: $grey-color;
-  margin-left: -$spacing-unit / 2;
+  margin-left: calc(-#{$spacing-unit} / 2);
   @extend %clearfix;
 }
 
 .footer-col {
   float: left;
-  margin-bottom: $spacing-unit / 2;
-  padding-left: $spacing-unit / 2;
+  margin-bottom: calc(#{$spacing-unit} / 2);
+  padding-left: calc(#{$spacing-unit} / 2);
 }
 
 .footer-col-1 {
-  width: -webkit-calc(35% - (#{$spacing-unit} / 2));
-  width:         calc(35% - (#{$spacing-unit} / 2));
+  width: -webkit-calc(35% - (calc(#{$spacing-unit} / 2)));
+  width:         calc(35% - (calc(#{$spacing-unit} / 2)));
 }
 
 .footer-col-2 {
-  width: -webkit-calc(20% - (#{$spacing-unit} / 2));
-  width:         calc(20% - (#{$spacing-unit} / 2));
+  width: -webkit-calc(20% - (calc(#{$spacing-unit} / 2)));
+  width:         calc(20% - (calc(#{$spacing-unit} / 2)));
 }
 
 .footer-col-3 {
-  width: -webkit-calc(45% - (#{$spacing-unit} / 2));
-  width:         calc(45% - (#{$spacing-unit} / 2));
+  width: -webkit-calc(45% - (calc(#{$spacing-unit} / 2)));
+  width:         calc(45% - (calc(#{$spacing-unit} / 2)));
 }
 
 @include media-query($on-laptop) {
   .footer-col-1,
   .footer-col-2 {
-    width: -webkit-calc(50% - (#{$spacing-unit} / 2));
-    width:         calc(50% - (#{$spacing-unit} / 2));
+    width: -webkit-calc(50% - (calc(#{$spacing-unit} / 2)));
+    width:         calc(50% - (calc(#{$spacing-unit} / 2)));
   }
 
   .footer-col-3 {
-    width: -webkit-calc(100% - (#{$spacing-unit} / 2));
-    width:         calc(100% - (#{$spacing-unit} / 2));
+    width: -webkit-calc(100% - (calc(#{$spacing-unit} / 2)));
+    width:         calc(100% - (calc(#{$spacing-unit} / 2)));
   }
 }
 
 @include media-query($on-palm) {
   .footer-col {
     float: none;
-    width: -webkit-calc(100% - (#{$spacing-unit} / 2));
-    width:         calc(100% - (#{$spacing-unit} / 2));
+    width: -webkit-calc(100% - (calc(#{$spacing-unit} / 2)));
+    width:         calc(100% - (calc(#{$spacing-unit} / 2)));
   }
 }
 
@@ -363,7 +363,7 @@ h1 {
   border-radius: 2px;
   padding:4px 8px;
   background: $notice-blue;
-  color: darken($notice-blue, 60%);
+  color: rgba($notice-blue, 0.4);
   text-align: center;
   font-weight: bold;
   margin-bottom: 12px;

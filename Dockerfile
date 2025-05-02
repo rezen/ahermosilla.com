@@ -1,5 +1,5 @@
-FROM ruby:2.7.0-buster
-RUN mkdir /app && gem install bundler:1.17.1
+FROM ruby:3.2.2-bullseye
+RUN mkdir /app && gem install bundler:2.4.22
 WORKDIR /app
 COPY Gemfile  Gemfile.lock ./
 RUN bundler install && bundle update --bundler
