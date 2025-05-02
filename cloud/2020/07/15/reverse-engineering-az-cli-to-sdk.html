@@ -8,7 +8,7 @@
   <title>Reverse Engineering the az-cli to use the python sdk</title>
   <meta name="description" content="For scripting things in AWS, switching between boto and the aws cli is seamless because they use the same interfaces. The name of the python module matches t...">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/main.css?h=01d6bdf%0A">
+  <link rel="stylesheet" href="/assets/main.css?h=bb1379a%0A">
   <link rel="canonical" href="http://ahermosilla.com/cloud/2020/07/15/reverse-engineering-az-cli-to-sdk.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
@@ -41,7 +41,7 @@
         
           <a class="page-link" href="/about/">/about</a>
         
-          <a class="page-link" href="/categories/">/categories</a>
+          <a class="page-link" href="/projects/">/projects</a>
         
           <a class="page-link" href="/tags/">/tags</a>
         
@@ -124,14 +124,14 @@ src/azure-cli/azure/cli/command_modules/sql/_params.py
 <p>When I look at the <code class="language-plaintext highlighter-rouge">commands.py</code> file, I notice <code class="language-plaintext highlighter-rouge">azure.mgmt.policyinsights.*</code>, which looks like a python module (which it is), so that is a good direction indicator.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ... Parts ommited for brevity
-</span><span class="k">def</span> <span class="nf">load_command_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
-    <span class="n">policy_events_sdk</span> <span class="o">=</span> <span class="n">CliCommandType</span><span class="p">(</span>
-        <span class="n">operations_tmpl</span><span class="o">=</span><span class="s">'azure.mgmt.policyinsights.operations#PolicyEventsOperations.{}'</span><span class="p">,</span>
+</span><span class="k">def</span> <span class="nf">load_command_table</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+    <span class="n">policy_events_sdk</span> <span class="o">=</span> <span class="nc">CliCommandType</span><span class="p">(</span>
+        <span class="n">operations_tmpl</span><span class="o">=</span><span class="sh">'</span><span class="s">azure.mgmt.policyinsights.operations#PolicyEventsOperations.{}</span><span class="sh">'</span><span class="p">,</span>
         <span class="n">exception_handler</span><span class="o">=</span><span class="n">policy_insights_exception_handler</span>
     <span class="p">)</span>
 
-    <span class="n">policy_states_sdk</span> <span class="o">=</span> <span class="n">CliCommandType</span><span class="p">(</span>
-        <span class="n">operations_tmpl</span><span class="o">=</span><span class="s">'azure.mgmt.policyinsights.operations#PolicyStatesOperations.{}'</span><span class="p">,</span>
+    <span class="n">policy_states_sdk</span> <span class="o">=</span> <span class="nc">CliCommandType</span><span class="p">(</span>
+        <span class="n">operations_tmpl</span><span class="o">=</span><span class="sh">'</span><span class="s">azure.mgmt.policyinsights.operations#PolicyStatesOperations.{}</span><span class="sh">'</span><span class="p">,</span>
         <span class="n">exception_handler</span><span class="o">=</span><span class="n">policy_insights_exception_handler</span>
     <span class="p">)</span>
 </code></pre></div></div>
@@ -217,12 +217,12 @@ ag <span class="nt">--python</span> <span class="s1">'Microsoft.PolicyInsights/p
   | sort by tolower(tostring(name)) asc
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">azure.mgmt.resourcegraph.models</span> <span class="k">as</span> <span class="n">rg</span>
-<span class="kn">from</span> <span class="nn">azure.mgmt.resourcegraph</span> <span class="kn">import</span> <span class="n">ResourceGraphClient</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">azure.mgmt.resourcegraph.models</span> <span class="k">as</span> <span class="n">rg</span>
+<span class="kn">from</span> <span class="n">azure.mgmt.resourcegraph</span> <span class="kn">import</span> <span class="n">ResourceGraphClient</span>
 <span class="c1"># Parts omitted for brevity
 </span><span class="k">def</span> <span class="nf">resource_graph_all</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
-    <span class="n">credentials</span> <span class="o">=</span> <span class="n">get_credentials</span><span class="p">()</span>
-    <span class="n">subscriptions</span> <span class="o">=</span> <span class="n">get_subscriptions</span><span class="p">()</span>
+    <span class="n">credentials</span> <span class="o">=</span> <span class="nf">get_credentials</span><span class="p">()</span>
+    <span class="n">subscriptions</span> <span class="o">=</span> <span class="nf">get_subscriptions</span><span class="p">()</span>
     <span class="n">subscription_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">.</span><span class="n">subscription_id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subscriptions</span><span class="p">]</span>
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">has_more</span> <span class="o">=</span> <span class="bp">True</span>
@@ -230,16 +230,16 @@ ag <span class="nt">--python</span> <span class="s1">'Microsoft.PolicyInsights/p
     <span class="n">page</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">while</span> <span class="n">has_more</span><span class="p">:</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">rg</span><span class="p">.</span><span class="n">QueryRequestOptions</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">per_page</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">page</span> <span class="o">*</span> <span class="n">per_page</span><span class="p">)</span>
-        <span class="n">query_request</span> <span class="o">=</span> <span class="n">rg</span><span class="p">.</span><span class="n">QueryRequest</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">rg</span><span class="p">.</span><span class="nc">QueryRequestOptions</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">per_page</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">page</span> <span class="o">*</span> <span class="n">per_page</span><span class="p">)</span>
+        <span class="n">query_request</span> <span class="o">=</span> <span class="n">rg</span><span class="p">.</span><span class="nc">QueryRequest</span><span class="p">(</span>
             <span class="n">subscriptions</span><span class="o">=</span><span class="n">subscription_ids</span><span class="p">,</span>
             <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
             <span class="n">options</span><span class="o">=</span><span class="n">options</span>
         <span class="p">)</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">ResourceGraphClient</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">resources</span><span class="p">(</span><span class="n">query_request</span><span class="p">)</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s">'name'</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">'columns'</span><span class="p">]]</span>
-        <span class="n">results</span> <span class="o">=</span>  <span class="n">results</span> <span class="o">+</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">'rows'</span><span class="p">]]</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="nc">ResourceGraphClient</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">resources</span><span class="p">(</span><span class="n">query_request</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="sh">'</span><span class="s">name</span><span class="sh">'</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">columns</span><span class="sh">'</span><span class="p">]]</span>
+        <span class="n">results</span> <span class="o">=</span>  <span class="n">results</span> <span class="o">+</span> <span class="p">[</span><span class="nf">dict</span><span class="p">(</span><span class="nf">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">rows</span><span class="sh">'</span><span class="p">]]</span>
         <span class="n">has_more</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="n">count</span> <span class="o">==</span> <span class="n">per_page</span>
         <span class="n">page</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -257,16 +257,16 @@ ag <span class="nt">--python</span> <span class="s1">'Microsoft.PolicyInsights/p
 <h2 id="sample">Sample</h2>
 <p>Okay, so with all that spelunking, what did we finally land on for getting the policy state using the python-sdk?</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">shared.azure</span> <span class="k">as</span> <span class="n">az</span>
-<span class="kn">from</span> <span class="nn">azure.mgmt.policyinsights</span> <span class="kn">import</span> <span class="n">PolicyInsightsClient</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">shared.azure</span> <span class="k">as</span> <span class="n">az</span>
+<span class="kn">from</span> <span class="n">azure.mgmt.policyinsights</span> <span class="kn">import</span> <span class="n">PolicyInsightsClient</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">get_credentials</span><span class="p">()</span>
-<span class="n">insights</span> <span class="o">=</span> <span class="n">PolicyInsightsClient</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">insights</span><span class="p">.</span><span class="n">policy_states</span><span class="p">.</span><span class="n">list_query_results_for_management_group</span><span class="p">(</span><span class="s">'latest'</span><span class="p">,</span> <span class="s">'rootmanagementgroup'</span><span class="p">)</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="nf">get_credentials</span><span class="p">()</span>
+<span class="n">insights</span> <span class="o">=</span> <span class="nc">PolicyInsightsClient</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">insights</span><span class="p">.</span><span class="n">policy_states</span><span class="p">.</span><span class="nf">list_query_results_for_management_group</span><span class="p">(</span><span class="sh">'</span><span class="s">latest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">rootmanagementgroup</span><span class="sh">'</span><span class="p">)</span>
 
 <span class="c1"># @todo needs pagination
 </span><span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">response</span><span class="p">.</span><span class="n">value</span><span class="p">:</span>
-  <span class="k">print</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+  <span class="nf">print</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 </code></pre></div></div>
 
   </section>

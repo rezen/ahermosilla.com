@@ -8,7 +8,7 @@
   <title>Inspecting Windows with cli!</title>
   <meta name="description" content="WMI Powershell Hardware Network Processes I’m pretty green when it comes to knowledge of windows commands &amp;amp; cli tools. From the security perspective, a l...">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/main.css?h=01d6bdf%0A">
+  <link rel="stylesheet" href="/assets/main.css?h=bb1379a%0A">
   <link rel="canonical" href="http://ahermosilla.com/tools/2017/01/21/windows-commands.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
@@ -41,7 +41,7 @@
         
           <a class="page-link" href="/about/">/about</a>
         
-          <a class="page-link" href="/categories/">/categories</a>
+          <a class="page-link" href="/projects/">/projects</a>
         
           <a class="page-link" href="/tags/">/tags</a>
         
@@ -111,19 +111,19 @@ BuildNumber  InstallDate                Name                             OSArchi
 <h4 id="powershell">Powershell</h4>
 <p>@todo Fill this out more!</p>
 
-<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">::</span><span class="w"> </span><span class="nf">List</span><span class="w"> </span><span class="nx">available</span><span class="w"> </span><span class="nx">objects</span><span class="w">
-</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nt">-List</span><span class="w">
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">::</span><span class="w"> </span><span class="n">List</span><span class="w"> </span><span class="nx">available</span><span class="w"> </span><span class="nx">objects</span><span class="w">
+</span><span class="n">Get-WmiObject</span><span class="w"> </span><span class="nt">-List</span><span class="w">
 
-</span><span class="p">::</span><span class="w"> </span><span class="nf">Logged</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">users</span><span class="w">
-</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_LoggedOnUser</span><span class="w">
+</span><span class="p">::</span><span class="w"> </span><span class="n">Logged</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">users</span><span class="w">
+</span><span class="n">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_LoggedOnUser</span><span class="w">
 
-</span><span class="p">::</span><span class="w"> </span><span class="nf">Users</span><span class="w"> </span><span class="o">...</span><span class="w">
-</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_SystemUsers</span><span class="w">
+</span><span class="p">::</span><span class="w"> </span><span class="n">Users</span><span class="w"> </span><span class="o">...</span><span class="w">
+</span><span class="n">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_SystemUsers</span><span class="w">
 
-</span><span class="p">::</span><span class="w"> </span><span class="nf">Get</span><span class="w"> </span><span class="nx">processes</span><span class="w">
-</span><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_Process</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nf">Format-Table</span><span class="w"> </span><span class="nt">-Wrap</span><span class="w"> </span><span class="nt">-Property</span><span class="w"> </span><span class="nx">Name</span><span class="p">,</span><span class="nx">Path</span><span class="p">,</span><span class="nx">ExecutablePath</span><span class="p">,</span><span class="nx">ProcessId</span><span class="p">,</span><span class="nx">CreationDate</span><span class="w">
+</span><span class="p">::</span><span class="w"> </span><span class="n">Get</span><span class="w"> </span><span class="nx">processes</span><span class="w">
+</span><span class="n">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_Process</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Format-Table</span><span class="w"> </span><span class="nt">-Wrap</span><span class="w"> </span><span class="nt">-Property</span><span class="w"> </span><span class="nx">Name</span><span class="p">,</span><span class="nx">Path</span><span class="p">,</span><span class="nx">ExecutablePath</span><span class="p">,</span><span class="nx">ProcessId</span><span class="p">,</span><span class="nx">CreationDate</span><span class="w">
 
-</span><span class="p">::</span><span class="w"> </span><span class="nf">What</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">running</span><span class="w"> </span><span class="nx">in</span><span class="w"> </span><span class="nx">startup</span><span class="nf">?</span><span class="w">
+</span><span class="p">::</span><span class="w"> </span><span class="n">What</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">running</span><span class="w"> </span><span class="nx">in</span><span class="w"> </span><span class="nx">startup</span><span class="nf">?</span><span class="w">
 </span><span class="nx">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_StartupCommand</span><span class="w">
 </span></code></pre></div></div>
 
@@ -201,7 +201,7 @@ MaxCapacity
 netsh trace stop
 </code></pre></div></div>
 
-<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_IP4RouteTable</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nf">Format-Table</span><span class="w"> </span><span class="nt">-Wrap</span><span class="w"> </span><span class="nt">-Property</span><span class="w"> </span><span class="nx">Age</span><span class="p">,</span><span class="nx">Caption</span><span class="p">,</span><span class="nx">Mask</span><span class="p">,</span><span class="nx">Destination</span><span class="p">,</span><span class="nx">Name</span><span class="w">
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Get-WmiObject</span><span class="w"> </span><span class="nx">Win32_IP4RouteTable</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Format-Table</span><span class="w"> </span><span class="nt">-Wrap</span><span class="w"> </span><span class="nt">-Property</span><span class="w"> </span><span class="nx">Age</span><span class="p">,</span><span class="nx">Caption</span><span class="p">,</span><span class="nx">Mask</span><span class="p">,</span><span class="nx">Destination</span><span class="p">,</span><span class="nx">Name</span><span class="w">
 </span></code></pre></div></div>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; netsh int show int

@@ -8,7 +8,7 @@
   <title>Leveraging AWS signed requests for Identity Proof</title>
   <meta name="description" content="">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/main.css?h=01d6bdf%0A">
+  <link rel="stylesheet" href="/assets/main.css?h=bb1379a%0A">
   <link rel="canonical" href="http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
@@ -41,7 +41,7 @@
         
           <a class="page-link" href="/about/">/about</a>
         
-          <a class="page-link" href="/categories/">/categories</a>
+          <a class="page-link" href="/projects/">/projects</a>
         
           <a class="page-link" href="/tags/">/tags</a>
         
@@ -173,35 +173,35 @@ AWS has thorough docs of all their APIs (https://docs.aws.amazon.com/), but the 
 <h3 id="use-botocore-to-create-client">Use Botocore to create client</h3>
 <p>Now we could put together all pieces ourselves starting from the example for creating signed requests, but why? We know <strong>boto</strong> already has the pieces for creating signed requests so let’s go ahead and leverage it. We need to build the request like we are going send it to STS, but then send it to our endpoint instead.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">botocore.auth</span> <span class="kn">import</span> <span class="n">SigV4Auth</span>
-<span class="kn">from</span> <span class="nn">botocore.awsrequest</span> <span class="kn">import</span> <span class="n">AWSRequest</span>
-<span class="kn">from</span> <span class="nn">botocore.credentials</span> <span class="kn">import</span> <span class="n">get_credentials</span>
-<span class="kn">from</span> <span class="nn">botocore.endpoint</span> <span class="kn">import</span> <span class="n">URLLib3Session</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
-<span class="kn">import</span> <span class="nn">requests</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">os</span>
+<span class="kn">from</span> <span class="n">botocore.auth</span> <span class="kn">import</span> <span class="n">SigV4Auth</span>
+<span class="kn">from</span> <span class="n">botocore.awsrequest</span> <span class="kn">import</span> <span class="n">AWSRequest</span>
+<span class="kn">from</span> <span class="n">botocore.credentials</span> <span class="kn">import</span> <span class="n">get_credentials</span>
+<span class="kn">from</span> <span class="n">botocore.endpoint</span> <span class="kn">import</span> <span class="n">URLLib3Session</span>
+<span class="kn">import</span> <span class="n">boto3</span>
+<span class="kn">import</span> <span class="n">requests</span>
 
-<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="n">Session</span><span class="p">()</span>
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">session</span><span class="p">.</span><span class="n">get_credentials</span><span class="p">()</span>
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">credentials</span><span class="p">.</span><span class="n">get_frozen_credentials</span><span class="p">()</span>
-<span class="n">signer</span> <span class="o">=</span> <span class="n">SigV4Auth</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="s">'sts'</span><span class="p">,</span> <span class="s">'us-east-1'</span><span class="p">)</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="nc">Session</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">session</span><span class="p">.</span><span class="nf">get_credentials</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">credentials</span><span class="p">.</span><span class="nf">get_frozen_credentials</span><span class="p">()</span>
+<span class="n">signer</span> <span class="o">=</span> <span class="nc">SigV4Auth</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="sh">'</span><span class="s">sts</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">us-east-1</span><span class="sh">'</span><span class="p">)</span>
 
-<span class="n">endpoint</span> <span class="o">=</span> <span class="s">'api.example.com'</span>
-<span class="n">request</span> <span class="o">=</span> <span class="n">AWSRequest</span><span class="p">(</span>
-    <span class="n">method</span><span class="o">=</span><span class="s">'POST'</span><span class="p">,</span> 
-    <span class="n">url</span><span class="o">=</span><span class="s">"https://sts.amazonaws.com/"</span><span class="p">,</span> 
-    <span class="n">data</span><span class="o">=</span><span class="s">"Action=GetCallerIdentity&amp;Version=2011-06-15"</span><span class="p">,</span> 
+<span class="n">endpoint</span> <span class="o">=</span> <span class="sh">'</span><span class="s">api.example.com</span><span class="sh">'</span>
+<span class="n">request</span> <span class="o">=</span> <span class="nc">AWSRequest</span><span class="p">(</span>
+    <span class="n">method</span><span class="o">=</span><span class="sh">'</span><span class="s">POST</span><span class="sh">'</span><span class="p">,</span> 
+    <span class="n">url</span><span class="o">=</span><span class="sh">"</span><span class="s">https://sts.amazonaws.com/</span><span class="sh">"</span><span class="p">,</span> 
+    <span class="n">data</span><span class="o">=</span><span class="sh">"</span><span class="s">Action=GetCallerIdentity&amp;Version=2011-06-15</span><span class="sh">"</span><span class="p">,</span> 
     <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-        <span class="s">'Host'</span><span class="p">:</span> <span class="s">'sts.amazonaws.com'</span><span class="p">,</span>
-        <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">'application/x-www-form-urlencoded; charset=utf-8'</span><span class="p">,</span>
-        <span class="s">'X-Audience'</span><span class="p">:</span> <span class="n">endpoint</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">Host</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">sts.amazonaws.com</span><span class="sh">'</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">Content-Type</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">application/x-www-form-urlencoded; charset=utf-8</span><span class="sh">'</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">X-Audience</span><span class="sh">'</span><span class="p">:</span> <span class="n">endpoint</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
-<span class="n">signer</span><span class="p">.</span><span class="n">add_auth</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="n">signer</span><span class="p">.</span><span class="nf">add_auth</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="s">'dev'</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'PY_ENV'</span><span class="p">,</span> <span class="s">''</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">body</span><span class="p">)</span>
+<span class="k">if</span> <span class="sh">'</span><span class="s">dev</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">PY_ENV</span><span class="sh">'</span><span class="p">,</span> <span class="sh">''</span><span class="p">):</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">body</span><span class="p">)</span>
 
 <span class="c1"># To send to STS directly ....
 # sender = URLLib3Session()
@@ -209,147 +209,147 @@ AWS has thorough docs of all their APIs (https://docs.aws.amazon.com/), but the 
 </span>
 <span class="c1"># To send to our API, we use the request boto created with the 
 # signature components
-</span><span class="n">headers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
-<span class="n">headers</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="s">'Host'</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">f'https://</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s">/key'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="p">.</span><span class="n">body</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">text</span><span class="p">)</span>
+</span><span class="n">headers</span> <span class="o">=</span> <span class="nf">dict</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
+<span class="n">headers</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="sh">'</span><span class="s">Host</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="sa">f</span><span class="sh">'</span><span class="s">https://</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s">/key</span><span class="sh">'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="p">.</span><span class="n">body</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">headers</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">text</span><span class="p">)</span>
 </code></pre></div></div>
 
 <p>The endpoint needs to pull out the headers authorization, x-amz-date, x-amz-security-token, x-audience to pass on to the STS API. Our endpoint is on a different host, so we don’t use that, rather we use <code class="language-plaintext highlighter-rouge">sts.amazonaws.com</code>, but the other parts are part of the original request to STS. Below is an example implementation of passing on the identity request on to AWS STS. This shows an example using <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html">API Gateway Authorizer</a> to authorize request paths. There is an endpoint to <code class="language-plaintext highlighter-rouge">POST /key</code> which will is behind this authorizer which will receive the identity (passed from the authorize context) in it’s handler context.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
-<span class="kn">import</span> <span class="nn">http.client</span>
-<span class="kn">import</span> <span class="nn">urllib.parse</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">json</span>
+<span class="kn">import</span> <span class="n">boto3</span>
+<span class="kn">import</span> <span class="n">http.client</span>
+<span class="kn">import</span> <span class="n">urllib.parse</span>
+<span class="kn">import</span> <span class="n">socket</span>
+<span class="kn">import</span> <span class="n">xml.etree.ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
 
 <span class="k">def</span> <span class="nf">deny_response</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span>
-    	<span class="s">"policyDocument"</span><span class="p">:</span> <span class="p">{</span>
-    		<span class="s">"Version"</span><span class="p">:</span> <span class="s">"2012-10-17"</span><span class="p">,</span>
-    		<span class="s">"Statement"</span><span class="p">:</span> <span class="p">[</span>
+    	<span class="sh">"</span><span class="s">policyDocument</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span>
+    		<span class="sh">"</span><span class="s">Version</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">2012-10-17</span><span class="sh">"</span><span class="p">,</span>
+    		<span class="sh">"</span><span class="s">Statement</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
     			<span class="p">{</span>
-    				<span class="s">"Action"</span><span class="p">:</span> <span class="s">"execute-api:Invoke"</span><span class="p">,</span>
-    				<span class="s">"Effect"</span><span class="p">:</span> <span class="s">"Deny"</span><span class="p">,</span>
-    				<span class="s">"Resource"</span><span class="p">:</span> <span class="s">"*"</span><span class="p">,</span>
+    				<span class="sh">"</span><span class="s">Action</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">execute-api:Invoke</span><span class="sh">"</span><span class="p">,</span>
+    				<span class="sh">"</span><span class="s">Effect</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">Deny</span><span class="sh">"</span><span class="p">,</span>
+    				<span class="sh">"</span><span class="s">Resource</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">*</span><span class="sh">"</span><span class="p">,</span>
     			<span class="p">}</span>
     		<span class="p">]</span>
     	<span class="p">},</span>
-    	<span class="s">"context"</span><span class="p">:</span> <span class="p">{</span>
-    	    <span class="s">'message'</span><span class="p">:</span> <span class="s">f'</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s">'</span>
+    	<span class="sh">"</span><span class="s">context</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span>
+    	    <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="sh">'</span>
     	<span class="p">}</span>
     <span class="p">}</span>
 
 <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-    <span class="n">authorized_accounts</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'AUTHD_ACCTS'</span><span class="p">,</span> <span class="s">''</span><span class="p">).</span><span class="n">split</span><span class="p">(</span><span class="s">","</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span><span class="p">]</span>
-    <span class="n">authorized_roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'AUTHD_ROLES'</span><span class="p">,</span> <span class="s">''</span><span class="p">).</span><span class="n">split</span><span class="p">(</span><span class="s">","</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span><span class="p">]</span>
+    <span class="n">authorized_accounts</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">AUTHD_ACCTS</span><span class="sh">'</span><span class="p">,</span> <span class="sh">''</span><span class="p">).</span><span class="nf">split</span><span class="p">(</span><span class="sh">"</span><span class="s">,</span><span class="sh">"</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span><span class="p">]</span>
+    <span class="n">authorized_roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">AUTHD_ROLES</span><span class="sh">'</span><span class="p">,</span> <span class="sh">''</span><span class="p">).</span><span class="nf">split</span><span class="p">(</span><span class="sh">"</span><span class="s">,</span><span class="sh">"</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span><span class="p">]</span>
 
-    <span class="n">headers</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'headers'</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">headers</span><span class="sh">'</span><span class="p">,</span> <span class="p">{})</span>
 
     <span class="c1"># Since API Gateway routes based on hostnames we know the host can be 
 </span>    <span class="c1"># trusted. To be extra sure you could instead compare against
 </span>    <span class="c1"># an environment variable of X_AUDIENCE 
-</span>    <span class="n">host</span> <span class="o">=</span> <span class="n">headers</span><span class="p">[</span><span class="s">'host'</span><span class="p">]</span> <span class="k">if</span> <span class="s">'host'</span> <span class="ow">in</span> <span class="n">headers</span> <span class="k">else</span> <span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Host'</span><span class="p">)</span>
+</span>    <span class="n">host</span> <span class="o">=</span> <span class="n">headers</span><span class="p">[</span><span class="sh">'</span><span class="s">host</span><span class="sh">'</span><span class="p">]</span> <span class="k">if</span> <span class="sh">'</span><span class="s">host</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">headers</span> <span class="k">else</span> <span class="n">headers</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Host</span><span class="sh">'</span><span class="p">)</span>
     
     <span class="c1"># For the client's safety, expect this header
-</span>    <span class="k">if</span> <span class="s">'x-audience'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">"Did not supply x-audience header"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"A x-audience header is required"</span><span class="p">)</span>
+</span>    <span class="k">if</span> <span class="sh">'</span><span class="s">x-audience</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Did not supply x-audience header</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">A x-audience header is required</span><span class="sh">"</span><span class="p">)</span>
     
     <span class="c1"># ... and then assert the audience and the host are the same
 </span>    <span class="c1"># This protects the client from host replay attacks
-</span>    <span class="k">if</span> <span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'x-audience'</span><span class="p">)</span> <span class="o">!=</span> <span class="n">host</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">f"Mismatch with host and x-audience header - audience=</span><span class="si">{</span><span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'x-audience'</span><span class="p">)</span><span class="si">}</span><span class="s"> host=</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s">"</span> <span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"Mismatch with host and x-audience header"</span><span class="p">)</span>
+</span>    <span class="k">if</span> <span class="n">headers</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">x-audience</span><span class="sh">'</span><span class="p">)</span> <span class="o">!=</span> <span class="n">host</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Mismatch with host and x-audience header - audience=</span><span class="si">{</span><span class="n">headers</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">x-audience</span><span class="sh">'</span><span class="p">)</span><span class="si">}</span><span class="s"> host=</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="sh">"</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">Mismatch with host and x-audience header</span><span class="sh">"</span><span class="p">)</span>
 
-    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="s">'authorization'</span><span class="p">,</span> <span class="s">"x-amz-date"</span><span class="p">,</span> <span class="s">"x-amz-security-token"</span><span class="p">,</span> <span class="s">'x-audience'</span><span class="p">]</span>
-    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headers</span> <span class="k">if</span> <span class="n">k</span><span class="p">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">]</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">authorization</span><span class="sh">'</span><span class="p">,</span> <span class="sh">"</span><span class="s">x-amz-date</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">x-amz-security-token</span><span class="sh">"</span><span class="p">,</span> <span class="sh">'</span><span class="s">x-audience</span><span class="sh">'</span><span class="p">]</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headers</span> <span class="k">if</span> <span class="n">k</span><span class="p">.</span><span class="nf">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">]</span>
     
-    <span class="n">authd</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">headers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keep</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">}</span>
+    <span class="n">authd</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">.</span><span class="nf">lower</span><span class="p">():</span> <span class="n">headers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keep</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">}</span>
     
-    <span class="k">if</span> <span class="s">'x-authorization'</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
-        <span class="n">authd</span><span class="p">[</span><span class="s">'authorization'</span><span class="p">]</span> <span class="o">=</span> <span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'x-authorization'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="sh">'</span><span class="s">x-authorization</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+        <span class="n">authd</span><span class="p">[</span><span class="sh">'</span><span class="s">authorization</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">headers</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">x-authorization</span><span class="sh">'</span><span class="p">)</span>
     
-    <span class="k">if</span> <span class="s">'authorization'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authd</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">"No authorization provided"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"No authorization header provided"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="sh">'</span><span class="s">authorization</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authd</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">No authorization provided</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">No authorization header provided</span><span class="sh">"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s">'x-audience'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authd</span><span class="p">[</span><span class="s">'authorization'</span><span class="p">]:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">"The header x-audience was not included in the signature"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"The header x-audience was not included in the signature"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="sh">'</span><span class="s">x-audience</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authd</span><span class="p">[</span><span class="sh">'</span><span class="s">authorization</span><span class="sh">'</span><span class="p">]:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">The header x-audience was not included in the signature</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">The header x-audience was not included in the signature</span><span class="sh">"</span><span class="p">)</span>
     
-    <span class="n">params</span> <span class="o">=</span> <span class="n">urllib</span><span class="p">.</span><span class="n">parse</span><span class="p">.</span><span class="n">urlencode</span><span class="p">({</span> 
-        <span class="s">'Action'</span><span class="p">:</span> <span class="s">"GetCallerIdentity"</span><span class="p">,</span> 
-        <span class="s">'Version'</span><span class="p">:</span> <span class="s">"2011-06-15"</span> 
+    <span class="n">params</span> <span class="o">=</span> <span class="n">urllib</span><span class="p">.</span><span class="n">parse</span><span class="p">.</span><span class="nf">urlencode</span><span class="p">({</span> 
+        <span class="sh">'</span><span class="s">Action</span><span class="sh">'</span><span class="p">:</span> <span class="sh">"</span><span class="s">GetCallerIdentity</span><span class="sh">"</span><span class="p">,</span> 
+        <span class="sh">'</span><span class="s">Version</span><span class="sh">'</span><span class="p">:</span> <span class="sh">"</span><span class="s">2011-06-15</span><span class="sh">"</span> 
     <span class="p">})</span>
 
-    <span class="n">authd</span><span class="p">[</span><span class="s">'User-Agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Boto3/1.10.28 Python/3.8.5 Darwin/18.7.0 Botocore/1.13.50'</span>
-    <span class="n">authd</span><span class="p">[</span><span class="s">'Accept-Encoding'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'identity'</span>
-    <span class="n">authd</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="s">"application/x-www-form-urlencoded; charset=utf-8"</span>
-    <span class="n">authd</span><span class="p">[</span><span class="s">'Content-Length'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">authd</span><span class="p">[</span><span class="sh">'</span><span class="s">User-Agent</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">Boto3/1.10.28 Python/3.8.5 Darwin/18.7.0 Botocore/1.13.50</span><span class="sh">'</span>
+    <span class="n">authd</span><span class="p">[</span><span class="sh">'</span><span class="s">Accept-Encoding</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">identity</span><span class="sh">'</span>
+    <span class="n">authd</span><span class="p">[</span><span class="sh">"</span><span class="s">Content-Type</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">application/x-www-form-urlencoded; charset=utf-8</span><span class="sh">"</span>
+    <span class="n">authd</span><span class="p">[</span><span class="sh">'</span><span class="s">Content-Length</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
-    <span class="n">conn</span> <span class="o">=</span> <span class="n">http</span><span class="p">.</span><span class="n">client</span><span class="p">.</span><span class="n">HTTPSConnection</span><span class="p">(</span><span class="s">"sts.amazonaws.com"</span><span class="p">)</span> 
-    <span class="n">conn</span><span class="p">.</span><span class="n">request</span><span class="p">(</span><span class="s">"POST"</span><span class="p">,</span> <span class="s">"/"</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">authd</span><span class="p">)</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">getresponse</span><span class="p">()</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">http</span><span class="p">.</span><span class="n">client</span><span class="p">.</span><span class="nc">HTTPSConnection</span><span class="p">(</span><span class="sh">"</span><span class="s">sts.amazonaws.com</span><span class="sh">"</span><span class="p">)</span> 
+    <span class="n">conn</span><span class="p">.</span><span class="nf">request</span><span class="p">(</span><span class="sh">"</span><span class="s">POST</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">/</span><span class="sh">"</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">authd</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="nf">getresponse</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="p">.</span><span class="n">reason</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">getheaders</span><span class="p">())</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="p">.</span><span class="n">reason</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="nf">getheaders</span><span class="p">())</span>
 
-    <span class="k">if</span> <span class="s">"ExpiredToken"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">"Using expired tokens ...."</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"The token provided is expired"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="sh">"</span><span class="s">ExpiredToken</span><span class="sh">"</span> <span class="ow">in</span> <span class="nf">str</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Using expired tokens ....</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">The token provided is expired</span><span class="sh">"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">response</span><span class="p">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">"Request was not successful with sts"</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"Request STS failed"</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Request was not successful with sts</span><span class="sh">"</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">Request STS failed</span><span class="sh">"</span><span class="p">)</span>
     
     
-    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="p">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="p">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="p">.</span><span class="n">getroot</span><span class="p">()</span>
-    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span><span class="p">.</span><span class="n">getchildren</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">root</span> <span class="k">if</span> <span class="n">n</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"}"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">"GetCallerIdentityResult"</span><span class="p">].</span><span class="n">pop</span><span class="p">()</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="p">.</span><span class="nc">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="p">.</span><span class="nf">fromstring</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="p">.</span><span class="nf">getroot</span><span class="p">()</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span><span class="p">.</span><span class="nf">getchildren</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">root</span> <span class="k">if</span> <span class="n">n</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="sh">"</span><span class="s">}</span><span class="sh">"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sh">"</span><span class="s">GetCallerIdentityResult</span><span class="sh">"</span><span class="p">].</span><span class="nf">pop</span><span class="p">()</span>
     
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nodes</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">"No nodes?"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"STS response not validated"</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">No nodes?</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">STS response not validated</span><span class="sh">"</span><span class="p">)</span>
     
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"}"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="n">n</span><span class="p">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="sh">"</span><span class="s">}</span><span class="sh">"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="n">n</span><span class="p">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
     
-    <span class="k">if</span> <span class="s">'Arn'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">or</span> <span class="s">'Account'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">"The sts data is missing bits"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"STS response not validated"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="sh">'</span><span class="s">Arn</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">or</span> <span class="sh">'</span><span class="s">Account</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">The sts data is missing bits</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">STS response not validated</span><span class="sh">"</span><span class="p">)</span>
     
-    <span class="k">print</span><span class="p">(</span><span class="s">"Authorized "</span>  <span class="o">+</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-    <span class="n">parts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">'Arn'</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">"/"</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s">'Username'</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
-    <span class="n">data</span><span class="p">[</span><span class="s">'Role'</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Authorized </span><span class="sh">"</span>  <span class="o">+</span> <span class="n">json</span><span class="p">.</span><span class="nf">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">Arn</span><span class="sh">'</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="sh">"</span><span class="s">/</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">Username</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">.</span><span class="nf">pop</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">Role</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nf">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">None</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Account'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Account'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authorized_accounts</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"That account is not authorized"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Account</span><span class="sh">'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Account</span><span class="sh">'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authorized_accounts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">That account is not authorized</span><span class="sh">"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Role'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Role'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authorized_roles</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">deny_response</span><span class="p">(</span><span class="s">"That role is not authorized"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Role</span><span class="sh">'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Role</span><span class="sh">'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authorized_roles</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">deny_response</span><span class="p">(</span><span class="sh">"</span><span class="s">That role is not authorized</span><span class="sh">"</span><span class="p">)</span>
 
-    <span class="n">resource</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'methodArn'</span><span class="p">)</span> <span class="k">if</span> <span class="s">'methodArn'</span> <span class="ow">in</span> <span class="n">event</span> <span class="k">else</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'routeArn'</span><span class="p">)</span>
+    <span class="n">resource</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">methodArn</span><span class="sh">'</span><span class="p">)</span> <span class="k">if</span> <span class="sh">'</span><span class="s">methodArn</span><span class="sh">'</span> <span class="ow">in</span> <span class="n">event</span> <span class="k">else</span> <span class="n">event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">routeArn</span><span class="sh">'</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-    	<span class="s">"principalId"</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s">'Username'</span><span class="p">],</span>
-    	<span class="s">"policyDocument"</span><span class="p">:</span> <span class="p">{</span>
-    		<span class="s">"Version"</span><span class="p">:</span> <span class="s">"2012-10-17"</span><span class="p">,</span>
-    		<span class="s">"Statement"</span><span class="p">:</span> <span class="p">[</span>
+    	<span class="sh">"</span><span class="s">principalId</span><span class="sh">"</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="sh">'</span><span class="s">Username</span><span class="sh">'</span><span class="p">],</span>
+    	<span class="sh">"</span><span class="s">policyDocument</span><span class="sh">"</span><span class="p">:</span> <span class="p">{</span>
+    		<span class="sh">"</span><span class="s">Version</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">2012-10-17</span><span class="sh">"</span><span class="p">,</span>
+    		<span class="sh">"</span><span class="s">Statement</span><span class="sh">"</span><span class="p">:</span> <span class="p">[</span>
     			<span class="p">{</span>
-    				<span class="s">"Action"</span><span class="p">:</span> <span class="s">"execute-api:Invoke"</span><span class="p">,</span>
-    				<span class="s">"Effect"</span><span class="p">:</span> <span class="s">"Allow"</span><span class="p">,</span>
-    				<span class="s">"Resource"</span><span class="p">:</span> <span class="n">resource</span><span class="p">,</span>
+    				<span class="sh">"</span><span class="s">Action</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">execute-api:Invoke</span><span class="sh">"</span><span class="p">,</span>
+    				<span class="sh">"</span><span class="s">Effect</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">Allow</span><span class="sh">"</span><span class="p">,</span>
+    				<span class="sh">"</span><span class="s">Resource</span><span class="sh">"</span><span class="p">:</span> <span class="n">resource</span><span class="p">,</span>
     			<span class="p">}</span>
     		<span class="p">]</span>
     	<span class="p">},</span>
-    	<span class="s">"context"</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+    	<span class="sh">"</span><span class="s">context</span><span class="sh">"</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
     <span class="p">}</span>
 </code></pre></div></div>
 
@@ -359,109 +359,109 @@ Signed requests support adding arbitrary headers. We pass on <code class="langua
 <h3 id="creating-the-api-key">Creating the API Key</h3>
 <p>After the authorizer allows the request to continue on, the authorizer context will be passed on to the request lambda. The event will include the context <code class="language-plaintext highlighter-rouge">event['requestContext']['authorizer']</code> which you can then  be used to create an API Key in API Gateway.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
-<span class="kn">import</span> <span class="nn">string</span> 
-<span class="kn">import</span> <span class="nn">random</span> 
-<span class="kn">import</span> <span class="nn">base64</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">re</span>
+<span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">json</span>
+<span class="kn">import</span> <span class="n">boto3</span>
+<span class="kn">import</span> <span class="n">string</span> 
+<span class="kn">import</span> <span class="n">random</span> 
+<span class="kn">import</span> <span class="n">base64</span>
 
 <span class="c1"># You should use secrets manager to generate randomness but alas this serves as an example
 # aws secretsmanager get-random-password --password-length 32 --require-each-included-type --exclude-characters '"'@/\"'"' | jq -r ".RandomPassword"'
 </span><span class="k">def</span> <span class="nf">generate_random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">48</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="p">.</span><span class="n">ascii_letters</span> <span class="o">+</span>
+    <span class="k">return</span> <span class="sh">''</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="nf">choices</span><span class="p">(</span><span class="n">string</span><span class="p">.</span><span class="n">ascii_letters</span> <span class="o">+</span>
                              <span class="n">string</span><span class="p">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">size</span><span class="p">))</span> 
 
 
 <span class="k">def</span> <span class="nf">unauthorized</span><span class="p">(</span><span class="n">actor</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
-        <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span>
-            <span class="s">'message'</span><span class="p">:</span> <span class="s">'You are not authorized for this'</span><span class="p">,</span>
-            <span class="s">'actor'</span><span class="p">:</span> <span class="n">actor</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">statusCode</span><span class="sh">'</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">body</span><span class="sh">'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="nf">dumps</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">You are not authorized for this</span><span class="sh">'</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">actor</span><span class="sh">'</span><span class="p">:</span> <span class="n">actor</span><span class="p">,</span>
         <span class="p">}),</span>
     <span class="p">}</span>
 
 
 <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="c1"># Verify this is called with an authorizer in front
-</span>    <span class="n">actor</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'requestContext'</span><span class="p">,</span> <span class="p">{}).</span><span class="n">get</span><span class="p">(</span><span class="s">'authorizer'</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</span>    <span class="n">actor</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">requestContext</span><span class="sh">'</span><span class="p">,</span> <span class="p">{}).</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">authorizer</span><span class="sh">'</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">actor</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">unauthorized</span><span class="p">(</span><span class="s">'No authorizer'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">unauthorized</span><span class="p">(</span><span class="sh">'</span><span class="s">No authorizer</span><span class="sh">'</span><span class="p">)</span>
     
     <span class="c1"># ... which provides us a username
-</span>    <span class="n">username</span> <span class="o">=</span> <span class="n">actor</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Username'</span><span class="p">)</span>
+</span>    <span class="n">username</span> <span class="o">=</span> <span class="n">actor</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Username</span><span class="sh">'</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">username</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">unauthorized</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nf">unauthorized</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
     
-    <span class="n">plan_id</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">'USAGE_PLAN'</span><span class="p">]</span>
-    <span class="n">api_id</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">'API_ID'</span><span class="p">]</span>
-    <span class="n">stages</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">'API_STAGES'</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="p">.</span><span class="n">strip</span><span class="p">()]</span>
-    <span class="n">client</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="n">client</span><span class="p">(</span><span class="s">'apigateway'</span><span class="p">)</span>
+    <span class="n">plan_id</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">USAGE_PLAN</span><span class="sh">'</span><span class="p">]</span>
+    <span class="n">api_id</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">API_ID</span><span class="sh">'</span><span class="p">]</span>
+    <span class="n">stages</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">.</span><span class="nf">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">API_STAGES</span><span class="sh">'</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">,</span><span class="sh">'</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="p">.</span><span class="nf">strip</span><span class="p">()]</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">boto3</span><span class="p">.</span><span class="nf">client</span><span class="p">(</span><span class="sh">'</span><span class="s">apigateway</span><span class="sh">'</span><span class="p">)</span>
     <span class="n">already_has_key</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">key_id</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">get_api_keys</span><span class="p">(</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">get_api_keys</span><span class="p">(</span>
             <span class="n">nameQuery</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
             <span class="n">includeValues</span><span class="o">=</span><span class="bp">False</span>
         <span class="p">)</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'items'</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">already_has_key</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="n">key_id</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'id'</span><span class="p">]</span> <span class="k">if</span> <span class="n">already_has_key</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">response</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">items</span><span class="sh">'</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">already_has_key</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">key_id</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">]</span> <span class="k">if</span> <span class="n">already_has_key</span> <span class="k">else</span> <span class="bp">None</span>
 
     <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-        <span class="n">err_string</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"\d"</span><span class="p">,</span> <span class="s">"x"</span><span class="p">,</span> <span class="s">f'</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="n">err_string</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nf">sub</span><span class="p">(</span><span class="sa">r</span><span class="sh">"</span><span class="s">\d</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">x</span><span class="sh">"</span><span class="p">,</span> <span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="sh">'</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
-            <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">"error"</span><span class="p">:</span> <span class="n">err_string</span><span class="p">})</span>
+            <span class="sh">'</span><span class="s">statusCode</span><span class="sh">'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">body</span><span class="sh">'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="nf">dumps</span><span class="p">({</span><span class="sh">"</span><span class="s">error</span><span class="sh">"</span><span class="p">:</span> <span class="n">err_string</span><span class="p">})</span>
         <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">already_has_key</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
-            <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span>
-                <span class="s">"message"</span><span class="p">:</span> <span class="s">"You already generated an api key"</span><span class="p">,</span>
-                <span class="s">'key_id'</span><span class="p">:</span> <span class="n">key_id</span><span class="p">,</span>
-                <span class="s">"username"</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">statusCode</span><span class="sh">'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">body</span><span class="sh">'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="nf">dumps</span><span class="p">({</span>
+                <span class="sh">"</span><span class="s">message</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">You already generated an api key</span><span class="sh">"</span><span class="p">,</span>
+                <span class="sh">'</span><span class="s">key_id</span><span class="sh">'</span><span class="p">:</span> <span class="n">key_id</span><span class="p">,</span>
+                <span class="sh">"</span><span class="s">username</span><span class="sh">"</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
             <span class="p">})</span>
         <span class="p">}</span>
 
-    <span class="n">key_value</span> <span class="o">=</span> <span class="n">username</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">generate_random</span><span class="p">()</span>
-    <span class="n">key_value</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">key_value</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">)).</span><span class="n">decode</span><span class="p">(</span><span class="s">'ascii'</span><span class="p">)</span>
+    <span class="n">key_value</span> <span class="o">=</span> <span class="n">username</span> <span class="o">+</span> <span class="sh">"</span><span class="s">:</span><span class="sh">"</span> <span class="o">+</span> <span class="nf">generate_random</span><span class="p">()</span>
+    <span class="n">key_value</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="nf">b64encode</span><span class="p">(</span><span class="n">key_value</span><span class="p">.</span><span class="nf">encode</span><span class="p">(</span><span class="sh">'</span><span class="s">ascii</span><span class="sh">'</span><span class="p">)).</span><span class="nf">decode</span><span class="p">(</span><span class="sh">'</span><span class="s">ascii</span><span class="sh">'</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>    
-        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">create_api_key</span><span class="p">(</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">create_api_key</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> 
-            <span class="n">description</span><span class="o">=</span><span class="s">'Self service created key'</span><span class="p">,</span> 
+            <span class="n">description</span><span class="o">=</span><span class="sh">'</span><span class="s">Self service created key</span><span class="sh">'</span><span class="p">,</span> 
             <span class="n">enabled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> 
             <span class="n">value</span><span class="o">=</span><span class="n">key_value</span><span class="p">,</span>
-            <span class="n">stageKeys</span><span class="o">=</span><span class="p">[{</span><span class="s">'restApiId'</span><span class="p">:</span> <span class="n">api_id</span><span class="p">,</span> <span class="s">'stageName'</span><span class="p">:</span> <span class="n">s</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">],</span>
+            <span class="n">stageKeys</span><span class="o">=</span><span class="p">[{</span><span class="sh">'</span><span class="s">restApiId</span><span class="sh">'</span><span class="p">:</span> <span class="n">api_id</span><span class="p">,</span> <span class="sh">'</span><span class="s">stageName</span><span class="sh">'</span><span class="p">:</span> <span class="n">s</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">],</span>
             <span class="n">tags</span><span class="o">=</span><span class="p">{</span>
-                <span class="s">'SrcAccount'</span><span class="p">:</span> <span class="n">actor</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Account'</span><span class="p">),</span>
-                <span class="s">'Role'</span><span class="p">:</span> <span class="n">actor</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Role'</span><span class="p">),</span>
+                <span class="sh">'</span><span class="s">SrcAccount</span><span class="sh">'</span><span class="p">:</span> <span class="n">actor</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Account</span><span class="sh">'</span><span class="p">),</span>
+                <span class="sh">'</span><span class="s">Role</span><span class="sh">'</span><span class="p">:</span> <span class="n">actor</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">Role</span><span class="sh">'</span><span class="p">),</span>
             <span class="p">}</span>
         <span class="p">)</span>
     
-        <span class="n">client</span><span class="p">.</span><span class="n">create_usage_plan_key</span><span class="p">(</span>
+        <span class="n">client</span><span class="p">.</span><span class="nf">create_usage_plan_key</span><span class="p">(</span>
             <span class="n">usagePlanId</span><span class="o">=</span><span class="n">plan_id</span><span class="p">,</span>
-            <span class="n">keyId</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s">'id'</span><span class="p">],</span>
-            <span class="n">keyType</span><span class="o">=</span><span class="s">'API_KEY'</span><span class="p">)</span>    
+            <span class="n">keyId</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">],</span>
+            <span class="n">keyType</span><span class="o">=</span><span class="sh">'</span><span class="s">API_KEY</span><span class="sh">'</span><span class="p">)</span>    
     <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-        <span class="n">err_string</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r"\d"</span><span class="p">,</span> <span class="s">"x"</span><span class="p">,</span> <span class="s">f'</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="n">err_string</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nf">sub</span><span class="p">(</span><span class="sa">r</span><span class="sh">"</span><span class="s">\d</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">x</span><span class="sh">"</span><span class="p">,</span> <span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="sh">'</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
-            <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">"error"</span><span class="p">:</span> <span class="n">err_string</span><span class="p">})</span>
+            <span class="sh">'</span><span class="s">statusCode</span><span class="sh">'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">body</span><span class="sh">'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="nf">dumps</span><span class="p">({</span><span class="sh">"</span><span class="s">error</span><span class="sh">"</span><span class="p">:</span> <span class="n">err_string</span><span class="p">})</span>
         <span class="p">}</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s">'statusCode'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
-        <span class="s">'body'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">({</span>
-            <span class="s">'username'</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
-            <span class="s">'key_id'</span><span class="p">:</span> <span class="n">response</span><span class="p">[</span><span class="s">'id'</span><span class="p">],</span>
-            <span class="s">'api_key'</span><span class="p">:</span> <span class="n">response</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span>
+        <span class="sh">'</span><span class="s">statusCode</span><span class="sh">'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="sh">'</span><span class="s">body</span><span class="sh">'</span><span class="p">:</span> <span class="n">json</span><span class="p">.</span><span class="nf">dumps</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">username</span><span class="sh">'</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+            <span class="sh">'</span><span class="s">key_id</span><span class="sh">'</span><span class="p">:</span> <span class="n">response</span><span class="p">[</span><span class="sh">'</span><span class="s">id</span><span class="sh">'</span><span class="p">],</span>
+            <span class="sh">'</span><span class="s">api_key</span><span class="sh">'</span><span class="p">:</span> <span class="n">response</span><span class="p">[</span><span class="sh">'</span><span class="s">value</span><span class="sh">'</span><span class="p">]</span>
         <span class="p">}),</span>
     <span class="p">}</span>
 </code></pre></div></div>

@@ -8,7 +8,7 @@
   <title>Setup Windows 10 in Azure</title>
   <meta name="description" content="">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/main.css?h=01d6bdf%0A">
+  <link rel="stylesheet" href="/assets/main.css?h=bb1379a%0A">
   <link rel="canonical" href="http://ahermosilla.com/cloud/2020/07/14/setup-windows-10-azure.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
@@ -41,7 +41,7 @@
         
           <a class="page-link" href="/about/">/about</a>
         
-          <a class="page-link" href="/categories/">/categories</a>
+          <a class="page-link" href="/projects/">/projects</a>
         
           <a class="page-link" href="/tags/">/tags</a>
         
@@ -171,32 +171,32 @@ Confirm Admin Password:
 <p>There is likely a baseline setup of tools &amp; apps you want to be installed on your VM. Having to manually install those tools every time you create a new box up would be time consuming. I wanted to script up installing the tools (Burp,ZAP,FireFox,etc) to get things moving faster. Luckily, for Windows, there is a third party package manager (think <code class="language-plaintext highlighter-rouge">brew</code> or <code class="language-plaintext highlighter-rouge">apt-get</code>) called <a href="https://chocolatey.org/">Chocolatey</a>. I created a small PowerShell script to install Chocolatey as well as some base packages I would need in every environment. You can copy the script and save in <code class="language-plaintext highlighter-rouge">bootstrap.ps1</code>.</p>
 
 <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install chocolatey and configure env </span><span class="w">
-</span><span class="nf">Set-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w"> </span><span class="nt">-Scope</span><span class="w"> </span><span class="nx">Process</span><span class="w"> </span><span class="nt">-Force</span><span class="p">;</span><span class="w">
-</span><span class="nf">iex</span><span class="w"> </span><span class="p">((</span><span class="nf">New-Object</span><span class="w"> </span><span class="nx">System.Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">DownloadString</span><span class="p">(</span><span class="s2">"https://chocolatey.org/install.ps1"</span><span class="p">));</span><span class="w">
-</span><span class="nf">SET</span><span class="w"> </span><span class="s1">'PATH=%PATH%;C:\ProgramData\chocolatey\bin'</span><span class="p">;</span><span class="w">
+</span><span class="n">Set-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w"> </span><span class="nt">-Scope</span><span class="w"> </span><span class="nx">Process</span><span class="w"> </span><span class="nt">-Force</span><span class="p">;</span><span class="w">
+</span><span class="n">iex</span><span class="w"> </span><span class="p">((</span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">DownloadString</span><span class="p">(</span><span class="s2">"https://chocolatey.org/install.ps1"</span><span class="p">));</span><span class="w">
+</span><span class="n">SET</span><span class="w"> </span><span class="s1">'PATH=%PATH%;C:\ProgramData\chocolatey\bin'</span><span class="p">;</span><span class="w">
 
 </span><span class="c"># Set system wide environment variable</span><span class="w">
-</span><span class="p">[</span><span class="no">System.</span><span class="kt">Environment</span><span class="p">]::</span><span class="nf">SetEnvironmentVariable</span><span class="p">(</span><span class="s1">'APP_DEBUG_FLAG'</span><span class="p">,</span><span class="w"> </span><span class="s1">'1'</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">System.</span><span class="kt">EnvironmentVariableTarget</span><span class="p">]::</span><span class="nf">Machine</span><span class="p">);</span><span class="w">
+</span><span class="p">[</span><span class="n">System.Environment</span><span class="p">]::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s1">'APP_DEBUG_FLAG'</span><span class="p">,</span><span class="w"> </span><span class="s1">'1'</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">System.EnvironmentVariableTarget</span><span class="p">]::</span><span class="n">Machine</span><span class="p">);</span><span class="w">
 </span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">path</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s1">';C:\ProgramData\chocolatey\bin\'</span><span class="p">;</span><span class="w">
 
 </span><span class="c"># Install apps with choco</span><span class="w">
-</span><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">burp-suite-free-edition</span><span class="w">
-</span><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">sysmon</span><span class="w">
-</span><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">procexp</span><span class="w">
-</span><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">firefox</span><span class="w">
-</span><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">ag</span><span class="w">
-</span><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">strings</span><span class="w">
-</span><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">vscode</span><span class="w">
+</span><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">burp-suite-free-edition</span><span class="w">
+</span><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">sysmon</span><span class="w">
+</span><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">procexp</span><span class="w">
+</span><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">firefox</span><span class="w">
+</span><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">ag</span><span class="w">
+</span><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">strings</span><span class="w">
+</span><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">vscode</span><span class="w">
 
 </span><span class="c"># Download specific files</span><span class="w">
-</span><span class="nf">New-Item</span><span class="w"> </span><span class="nt">-ItemType</span><span class="w"> </span><span class="nx">Directory</span><span class="w"> </span><span class="nt">-Force</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="s1">'C:\\installers'</span><span class="w">
-</span><span class="p">(</span><span class="nf">new-object</span><span class="w"> </span><span class="nx">System.Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">Downloadfile</span><span class="p">(</span><span class="s1">'https://getcomposer.org/Composer-Setup.exe'</span><span class="p">,</span><span class="w"> </span><span class="s1">'C:\\installers\Composer-Setup.exe'</span><span class="p">)</span><span class="w">
+</span><span class="n">New-Item</span><span class="w"> </span><span class="nt">-ItemType</span><span class="w"> </span><span class="nx">Directory</span><span class="w"> </span><span class="nt">-Force</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="s1">'C:\\installers'</span><span class="w">
+</span><span class="p">(</span><span class="n">new-object</span><span class="w"> </span><span class="nx">System.Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">Downloadfile</span><span class="p">(</span><span class="s1">'https://getcomposer.org/Composer-Setup.exe'</span><span class="p">,</span><span class="w"> </span><span class="s1">'C:\\installers\Composer-Setup.exe'</span><span class="p">)</span><span class="w">
 
 </span><span class="c"># Show hidden holders &amp; show extensions in explorer</span><span class="w">
 </span><span class="nv">$key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'</span><span class="w">
-</span><span class="nf">Set-ItemProperty</span><span class="w"> </span><span class="nv">$key</span><span class="w"> </span><span class="nx">Hidden</span><span class="w"> </span><span class="nx">1</span><span class="w">
-</span><span class="nf">Set-ItemProperty</span><span class="w"> </span><span class="nv">$key</span><span class="w"> </span><span class="nx">HideFileExt</span><span class="w"> </span><span class="nx">0</span><span class="w">
-</span><span class="nf">Stop-Process</span><span class="w"> </span><span class="nt">-processname</span><span class="w"> </span><span class="nx">explorer</span><span class="w">
+</span><span class="n">Set-ItemProperty</span><span class="w"> </span><span class="nv">$key</span><span class="w"> </span><span class="nx">Hidden</span><span class="w"> </span><span class="nx">1</span><span class="w">
+</span><span class="n">Set-ItemProperty</span><span class="w"> </span><span class="nv">$key</span><span class="w"> </span><span class="nx">HideFileExt</span><span class="w"> </span><span class="nx">0</span><span class="w">
+</span><span class="n">Stop-Process</span><span class="w"> </span><span class="nt">-processname</span><span class="w"> </span><span class="nx">explorer</span><span class="w">
 </span></code></pre></div></div>
 
 <p>Copying and pasting this file via RDP is not that big a deal, but I wanted to make the process as hands off as possible. I tried to embed the script in <code class="language-plaintext highlighter-rouge">customdata</code> during deployment, but never had luck with getting that working. I ending up settling on <code class="language-plaintext highlighter-rouge">az vm run-command invoke --command-id RunPowerShellScript</code> to execute the bootstrapping script.</p>

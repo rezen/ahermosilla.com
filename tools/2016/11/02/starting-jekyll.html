@@ -8,7 +8,7 @@
   <title>Getting going with Jekyll</title>
   <meta name="description" content="Requirements Installing jekyll SSL Errors Editing Customizing &amp;amp; Plugins No auto-urlize? Pinning Posts Post CSS Classes Heading Anchors Archives Image Cla...">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/main.css?h=01d6bdf%0A">
+  <link rel="stylesheet" href="/assets/main.css?h=bb1379a%0A">
   <link rel="canonical" href="http://ahermosilla.com/tools/2016/11/02/starting-jekyll.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
@@ -41,7 +41,7 @@
         
           <a class="page-link" href="/about/">/about</a>
         
-          <a class="page-link" href="/categories/">/categories</a>
+          <a class="page-link" href="/projects/">/projects</a>
         
           <a class="page-link" href="/tags/">/tags</a>
         
@@ -126,13 +126,13 @@ fan of <a href="https://chocolatey.org/">chocolatey</a>,  which is a package man
 
 <p>To first install chocolately, run <code class="language-plaintext highlighter-rouge">cmd.exe</code> as an Administrator and run the following command</p>
 
-<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">@</span><span class="nf">powershell</span><span class="w"> </span><span class="nt">-NoProfile</span><span class="w"> </span><span class="nt">-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w"> </span><span class="nt">-Command</span><span class="w"> </span><span class="s2">"iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">SET</span><span class="w"> </span><span class="s2">"PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"</span><span class="w">
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">@</span><span class="n">powershell</span><span class="w"> </span><span class="nt">-NoProfile</span><span class="w"> </span><span class="nt">-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w"> </span><span class="nt">-Command</span><span class="w"> </span><span class="s2">"iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">SET</span><span class="w"> </span><span class="s2">"PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"</span><span class="w">
 </span></code></pre></div></div>
 <p>&lt;https://chocolatey.org/install’  | urlize }}</p>
 
 <p>Once that is complete you can use chocolatey to install ruby!</p>
 
-<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">ruby</span><span class="w">
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">ruby</span><span class="w">
 </span></code></pre></div></div>
 
 <p>Alternatively if you are a running <code class="language-plaintext highlighter-rouge">bash</code> on Windows 10 via the <code class="language-plaintext highlighter-rouge">Windows Subsystems for Linux</code> you can 
@@ -164,14 +164,14 @@ gem <span class="nb">install
 I used the <a href="http://guides.rubygems.org/ssl-certificate-update/">guide on rubygems.org</a> to 
 help me figure out how to fix the issue.</p>
 
-<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">::</span><span class="w"> </span><span class="nf">http://stackoverflow.com/questions/636381/what-is-the-best-way-to-do-a-substring-in-a-batch-file</span><span class="w">
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">::</span><span class="w"> </span><span class="n">http://stackoverflow.com/questions/636381/what-is-the-best-way-to-do-a-substring-in-a-batch-file</span><span class="w">
 </span><span class="p">::</span><span class="w"> </span><span class="nx">http://stackoverflow.com/questions/6359820/how-to-set-commands-output-as-a-variable-in-a-batch-file</span><span class="w">
-</span><span class="kr">FOR</span><span class="w"> </span><span class="nf">/F</span><span class="w"> </span><span class="s2">"tokens=* USEBACKQ"</span><span class="w"> </span><span class="o">%%</span><span class="nx">F</span><span class="w"> </span><span class="nx">IN</span><span class="w"> </span><span class="p">(</span><span class="err">`</span><span class="nf">gem</span><span class="w"> </span><span class="nx">which</span><span class="w"> </span><span class="nx">rubygems</span><span class="se">`)</span><span class="w"> </span><span class="nx">DO</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span><span class="nf">SET</span><span class="w"> </span><span class="nx">GEM_BIN</span><span class="o">=%%</span><span class="nf">F</span><span class="w">
+</span><span class="kr">FOR</span><span class="w"> </span><span class="n">/F</span><span class="w"> </span><span class="s2">"tokens=* USEBACKQ"</span><span class="w"> </span><span class="o">%%</span><span class="nx">F</span><span class="w"> </span><span class="nx">IN</span><span class="w"> </span><span class="p">(</span><span class="err">`</span><span class="n">gem</span><span class="w"> </span><span class="nx">which</span><span class="w"> </span><span class="nx">rubygems</span><span class="se">`)</span><span class="w"> </span><span class="nx">DO</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span><span class="n">SET</span><span class="w"> </span><span class="nx">GEM_BIN</span><span class="o">=%%</span><span class="n">F</span><span class="w">
 </span><span class="p">)</span><span class="w">
-</span><span class="nf">PUSHD</span><span class="w"> </span><span class="s2">"%GEM_BIN:~0,-3%/ssl_certs"</span><span class="w">
-</span><span class="nf">powershell</span><span class="w"> </span><span class="nt">-Command</span><span class="w"> </span><span class="s2">"(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem', 'GlobalSignRootCA.pem')"</span><span class="w">
-</span><span class="nf">POPD</span><span class="w">
+</span><span class="n">PUSHD</span><span class="w"> </span><span class="s2">"%GEM_BIN:~0,-3%/ssl_certs"</span><span class="w">
+</span><span class="n">powershell</span><span class="w"> </span><span class="nt">-Command</span><span class="w"> </span><span class="s2">"(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem', 'GlobalSignRootCA.pem')"</span><span class="w">
+</span><span class="n">POPD</span><span class="w">
 </span></code></pre></div></div>
 
 <p>If you are still having certificate errors, I found this answer on <a href="http://stackoverflow.com/questions/5720484/how-to-solve-certificate-verify-failed-on-windows#answer-16134586">Stackoverflow helpful</a>.</p>
@@ -337,11 +337,11 @@ to use JavaScript to add a link!</p>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;script&gt;</span>
-<span class="nx">jQuery</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+<span class="nf">jQuery</span><span class="p">(</span><span class="nf">function </span><span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
   <span class="c1">// Add anchors to headings that have ids</span>
   <span class="c1">// https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263</span>
-  <span class="nx">$</span><span class="p">(</span><span class="dl">'</span><span class="s1">h2,h3,h4,h5,h6</span><span class="dl">'</span><span class="p">).</span><span class="nx">filter</span><span class="p">(</span><span class="dl">'</span><span class="s1">[id]</span><span class="dl">'</span><span class="p">).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="dl">'</span><span class="s1">&lt;a href="#</span><span class="dl">'</span><span class="o">+</span><span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="dl">'</span><span class="s1">id</span><span class="dl">'</span><span class="p">)</span><span class="o">+</span><span class="dl">'</span><span class="s1">"&gt;</span><span class="dl">'</span> <span class="o">+</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">text</span><span class="p">()</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">&lt;/a&gt;</span><span class="dl">'</span><span class="p">);</span>
+  <span class="nf">$</span><span class="p">(</span><span class="dl">'</span><span class="s1">h2,h3,h4,h5,h6</span><span class="dl">'</span><span class="p">).</span><span class="nf">filter</span><span class="p">(</span><span class="dl">'</span><span class="s1">[id]</span><span class="dl">'</span><span class="p">).</span><span class="nf">each</span><span class="p">(</span><span class="nf">function </span><span class="p">()</span> <span class="p">{</span>
+    <span class="nf">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="dl">'</span><span class="s1">&lt;a href="#</span><span class="dl">'</span><span class="o">+</span><span class="nf">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nf">attr</span><span class="p">(</span><span class="dl">'</span><span class="s1">id</span><span class="dl">'</span><span class="p">)</span><span class="o">+</span><span class="dl">'</span><span class="s1">"&gt;</span><span class="dl">'</span> <span class="o">+</span> <span class="nf">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nf">text</span><span class="p">()</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">&lt;/a&gt;</span><span class="dl">'</span><span class="p">);</span>
   <span class="p">});</span>
 <span class="p">});</span>
 <span class="nt">&lt;/script&gt;</span>
