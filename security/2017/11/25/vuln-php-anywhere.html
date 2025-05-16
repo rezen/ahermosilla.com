@@ -5,11 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>ideas</title>
-  <meta name="description" content="Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m ...">
+  <title>Vulnerability Report - WordPress plugin - php-everywhere</title>
+  <meta name="description" content="This is a post I back dated to when I privately reported a vulnerability to the author of the php-everywhere plugin. I discovered a low privileged user could...">
   <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
   <link rel="stylesheet" href="/assets/main.css?h=b1eeb49%0A">
-  <link rel="canonical" href="http://ahermosilla.com/tags/ideas/">
+  <link rel="canonical" href="http://ahermosilla.com/security/2017/11/25/vuln-php-anywhere.html">
   <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
   
   
@@ -31,7 +31,7 @@
     <header class="site-header" role="banner">
   <div class="wrapper">
     <span class="post-path">
-      <a href="/">tags/ideas/index.html</a>
+      <a href="/">2017-11-25-vuln-php-anywhere.md</a>
     </span>
     <nav class="site-nav">
       <a class="menu-trigger">Menu</a>
@@ -52,94 +52,69 @@
 
     <main class="page-content">
       <div class="wrapper" aria-label="Content">
-        <div class="home">
-  <h1>ideas</h1>
-  <ul class="post-list">
-    
-      <li>
-        <article id="post-thinking-about-com-sci" class="post post-preview category-learningtag-raw tag-ideas">
-	
-	  	<header class="post-header">
-			<h3 class="post-title" itemprop="name headline">
-				<a href="/learning/2017/07/29/thinking-about-com-sci.html">
-					Thinking about computer science?
-					<span class="post-subtitle">
-						To computer, or not to computer, that is the question!
-					</span>
-				</a>
-			</h3>
-	  	</header>
-		<p class="post-excerpt"><p>My initial career plans were to get degree in Mechanical Engineering. Plans didn’t go as planned, and I wasn’t quite mature enough to handle the level of rigor immediately outside of high school. My plans evolved into an art direction, since I always enjoyed art &amp; I decided to ignore the $$$ (or there lack of) problem with art careers. From art, I realized I needed to make some money so I honed in on Graphic …</p>
-</p>
-		<p style="display:none" class="post-excerpt">My initial career plans were to get degree in Mechanical Engineering. Plans didn’t go as planned, and I wasn’t quite mature enough to handle the level of rigor immediately outside of high school. My plans evolved into an art direction, since I always enjoyed art &amp; I decided to ignore the $$$ (or there lack of) problem with art careers. From art, I realized I needed to make some money so I honed in on...</p>
-		<section class="post-meta">
-			<time datetime="2017-07-29T00:00:00+00:00" itemprop="datePublished">
-				July 29, 2017
-			</time>
-		   
-		   
-			
-				
+        <article id="post-vuln-php-anywhere" class="post post-single category-securitytag-vulnerability" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Vulnerability Report - WordPress plugin - php-everywhere</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2017-11-25T00:00:00+00:00" itemprop="datePublished">
+        November 25, 2017
+      </time>
+
+
+
+      
+        
 
 
 <ul class="tag-links topic-links">
 	
 	
-    <li class="tag-link-item"><a href="/tags/raw/">raw</a></li>
-    
-	
-    <li class="tag-link-item"><a href="/tags/ideas/">ideas</a></li>
+    <li class="tag-link-item"><a href="/tags/vulnerability/">vulnerability</a></li>
     
 </ul>
-		   	
-		</section>
-	
-</article>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <p>This is a post I back dated to when I privately reported a vulnerability to the author of the php-everywhere plugin. I discovered a low privileged user could execute arbitrary PHP code and provided a POC where a low priv user could upgrade their permissions to admin. (The plugin is no longer available for downloadhttps://wordpress.org/plugins/php-everywhere/)</p>
+
+<hr />
+
+<p><br /></p>
+<blockquote>
+  <p>Hi Alexander, I discovered a vulnerability in the PHP EveryWhere Plugin.</p>
+</blockquote>
+
+<h2 id="steps">Steps</h2>
+<ul>
+  <li>1 - In PHP EveryWhere plugin options, set user role management option to Administrator only</li>
+  <li>2 - Login as a contributor, or use User Switching plugin to switch to a contributor user.</li>
+  <li>3 - Observe user id via JavaScript <code class="language-plaintext highlighter-rouge">console.log(userSettings.uid)</code> or from the field on the source code on /wp-admin/profile.php. The user is able to find their user_id.</li>
+  <li>4 - As contributor, add new post, with whatever title they want &amp; with content of <code class="language-plaintext highlighter-rouge">[php_everywhere]</code>.
+    <ul>
+      <li>They add a custom field with name of php_everywhere_code and use example value from below, with their user_id (using 4 for examples sake)
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">&lt;?php wp_update_user(array('ID' =&gt; 4,'role'=&gt;'administrator'));?&gt;";</code></li>
+        </ul>
       </li>
-    
-      <li>
-        <article id="post-naming-methods-variables" class="post post-preview category-craftmanshiptag-ideas tag-raw">
-	
-	  	<header class="post-header">
-			<h3 class="post-title" itemprop="name headline">
-				<a href="/craftmanship/2017/02/08/naming-methods-variables.html">
-					Naming Things!
-					<span class="post-subtitle">
-						Labeling classes, methods, functions, variables, servers ....
-					</span>
-				</a>
-			</h3>
-	  	</header>
-		<p class="post-excerpt"><p>** This is a work in progress, that mostly contains lots of good links ** It’s one of the <a href="http://martinfowler.com/bliki/TwoHardThings.html">hardest things</a> you do a programmer and also one of the most important aspects of writing code. Code is read <a href="http://www.goodreads.com/quotes/835238-indeed-the-ratio-of-time-spent-reading-versus-writing-is">10x more</a> than it’s written so when you are writing you need to be very thoughtful of the future readers, which are yourself &amp; others. You want your code to be very clear to readers, even if …</p>
-</p>
-		<p style="display:none" class="post-excerpt">** This is a work in progress, that mostly contains lots of good links ** It’s one of the hardest things you do a programmer and also one of the most important aspects of writing code. Code is read 10x more than it’s written so when you are writing you need to be very thoughtful of the future readers, which are yourself &amp; others. You want your code to be very clear to readers, even...</p>
-		<section class="post-meta">
-			<time datetime="2017-02-08T00:00:00+00:00" itemprop="datePublished">
-				February 08, 2017
-			</time>
-		   
-		   
-			
-				
-
-
-<ul class="tag-links topic-links">
-	
-	
-    <li class="tag-link-item"><a href="/tags/ideas/">ideas</a></li>
-    
-	
-    <li class="tag-link-item"><a href="/tags/raw/">raw</a></li>
-    
+    </ul>
+  </li>
+  <li>5 - Save draft, preview post</li>
+  <li>6 - Go to dashboard and observe, wallah, privileges upgraded to admin.</li>
 </ul>
-		   	
-		</section>
-	
+
+<p>An administrator would expect, which that setting that contributors/editors would not be able to execute php, but that is not the case. With example below a contributor is able to make themselves an admin and do whatever they please.</p>
+
+<p>What should happen, is in the function <code class="language-plaintext highlighter-rouge">php_everywhere_data</code> you should check if the option was set to Administrator only, and if the current user was not an administrator, then you should not save. Additionally you need filter out the key php_everywhere_code in the meta set in the <code class="language-plaintext highlighter-rouge">$_POST</code>.</p>
+
+<p>I’d also like to mention, it is probably safer to make the default setting that only admins by default can execute PHP, not editors &amp; contributors.</p>
+
+  </section>
+
+  
 </article>
-      </li>
-    
-  </ul>
-</div>
       </div>
     </main>
     <footer id="site-footer">

